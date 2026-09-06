@@ -9,13 +9,13 @@ import {CONTENT} from '../data/content.mjs';
 import {SPRITE,STAT_ICON} from '../module/icons.mjs';
 import {icon as iconMarkup} from '../module/icons.mjs';
 import {injuryLedger,fieldKit,actionGroups,actionCategories,actionStats,actionRow,gearRow,
- consciousnessFormula,consciousnessTrack,statCards,FEAR} from '../module/dossier.mjs';
+ consciousnessFormula,consciousnessTrack,statCards,reachRuler,biteTrack,FEAR} from '../module/dossier.mjs';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const require=createRequire(path.join(process.env.FOUNDRY_APP??'C:/Program Files/Foundry Virtual Tabletop/resources/app','package.json'));
 const hb=require('handlebars');
 
-hb.registerHelper('icon',(name,options)=>new hb.SafeString(iconMarkup(String(name??'gear'),options?.hash?.class??'')));
+hb.registerHelper('twIcon',(name,options)=>new hb.SafeString(iconMarkup(String(name??'gear'),options?.hash?.class??'')));
 hb.registerHelper('checked',value=>value?'checked':'');
 hb.registerHelper('selectOptions',(choices,options)=>{
  const selected=String(options.hash.selected??'');
@@ -50,14 +50,15 @@ const SYSTEM={
  drive:'She froze on the roof in Trost while a neighbour was taken.',
  background:'Born in the outer district of Trost to a cooper and a laundress.',notes:'',
  consciousness:{loss:1,titanLoss:0,maxAdjustment:-1,titanMaxAdjustment:0},
- fatigue:1,nextDifficult:true,dead:false,fear:'shaken',
+ fatigue:1,nextDifficult:true,dead:false,fear:'shaken',bites:2,
  advanced:{agility:true,technique:false,mind:false,body:false,heart:false,duty:false},
- shift:{active:false,experienced:false,armourIntact:true,weak:false,absorption:0,yearsRemaining:13,notes:''},
+ shift:{active:false,experienced:false,armourIntact:true,weak:false,height:15,absorption:0,yearsRemaining:13,notes:''},
  luck:{value:3,max:5}
 };
 
 function buildContext(tab,{type='soldier',category='',stat=''}={}) {
- const d=derive(SYSTEM,ITEMS,type,{});
+ const SYS=type==='titan'?{...SYSTEM,height:7}:SYSTEM;
+ const d=derive(SYS,ITEMS,type,{});
  const statRows=statCards(SYSTEM,ITEMS,d,{});
  const isParty=type==='party',isTitan=type==='titan';
  const definitions=isTitan
@@ -68,9 +69,11 @@ function buildContext(tab,{type='soldier',category='',stat=''}={}) {
  if(d.restBlocked)warnings.push({icon:'bandage',tone:'warn',text:'Rest automatically fails while a major or untreated crippling wound stands.'});
  if(SYSTEM.nextDifficult)warnings.push({icon:'stamp',tone:'warn',text:'The next roll is marked difficult.'});
  if(!isTitan&&SYSTEM.fear==='shaken')warnings.push({icon:'wind',tone:'warn',text:'Shaken. Roll + Heart at every Titan sighting until you make a 10+.'});
+ const bc=biteTrack(SYSTEM,d);
+ if(bc.bites>0)warnings.push({icon:'drop',tone:bc.severity==='crippling'?'grave':bc.severity==='major'?'warn':'ok',text:bc.bites+' Titan bite'+(bc.bites===1?'':'s')+' recorded — '+bc.label.toLowerCase()+'. '+bc.hint});
  return {
   sprite:new hb.SafeString(SPRITE),
-  actor:{name:'Ilse Weyland',img:'',id:'abcdef0123456789'},system:SYSTEM,d,
+  actor:{name:'Ilse Weyland',img:'',id:'abcdef0123456789'},system:SYS,d,
   editable:true,isGM:true,isParty,isTitan,
   tabs:definitions.map(([key,label,icon],i)=>({key,label,icon,index:String(i+1).padStart(2,'0'),active:key===tab})),
   record:tab==='record',actions:tab==='actions',equipment:tab==='equipment',
@@ -96,6 +99,8 @@ function buildContext(tab,{type='soldier',category='',stat=''}={}) {
   maxPath:'system.consciousness.maxAdjustment',maxAdjustment:SYSTEM.consciousness.maxAdjustment,
   formula:consciousnessFormula(SYSTEM,d,false),warnings,
   track:consciousnessTrack(SYSTEM,d,false),
+  reach:reachRuler(SYS,d),
+  bites:biteTrack(SYSTEM,d),
   fear:{...FEAR[SYSTEM.fear],states:Object.values(FEAR).map(f=>({...f,on:f.key===SYSTEM.fear}))},
   critical:!d.mindless&&d.max>0&&d.value<=Math.ceil(d.max/3),
   statusTone:SYSTEM.dead?'grave':d.mindless?'ok':d.value<=0?'grave':d.combatDifficult?'warn':'ok'
@@ -173,6 +178,8 @@ for(const [name,tab,options] of views){
   const d=derive(system,items,'soldier',{});
   const ctx={...buildContext('record'),system,d,
    track:consciousnessTrack(system,d,false),
+   reach:reachRuler(system,d),
+   bites:biteTrack(system,d),
    formula:consciousnessFormula(system,d,false),
    critical:d.max>0&&d.value<=Math.ceil(d.max/3),
    statusTone:d.value<=0?'grave':d.combatDifficult?'warn':'ok'};

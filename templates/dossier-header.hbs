@@ -6,7 +6,7 @@
  </button>
  <div class="ident">
   <div class="ident-top">
-   <div class="kicker">{{icon 'wings'}}{{#if isParty}}Expedition command{{else}}{{#if isTitan}}Titan observation record{{else}}Survey Corps · personnel record{{/if}}{{/if}}<span class="serial">{{serial}}</span></div>
+   <div class="kicker">{{twIcon 'wings'}}{{#if isParty}}Expedition command{{else}}{{#if isTitan}}Titan observation record{{else}}Survey Corps · personnel record{{/if}}{{/if}}<span class="serial">{{serial}}</span></div>
    <input class="name" name="name" value="{{actor.name}}" aria-label="Name" spellcheck="false">
    <div class="meta">
     {{#if isParty}}
@@ -27,16 +27,16 @@
   </div>
   <div class="tags">
    {{#if isParty}}
-    <span class="tag hot">{{icon 'users'}}Shared resource</span><span class="tag">GM managed</span>
+    <span class="tag hot">{{twIcon 'users'}}Shared resource</span><span class="tag">GM managed</span>
    {{else}}
-    <span class="tag hot">{{#if d.titan}}{{icon 'shifting'}}Titan body{{else}}{{icon 'body'}}Human body{{/if}}</span>
+    <span class="tag hot">{{#if d.titan}}{{twIcon 'shifting'}}Titan body{{else}}{{twIcon 'body'}}Human body{{/if}}</span>
     <span class="tag st-{{statusTone}}">{{d.status}}</span>
-    {{#unless isTitan}}<span class="tag st-{{fear.tone}}" title="{{fear.line}}">{{icon fear.icon}}{{fear.label}}</span>{{/unless}}
+    {{#unless isTitan}}<span class="tag st-{{fear.tone}}" title="{{fear.line}}">{{twIcon fear.icon}}{{fear.label}}</span>{{/unless}}
     {{#if system.shift.active}}<span class="tag">Transformed · {{system.shift.yearsRemaining}} yrs left</span>{{/if}}
-    {{#if system.fatigue}}<span class="tag warn">{{icon 'wind'}}Fatigue −{{system.fatigue}}</span>{{/if}}
-    {{#if system.nextDifficult}}<span class="tag stamped">{{icon 'stamp'}}Next roll difficult</span>{{/if}}
+    {{#if system.fatigue}}<span class="tag warn">{{twIcon 'wind'}}Fatigue −{{system.fatigue}}</span>{{/if}}
+    {{#if system.nextDifficult}}<span class="tag stamped">{{twIcon 'stamp'}}Next roll difficult</span>{{/if}}
    {{/if}}
-   <button type="button" class="tag link" data-action="openRules">{{icon 'book'}}Guide{{icon 'external'}}</button>
+   <button type="button" class="tag link" data-action="openRules">{{twIcon 'book'}}Guide{{twIcon 'external'}}</button>
   </div>
  </div>
  <div class="hdr-right">
@@ -49,7 +49,7 @@
   {{else}}{{#if d.mindless}}
    <div class="cons">
     <div class="lbl">Titan status</div>
-    <div class="nape">{{icon 'target'}}Nape intact</div>
+    <div class="nape">{{twIcon 'target'}}Nape intact</div>
     <div class="formula">{{system.height}} m · killed by a nape strike</div>
    </div>
   {{else}}
@@ -59,8 +59,8 @@
      <div class="val{{#if track.deficit}} under{{/if}}" data-live="consciousness">{{d.value}}<small>/ {{d.max}}</small></div>
      {{#if editable}}
      <div class="num tight vert" role="group" aria-label="Adjust consciousness">
-      <button type="button" data-action="nudge" data-path="{{lossPath}}" data-delta="-1" aria-label="Restore one consciousness">{{icon 'plus'}}</button>
-      <button type="button" data-action="nudge" data-path="{{lossPath}}" data-delta="1" aria-label="Lose one consciousness">{{icon 'minus'}}</button>
+      <button type="button" data-action="nudge" data-path="{{lossPath}}" data-delta="-1" aria-label="Restore one consciousness">{{twIcon 'plus'}}</button>
+      <button type="button" data-action="nudge" data-path="{{lossPath}}" data-delta="1" aria-label="Lose one consciousness">{{twIcon 'minus'}}</button>
      </div>
      {{/if}}
     </div>

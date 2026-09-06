@@ -1,4 +1,4 @@
-// Inline SVG icon set. One sprite is emitted per sheet; {{icon "name"}} references it.
+// Inline SVG icon set. One sprite is emitted per sheet; {{twIcon "name"}} references it.
 // Geometry is drawn on a 24x24 grid, stroked with currentColor unless a path opts into fill.
 const F = 'fill="currentColor" stroke="none"';
 export const ICONS = {

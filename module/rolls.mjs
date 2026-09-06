@@ -1,4 +1,4 @@
-import {STATS,outcome,rollModifiers,clamp} from './rules.mjs';
+import {STATS,outcome,rollModifiers,clamp,meleeReach} from './rules.mjs';
 import {CONTENT} from '../data/content.mjs';
 import {ID,esc,field,select,check,prompt,requireOwner,requireGM,report} from './ui.mjs';
 const LABELS={success:'10+ · Success',partial:'7–9 · Partial result',failure:'6− · Failure',snakeEyes:'Snake eyes · Automatic failure',doubleSix:'Double six · Best result'};
@@ -14,6 +14,9 @@ const FACE={1:[[50,50]],2:[[27,27],[73,73]],3:[[27,27],[50,50],[73,73]],4:[[27,2
  5:[[27,27],[73,27],[50,50],[27,73],[73,73]],6:[[27,27],[73,27],[27,50],[73,50],[27,73],[73,73]]};
 const die=(n,dropped=false)=>`<div class="die${dropped?' dropped':''}" aria-label="d6 showing ${n}">${(FACE[n]??[]).map(([x,y])=>`<i style="left:${x}%;top:${y}%"></i>`).join('')}</div>`;
 const chatIcon=name=>`<svg class="i" aria-hidden="true"><use href="#tw-i-${name}"/></svg>`;
+const HAND_TO_HAND=new Set(['melee-initiative','melee-attack','evade-a-melee-attack','parry-with-blades','second-combo-attack','attack-a-restrained-opponent','disarm-an-opponent','pry-free-of-a-grasp','lift-a-titan-off-a-comrade','lift-a-burning-titan-safely','survive-being-crushed']);
+// A successful break from a grasp costs you wind: every later Agility check is −1 until you catch your breath.
+const DODGE_MOVES=new Set(['evade-a-titan-s-grasp']);
 export function moveByKey(key){return CONTENT.moves.find(m=>m.system.key===key);}
 export async function rollActor(actor,stat,{move=null}={}) {
  requireOwner(actor);
@@ -21,10 +24,13 @@ export async function rollActor(actor,stat,{move=null}={}) {
  const d=actor.tw;
  let warning='';
  if(!d.mindless&&d.value<=0)warning+='This character is unconscious; only roll if the GM allows it. ';
+ if(actor.type==='soldier'&&actor.system.fear==='frozen')warning+='Frozen in fear: you cannot act at all until a comrade rolls + Duty to snap you out of it, or you are carried to safety. ';
+ if(HAND_TO_HAND.has(move?.system.key)&&meleeReach(d,actor.system).bodyGate)warning+='In hand-to-hand against a Titan you automatically fail every roll: you are not a Titan and your Body is below +2. ';
  if(move?.system.key==='dodge-a-bullet'&&(d.stats.agility<3||d.majorLeg))warning+='The source requires Agility +3 and no major leg wound. GM approval is required. ';
  if(move?.system.key==='rest-for-the-night'&&d.restBlocked)warning+='Rest automatically fails with major wounds or untreated crippling wounds. Treat the injuries first. ';
  if(move?.system.key?.startsWith('transform-')&&actor.items.some(i=>i.type==='wound'&&i.system.severity==='crippling'&&!i.system.healed))warning+='The source conflicts on shifting with crippling injuries. Confirm the form with the GM. ';
- const data=await prompt(move?.name??`Roll ${STATS[stat]}`,`${warning?`<p class="warning">${esc(warning)}</p>`:''}${select('Stat','stat',STATS,stat)}<div class="grid2">${field('Advantage (0 to 3)','advantage',0,'number')}${field('Other modifier','modifier',0,'number')}</div><div class="checks">${check('Difficult roll — below 10 always fails','difficult',!!(move?.system.difficult||actor.system.nextDifficult))}${check('Combat roll — apply low-consciousness difficulty','combat',!!move?.system.combat)}</div>${select('Visibility','messageMode',{public:'Public',gm:'GM and me',blind:'GM only',self:'Only me'},game.settings.get('core','messageMode'))}<p class="note">Advantage is capped at +3. Agility includes dodge fatigue. The GM decides when a roll is possible.</p>`,'Roll 2d6');
+ const reach=meleeReach(d,actor.system);
+ const data=await prompt(move?.name??`Roll ${STATS[stat]}`,`${warning?`<p class="warning">${esc(warning)}</p>`:''}${select('Stat','stat',STATS,stat)}<div class="grid2">${field('Advantage (0 to 3)','advantage',0,'number')}${field('Other modifier','modifier',0,'number')}</div><div class="checks">${check('Difficult roll — below 10 always fails','difficult',!!(move?.system.difficult||actor.system.nextDifficult))}${check('Combat roll — apply low-consciousness difficulty','combat',!!move?.system.combat)}</div>${select('Visibility','messageMode',{public:'Public',gm:'GM and me',blind:'GM only',self:'Only me'},game.settings.get('core','messageMode'))}<p class="note">Advantage is capped at +3. Agility includes dodge fatigue. The GM decides when a roll is possible.${move?.system.combat?` Hand-to-hand reach: Titans ${reach.low.toFixed(1)}–${reach.high.toFixed(1)} m; anything ${reach.difficultAt.toFixed(1)} m or taller makes every roll against it difficult.`:''}</p>`,'Roll 2d6');
  if(!data)return;
  if(warning.includes('Rest automatically fails'))return ui.notifications.warn('Rest is blocked until the listed injuries are treated.');
  const modifiers=rollModifiers(d,actor.system,data.stat,{advantage:data.advantage,modifier:data.modifier,combat:!!data.combat,difficult:!!data.difficult});
@@ -41,6 +47,14 @@ export async function rollActor(actor,stat,{move=null}={}) {
   if(result==='success'||result==='doubleSix')after['system.fear']='steady';
   else if(result==='partial'){after['system.fear']='shaken';after['system.nextDifficult']=true;}
   else after['system.fear']='frozen';
+ }
+ if(DODGE_MOVES.has(move?.system.key)&&actor.type!=='titan') {
+  const dice=roll.dice[0].results.filter(r=>r.active).map(r=>r.result);
+  const result=outcome(dice,roll.total,modifiers.difficult);
+  if(['success','doubleSix','partial'].includes(result)) {
+   after['system.fatigue']=(Number(actor.system.fatigue)||0)+1;
+   ui.notifications.info(`Dodge fatigue is now ${after['system.fatigue']}: −1 to every Agility check until ${actor.name} catches breath.`);
+  }
  }
  if(Object.keys(after).length)await actor.update(after);
  return message;

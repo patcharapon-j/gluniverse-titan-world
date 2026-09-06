@@ -58,3 +58,17 @@ The exact latest release, 14.367, was researched but not installed here. The man
 - The final live reload reported no console warnings or errors.
 - Visual inspection covered the live overview and injury ledger. Motion only runs on tab changes or changed values and respects prefers-reduced-motion.
 - Fonts are bundled locally with their OFL / Apache licenses. No remote font request is needed.
+
+## Foundry namespace collision
+
+Foundry v14 reads a bare `{{ icon }}` as a **data lookup** in twelve of its own
+templates, among them `templates/sidebar/tabs.hbs` (the right-hand control strip) and
+`templates/generic/frame-buttons.hbs` (every window's header buttons). Registering a
+global Handlebars helper called `icon` hijacks that lookup: the helper's SVG lands
+inside a `class="…"` attribute, its quotes close the attribute early, and the rest of
+core's markup renders as visible text.
+
+Every helper this system registers is therefore namespaced — `twIcon`, `twSigned`,
+`twEq` — and `tests/dossier.test.mjs` asserts that no `registerHelper` call in
+`module/main.mjs` uses an unprefixed name. Anything added later must follow the same
+rule.

@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {conditionRegions,fieldKit,statSources,consciousnessTrack,woundEffects} from '../module/dossier.mjs';
-import {derive} from '../module/rules.mjs';
+import {readFile} from 'node:fs/promises';
+import {conditionRegions,fieldKit,statSources,consciousnessTrack,woundEffects,reachRuler,biteTrack} from '../module/dossier.mjs';
+import {derive,meleeReach,meleeAgainst,biteTally,TITAN_HEIGHTS} from '../module/rules.mjs';
 test('condition display uses current body and worst unhealed injury',()=>{
  const wound=(severity,formScope='human',healed=false)=>({type:'wound',system:{region:'leftArm',severity,formScope,healed}});
  const items=[wound('minor'),wound('major'),wound('crippling','human',true),wound('crippling','titan')];
@@ -55,4 +56,62 @@ test('an injury log entry says what the wound does to you',()=>{
  assert.ok(leg.some(line=>line.includes('−1 Agility')));
  assert.ok(leg.some(line=>line.includes('Bleeding')));
  assert.ok(woundEffects('minor','piercing','rightArm').some(line=>line.includes('−1 Technique')));
+});
+
+test('melee reach follows the Titan size band, difficulty and the Body gate',()=>{
+ const soldier={stats:{agility:1,technique:1,mind:0,body:1,heart:1,duty:1},height:1.7,consciousness:{},shift:{active:false}};
+ const weak=derive(soldier,[],'soldier',{});
+ // A 1.7 m soldier reaches two metres either way, and below Body +2 lands nothing.
+ assert.equal(meleeReach(weak,soldier).range,2);
+ assert.equal(meleeReach(weak,soldier).bodyGate,true);
+ assert.equal(meleeAgainst(weak,soldier,3).verdict,'fail');
+ assert.equal(meleeAgainst(weak,soldier,4).verdict,'out');
+ const strong={...soldier,stats:{...soldier.stats,body:2}};
+ const able=derive(strong,[],'soldier',{});
+ assert.equal(meleeAgainst(able,strong,3).verdict,'in');
+ assert.equal(meleeAgainst(able,strong,3).decapitate,true);
+ // Titan-sized widens the band to ten metres, and five metres of height makes it difficult.
+ const shifter={...soldier,shift:{active:true,height:10}};
+ const shifted=derive(shifter,[],'soldier',{});
+ const reach=meleeReach(shifted,shifter);
+ assert.equal(reach.range,10);
+ assert.equal(reach.titanSized,true);
+ assert.equal(reach.bodyGate,false);
+ assert.equal(meleeAgainst(shifted,shifter,14).verdict,'in');
+ assert.equal(meleeAgainst(shifted,shifter,15).verdict,'hard');
+ assert.equal(meleeAgainst(shifted,shifter,21).verdict,'out');
+ // A weak form comes out at half its height, which narrows the band with it.
+ const frail={...soldier,shift:{active:true,height:10,weak:true}};
+ assert.equal(meleeReach(derive(frail,[],'soldier',{}),frail).range,2);
+ // The ruler covers every height the book lists and agrees with the call.
+ const ruler=reachRuler(strong,able);
+ assert.equal(ruler.cells.length,TITAN_HEIGHTS.length);
+ assert.deepEqual(ruler.cells.filter(c=>c.in).map(c=>c.height),[3]);
+});
+test('Titan bites deepen one wound, and armour halves the damage',()=>{
+ const base={stats:{body:0,heart:0},consciousness:{},shift:{active:false}};
+ const plain=derive(base,[],'soldier',{});
+ assert.equal(biteTally({bites:0},plain).severity,'none');
+ assert.equal(biteTally({bites:2},plain).severity,'minor');
+ assert.equal(biteTally({bites:3},plain).severity,'major');
+ assert.equal(biteTally({bites:5},plain).severity,'crippling');
+ assert.equal(biteTally({bites:2},plain).next,1);
+ // The Armoured Titan takes six to reach major, and ten to be crippled.
+ const armoured=biteTally({bites:5},{powers:['armoured-titan']});
+ assert.equal(armoured.major,6);
+ assert.equal(armoured.crippling,10);
+ assert.equal(armoured.severity,'minor');
+ const track=biteTrack({bites:3},plain);
+ assert.equal(track.boxes.length,5);
+ assert.deepEqual(track.boxes.map(b=>b.taken),[true,true,true,false,false]);
+ assert.equal(track.boxes[2].mark,'major');
+ assert.equal(track.boxes[4].mark,'crippling');
+});
+test('every Handlebars helper this system registers is namespaced',async()=>{
+ // Foundry core reads a bare {{ icon }} as data in a dozen of its own templates,
+ // so an unprefixed helper of that name hijacks the sidebar and window controls.
+ const source=await readFile(new URL('../module/main.mjs',import.meta.url),'utf8');
+ const names=[...source.matchAll(/Handlebars\.registerHelper\('([^']+)'/g)].map(m=>m[1]);
+ assert.ok(names.length>0);
+ for(const name of names)assert.match(name,/^tw[A-Z]/,`${name} must be namespaced`);
 });

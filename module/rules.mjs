@@ -60,3 +60,40 @@ export function rollModifiers(derived,system,stat,{advantage=0,modifier=0,combat
 export function validateArray(stats,key) {
   return [...Object.values(stats)].sort().join(',') === [...(ARRAYS[key]??[])].sort().join(',');
 }
+// Titan Size / Hand-To-Hand Combat. Reach is a band around your own height: two
+// metres normally, ten once you are Titan-sized. A Titan five metres taller than
+// you makes every roll against it difficult, and outside a Titan body you need
+// Body +2 to connect at all.
+export const TITAN_HEIGHTS = [3,4,5,6,7,8,9,10,11,12,13,14,15];
+export function meleeReach(derived,system={}) {
+  const shifted = !!system.shift?.active;
+  const declared = Number((shifted ? system.shift?.height : system.height) ?? 0) || 0;
+  // A weak form comes out at about half its regular height.
+  const height = shifted && system.shift?.weak ? declared/2 : declared;
+  const titanSized = height>=10;
+  const range = titanSized ? 10 : 2;
+  return {height,range,titanSized,low:Math.max(0,height-range),high:height+range,
+    difficultAt:height+5, bodyGate:!derived.titan && (derived.stats?.body??0)<2};
+}
+export function meleeAgainst(derived,system,targetHeight) {
+  const reach = meleeReach(derived,system);
+  const target = Number(targetHeight)||0;
+  const inReach = Math.abs(target-reach.height) <= reach.range + 1e-9;
+  return {...reach,target,inReach,
+    difficult:inReach && target>=reach.difficultAt,
+    autoFail:inReach && reach.bodyGate,
+    decapitate:inReach,
+    verdict:!inReach ? 'out' : reach.bodyGate ? 'fail' : target>=reach.difficultAt ? 'hard' : 'in'};
+}
+// Titan Shifter Absorption: a bite opens as a minor cutting wound, three make it
+// major and five crippling. The Armoured Titan halves the damage, so it takes six
+// to break the armour into a major wound.
+export function biteTally(system={},derived={}) {
+  const armoured = (derived.powers??[]).includes('armoured-titan');
+  const bites = Math.max(0,Number(system.bites)||0);
+  const major = armoured ? 6 : 3, crippling = armoured ? 10 : 5;
+  const severity = bites>=crippling ? 'crippling' : bites>=major ? 'major' : bites>0 ? 'minor' : 'none';
+  return {bites,armoured,major,crippling,severity,
+    next: bites<major ? major-bites : bites<crippling ? crippling-bites : 0,
+    nextLabel: bites<major ? 'major' : bites<crippling ? 'crippling' : ''};
+}

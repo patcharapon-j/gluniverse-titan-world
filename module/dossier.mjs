@@ -1,4 +1,4 @@
-import {REGIONS,REGIONAL_STAT,STATS} from './rules.mjs';
+import {REGIONS,REGIONAL_STAT,STATS,TITAN_HEIGHTS,meleeReach,meleeAgainst,biteTally} from './rules.mjs';
 import {CATEGORY_ICON,REGION_ICON,INJURY_ICON,STAT_ICON,gearIcon} from './icons.mjs';
 const SEVERITY={minor:1,major:2,crippling:3};
 export const SEVERITY_LABEL={minor:'Minor',major:'Major',crippling:'Crippling'};
@@ -256,3 +256,57 @@ export const gearRow=item=>({...item,id:item.id,icon:gearIcon(item.name,item.sys
  quantity:Number(item.system.quantity||0),capacity:Number(item.system.capacity||0),
  empty:Number(item.system.quantity||0)===0,
  modifier:item.system.bonusStat&&item.system.bonus?`${item.system.bonus>0?'+':'−'}${Math.abs(item.system.bonus)} ${STATS[item.system.bonusStat]??item.system.bonusStat}`:''});
+
+// A ruler rather than a lookup: every Titan height the book lists, marked against
+// the band you can actually reach. One glance answers "can I take that one?".
+const METRES = n => Number.isInteger(n) ? `${n} m` : `${n.toFixed(1)} m`;
+export function reachRuler(system,derived) {
+ const reach = meleeReach(derived,system);
+ const shifted = !!system.shift?.active;
+ const cells = TITAN_HEIGHTS.map(height=>{
+  const call = meleeAgainst(derived,system,height);
+  return {height,label:String(height),verdict:call.verdict,
+   in:call.inReach,hard:call.verdict==='hard',fail:call.verdict==='fail',out:!call.inReach,
+   title:`${height} m Titan — ${{in:'within hand-to-hand reach',hard:'in reach, but every roll against it is difficult',fail:'in reach, but you automatically fail without Body +2',out:'out of hand-to-hand reach'}[call.verdict]}`};
+ });
+ const engageable = cells.filter(c=>c.in);
+ return {...reach,cells,shifted,
+  path:shifted?'system.shift.height':'system.height',
+  own:Number((shifted?system.shift?.height:system.height)??0)||0,
+  ownLabel:derived.mindless?'Titan height':shifted?(system.shift?.weak?'form · weak, half height':'Titan form height'):'your height',
+  heightLabel:METRES(reach.height),
+  bandLabel:engageable.length?`${METRES(reach.low)} – ${METRES(reach.high)}`:'nothing in reach',
+  difficultLabel:METRES(reach.difficultAt),
+  anyHard:cells.some(c=>c.hard),
+  lines:derived.mindless?[
+   {tone:'ok',icon:'body',text:`This Titan meets anything within ${METRES(reach.range)} of its own height — ${METRES(reach.low)} to ${METRES(reach.high)} — hand to hand.`},
+   {tone:'warn',icon:'hunting',text:`An opponent ${METRES(reach.difficultAt)} or taller stands five metres over it: every roll against that opponent is difficult.`},
+   {tone:'ok',icon:'blade',text:'Inside that band a crippling wound to the head takes the nape with it and kills this Titan.'},
+   {tone:'warn',icon:'wind',text:'Outside it, this Titan simply picks a soldier up, and anything short of a Titan-slaying weapon only ever leaves a minor wound on it.'}
+  ]:[
+   reach.bodyGate
+    ? {tone:'grave',icon:'skull',text:'You are not a Titan and your Body is below +2, so every hand-to-hand roll against a Titan automatically fails. Fight from the gear instead.'}
+    : {tone:'ok',icon:'body',text:`You can engage a Titan whose height is within ${METRES(reach.range)} of your own — ${METRES(reach.low)} to ${METRES(reach.high)}.`},
+   {tone:'warn',icon:'hunting',text:`A Titan ${METRES(reach.difficultAt)} or taller is at least five metres over you: every roll against it is difficult.`},
+   {tone:'ok',icon:'blade',text:'Within reach, a crippling wound to the head takes the nape with it and kills the Titan.'},
+   {tone:'warn',icon:'wind',text:'Out of reach it simply picks you up, and anything short of a Titan-slaying weapon only ever leaves a minor wound.'}
+  ]};
+}
+// Absorption counts bites, and the count is the wound.
+export function biteTrack(system,derived) {
+ const tally = biteTally(system,derived);
+ const boxes = Array.from({length:Math.max(tally.crippling,tally.bites)},(_,n)=>{
+  const at = n+1;
+  return {at,taken:at<=tally.bites,
+   mark:at===tally.major?'major':at===tally.crippling?'crippling':'',
+   title:at===tally.major?`Bite ${at} — the wound becomes major`:at===tally.crippling?`Bite ${at} — the wound becomes crippling`:`Bite ${at}`};
+ });
+ return {...tally,boxes,
+  label:{none:'No bites',minor:'Minor cutting wound',major:'Major cutting wound',crippling:'Crippling cutting wound'}[tally.severity],
+  hint:tally.next
+   ? `${tally.next} more bite${tally.next===1?'':'s'} makes it ${tally.nextLabel}.`
+   : 'Further bites are the GM’s call.',
+  note:tally.armoured
+   ? 'The Armoured Titan halves bite damage: six bites to reach major, and the armour breaks with it.'
+   : 'Three bites make it major, five make it crippling. Rest resets nothing here — the GM does.'};
+}

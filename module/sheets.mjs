@@ -4,7 +4,7 @@ import {ID,guard,confirm,requireOwner,requireGM} from './ui.mjs';
 import {rollActor,moveByKey,getParty} from './rolls.mjs';
 import {createCharacter,equipLoadout,advance,addWound,treatWound,toggleShift,createParty,resetMission} from './actions.mjs';
 import {injuryLedger,fieldKit,actionGroups,actionCategories,actionStats,actionRow,gearRow,
- consciousnessFormula,consciousnessTrack,statCards,FEAR,
+ consciousnessFormula,consciousnessTrack,statCards,reachRuler,biteTrack,FEAR,
  STAT_DESCRIPTIONS,SEVERITY_LABEL,INJURY_LABEL} from './dossier.mjs';
 import {SPRITE} from './icons.mjs';
 const {HandlebarsApplicationMixin}=foundry.applications.api;
@@ -72,6 +72,8 @@ export class TitanActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   if(system.nextDifficult)warnings.push({icon:'stamp',tone:'warn',text:'The next roll is marked difficult.'});
   if(!isTitan&&system.fear==='frozen')warnings.push({icon:'skull',tone:'grave',text:'Frozen in fear. You cannot act until a comrade rolls + Duty to snap you out of it.'});
   if(!isTitan&&system.fear==='shaken')warnings.push({icon:'wind',tone:'warn',text:'Shaken. Roll + Heart at every Titan sighting until you make a 10+.'});
+  const biteCall=biteTrack(system,d);
+  if(biteCall.bites>0)warnings.push({icon:'drop',tone:biteCall.severity==='crippling'?'grave':biteCall.severity==='major'?'warn':'ok',text:biteCall.bites+' Titan bite'+(biteCall.bites===1?'':'s')+' recorded — '+biteCall.label.toLowerCase()+'. '+biteCall.hint});
   if(shifted&&system.shift.absorption>0)warnings.push({icon:'clock',tone:'warn',text:`Absorption penalty −${system.shift.absorption} on resistance rolls.`});
   return {...context,actor,system,d,editable:this.isEditable,isGM:game.user.isGM,isParty,isTitan,
    sprite:SPRITE,
@@ -99,6 +101,8 @@ export class TitanActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
    maxPath:shifted?'system.consciousness.titanMaxAdjustment':'system.consciousness.maxAdjustment',maxAdjustment:shifted?system.consciousness.titanMaxAdjustment:system.consciousness.maxAdjustment,
    formula:consciousnessFormula(system,d,shifted),warnings,
    track:consciousnessTrack(system,d,shifted),
+   reach:reachRuler(system,d),
+   bites:biteTrack(system,d),
    fear:{...FEAR[system.fear??'steady'],states:Object.values(FEAR).map(f=>({...f,on:f.key===(system.fear??'steady')}))},
    critical:!d.mindless&&d.max>0&&d.value<=Math.ceil(d.max/3),
    statusTone:system.dead?'grave':d.mindless?'ok':d.value<=0?'grave':d.combatDifficult?'warn':'ok',

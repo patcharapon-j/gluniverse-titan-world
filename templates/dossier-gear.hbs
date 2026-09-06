@@ -2,7 +2,7 @@
  <div class="gcol">
   <div class="sec">
    <span class="num">§1</span>Carried equipment<span class="k">{{gear.length}} entries</span>
-   {{#if editable}}<button type="button" class="mini" data-action="openCompendium" data-pack="equipment">{{icon 'book'}}Compendium</button>{{/if}}
+   {{#if editable}}<button type="button" class="mini" data-action="openCompendium" data-pack="equipment">{{twIcon 'book'}}Compendium</button>{{/if}}
   </div>
   <div class="inv">
    {{#each gear}}
@@ -11,16 +11,16 @@
      <input type="checkbox" data-action="toggleEquipped" data-item-id="{{id}}" {{checked system.equipped}} aria-label="Carried">
     </label>
     <button type="button" class="iname" data-action="editItem" data-item-id="{{id}}">
-     {{icon icon}}<span>{{name}}</span>
+     {{twIcon icon}}<span>{{name}}</span>
      {{#if modifier}}<i class="tg pen">{{modifier}}</i>{{/if}}
      {{#if system.uses}}<i class="tg">{{system.uses}} uses</i>{{/if}}
     </button>
     <span class="iq"><b data-live="gear-{{id}}">{{quantity}}</b>{{#if capacity}}<small>/{{capacity}}</small>{{/if}}</span>
     <span class="num tight">
-     <button type="button" data-action="quantity" data-item-id="{{id}}" data-delta="-1" aria-label="Use one {{name}}" {{#if empty}}disabled{{/if}}>{{icon 'minus'}}</button>
-     <button type="button" data-action="quantity" data-item-id="{{id}}" data-delta="1" aria-label="Add one {{name}}">{{icon 'plus'}}</button>
+     <button type="button" data-action="quantity" data-item-id="{{id}}" data-delta="-1" aria-label="Use one {{name}}" {{#if empty}}disabled{{/if}}>{{twIcon 'minus'}}</button>
+     <button type="button" data-action="quantity" data-item-id="{{id}}" data-delta="1" aria-label="Add one {{name}}">{{twIcon 'plus'}}</button>
     </span>
-    <button type="button" class="mini icon danger" data-action="deleteItem" data-item-id="{{id}}" aria-label="Remove {{name}}">{{icon 'trash'}}</button>
+    <button type="button" class="mini icon danger" data-action="deleteItem" data-item-id="{{id}}" aria-label="Remove {{name}}">{{twIcon 'trash'}}</button>
    </div>
    {{else}}
    <p class="empty">Nothing carried. Equip a loadout, or drag equipment in from the compendium.</p>
@@ -32,14 +32,14 @@
  <aside class="gside">
   <section class="box">
    <div class="sec"><span class="num">§2</span>Requisition</div>
-   {{#if editable}}<button type="button" class="mini wide primary" data-action="equipLoadout">{{icon 'pack'}}Equip a loadout</button>{{/if}}
+   {{#if editable}}<button type="button" class="mini wide primary" data-action="equipLoadout">{{twIcon 'pack'}}Equip a loadout</button>{{/if}}
    <div class="loadouts">
     {{#each loadouts}}
     <div class="lrow">
-     <span>{{icon 'pack'}}{{name}}</span>
+     <span>{{twIcon 'pack'}}{{name}}</span>
      <span class="lact">
       <button type="button" class="mini" data-action="useLoadout" data-item-id="{{id}}">Unpack</button>
-      <button type="button" class="mini icon danger" data-action="deleteItem" data-item-id="{{id}}" aria-label="Remove {{name}}">{{icon 'trash'}}</button>
+      <button type="button" class="mini icon danger" data-action="deleteItem" data-item-id="{{id}}" aria-label="Remove {{name}}">{{twIcon 'trash'}}</button>
      </span>
     </div>
     {{else}}<p class="empty">No stored loadout sheets.</p>{{/each}}
@@ -50,7 +50,7 @@
    <div class="ledger">
     {{#each stats}}{{#if anyReason}}
     <div class="lgrow s-{{tone}}">
-     <div class="lghead">{{icon icon}}<span>{{label}}</span><em>{{value}} → <b>{{display}}</b></em></div>
+     <div class="lghead">{{twIcon icon}}<span>{{label}}</span><em>{{value}} → <b>{{display}}</b></em></div>
      {{#each reasons}}
      <div class="lgline{{#if atRoll}} atroll{{/if}}"><i class="{{tone}}">{{display}}</i><span>{{label}}{{#if atRoll}} <small>applied at the roll</small>{{/if}}</span></div>
      {{/each}}

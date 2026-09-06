@@ -2,7 +2,7 @@
  <div class="ov-main">
   <div class="sec">
    <span class="num">§1</span>Statistics<span class="k">click a card to roll 2d6</span>
-   {{#unless isTitan}}{{#if editable}}<button type="button" class="mini" data-action="advance">{{icon 'arrowUp'}}Advance</button>{{/if}}{{/unless}}
+   {{#unless isTitan}}{{#if editable}}<button type="button" class="mini" data-action="advance">{{twIcon 'arrowUp'}}Advance</button>{{/if}}{{/unless}}
   </div>
   <div class="stats">
    {{#each stats}}
@@ -14,8 +14,8 @@
     </div>
     <div class="stat-body">
      <div class="stat-top">
-      {{icon icon}}<span class="name">{{label}}</span>
-      {{#if advanced}}<span class="adv" title="Advanced this campaign">{{icon 'arrowUp'}}</span>{{/if}}
+      {{twIcon icon}}<span class="name">{{label}}</span>
+      {{#if advanced}}<span class="adv" title="Advanced this campaign">{{twIcon 'arrowUp'}}</span>{{/if}}
      </div>
      <p class="desc">{{description}}</p>
      {{#if anyReason}}
@@ -25,7 +25,7 @@
      </div>
      {{/if}}
     </div>
-    <span class="rollmark">{{icon 'dice'}}Roll</span>
+    <span class="rollmark">{{twIcon 'dice'}}Roll</span>
    </div>
    {{/each}}
   </div>
@@ -34,7 +34,7 @@
   <div class="cond">
    {{#each ledger}}
    <button type="button" class="loc {{severity}}" data-action="twTab" data-tab="injuries" aria-label="{{label}}: {{headline}}{{#if applied}}, {{applied}}{{/if}}">
-    <span class="nm">{{icon icon}}<span>{{short}}</span><i></i></span>
+    <span class="nm">{{twIcon icon}}<span>{{short}}</span><i></i></span>
     <span class="sv">{{headline}}</span>
     <span class="locfoot">
      <span class="pips">{{#each pips}}<i class="pip{{#if filled}} on{{/if}}"></i>{{/each}}</span>
@@ -47,16 +47,16 @@
   {{#unless isTitan}}
   <div class="sec">
    <span class="num">§3</span>Engagement<span class="k">the rolls you reach for first</span>
-   <button type="button" class="mini" data-action="twTab" data-tab="actions">All {{actionCount}}{{icon 'chevron'}}</button>
+   <button type="button" class="mini" data-action="twTab" data-tab="actions">All {{actionCount}}{{twIcon 'chevron'}}</button>
   </div>
   <div class="engage">
    {{#each quickActions}}{{#if primary}}
    <button type="button" class="act primary" data-action="rollMove" data-key="{{key}}">
-    {{icon icon}}<span class="an">{{alias}}<small>{{name}} · {{statLabel}} {{modDisplay}}</small></span>{{icon 'dice'}}
+    {{twIcon icon}}<span class="an">{{alias}}<small>{{name}} · {{statLabel}} {{modDisplay}}</small></span>{{twIcon 'dice'}}
    </button>
    {{/if}}{{/each}}
    <div class="fearbar f-{{fear.tone}}">
-    <span class="fl">{{icon fear.icon}}Fear</span>
+    <span class="fl">{{twIcon fear.icon}}Fear</span>
     <span class="fseg" role="group" aria-label="Fear state">
      {{#each fear.states}}
      <button type="button" class="{{#if on}}on{{/if}}" data-action="setFear" data-state="{{key}}" title="{{line}}" aria-pressed="{{#if on}}true{{else}}false{{/if}}">{{label}}</button>
@@ -67,7 +67,7 @@
    <div class="acts wide">
     {{#each quickActions}}{{#unless primary}}
     <button type="button" class="act s-{{tone}}{{#if difficult}} hard{{/if}}" data-action="rollMove" data-key="{{key}}">
-     {{icon icon}}<span class="an">{{name}}<small>{{statShort}} {{modDisplay}}{{#if difficult}} · difficult{{/if}}</small></span>
+     {{twIcon icon}}<span class="an">{{name}}<small>{{statShort}} {{modDisplay}}{{#if difficult}} · difficult{{/if}}</small></span>
     </button>
     {{/unless}}{{/each}}
    </div>
@@ -77,7 +77,7 @@
   {{#if warnings}}
   <div class="sec"><span class="num">{{#if isTitan}}§3{{else}}§4{{/if}}</span>Standing rulings<span class="k">{{warnings.length}} in force</span></div>
   <div class="alerts">
-   {{#each warnings}}<div class="alert {{tone}}">{{icon icon}}<span>{{text}}</span></div>{{/each}}
+   {{#each warnings}}<div class="alert {{tone}}">{{twIcon icon}}<span>{{text}}</span></div>{{/each}}
   </div>
   {{/if}}
  </div>
@@ -87,28 +87,21 @@
   <section class="box">
    <div class="sec"><span class="num">§4</span>Titan profile</div>
    <div class="ready">
-    <div class="rrow"><span class="rl">{{icon 'hunting'}}Height</span>
-     <span class="num tight">
-      <button type="button" data-action="nudge" data-path="system.height" data-delta="-1" data-min="0" aria-label="Shorter">{{icon 'minus'}}</button>
-      <b data-live="height">{{system.height}}</b>
-      <button type="button" data-action="nudge" data-path="system.height" data-delta="1" data-min="0" aria-label="Taller">{{icon 'plus'}}</button>
-     </span>
-    </div>
-    <div class="rrow"><span class="rl">{{icon 'target'}}Killed by</span><b>Nape strike</b></div>
-    <div class="rrow"><span class="rl">{{icon 'body'}}Body</span><b>Fixed at +3</b></div>
+    <div class="rrow"><span class="rl">{{twIcon 'target'}}Killed by</span><b>Nape strike</b></div>
+    <div class="rrow"><span class="rl">{{twIcon 'body'}}Body</span><b>Fixed at +3</b></div>
    </div>
    <p class="note">Mindless Titans have no consciousness track and no shared luck. Body is fixed at +3 and the nape is the only kill.</p>
   </section>
 
 {{else}}
   <section class="box">
-   <div class="sec"><span class="num">§5</span>Field kit<button type="button" class="mini" data-action="twTab" data-tab="equipment">All{{icon 'chevron'}}</button></div>
+   <div class="sec"><span class="num">§5</span>Field kit<button type="button" class="mini" data-action="twTab" data-tab="equipment">All{{twIcon 'chevron'}}</button></div>
    <div class="kit">
     {{#if kit}}<div class="khead"><span>Item</span><span>Supply</span><span>Held</span></div>{{/if}}
     {{#each kit}}
     <div class="krow k-{{kind}}{{#if low}} low{{/if}}{{#if empty}} out{{/if}}">
      <button type="button" class="kl" data-action="editItem" data-item-id="{{id}}" title="{{name}}">
-      <span class="kchip">{{icon icon}}</span><span class="kn">{{name}}</span>
+      <span class="kchip">{{twIcon icon}}</span><span class="kn">{{name}}</span>
      </button>
      <span class="gauge{{#if empty}} spent{{/if}}" role="img" aria-label="{{quantity}} of {{#if capacity}}{{capacity}}{{else}}{{quantity}}{{/if}}">
       {{#if empty}}<i class="kstamp">Spent</i>
@@ -118,13 +111,13 @@
      </span>
      <span class="kq"><b data-live="kit-{{id}}">{{quantity}}</b>{{#unless pips}}{{#if capacity}}<small>/{{capacity}}</small>{{/if}}{{/unless}}</span>
      <span class="num tight">
-      <button type="button" data-action="quantity" data-item-id="{{id}}" data-delta="-1" aria-label="Spend one {{name}}" {{#if empty}}disabled{{/if}}>{{icon 'minus'}}</button>
-      <button type="button" data-action="quantity" data-item-id="{{id}}" data-delta="1" aria-label="Restore one {{name}}">{{icon 'plus'}}</button>
+      <button type="button" data-action="quantity" data-item-id="{{id}}" data-delta="-1" aria-label="Spend one {{name}}" {{#if empty}}disabled{{/if}}>{{twIcon 'minus'}}</button>
+      <button type="button" data-action="quantity" data-item-id="{{id}}" data-delta="1" aria-label="Restore one {{name}}">{{twIcon 'plus'}}</button>
      </span>
     </div>
     {{else}}
     <p class="empty">No carried equipment.<br>Prepare a loadout before departure.</p>
-    <button type="button" class="mini wide" data-action="equipLoadout">{{icon 'pack'}}Equip a loadout</button>
+    <button type="button" class="mini wide" data-action="equipLoadout">{{twIcon 'pack'}}Equip a loadout</button>
     {{/each}}
    </div>
   </section>
@@ -137,33 +130,52 @@
      <span class="pips luck">{{#each luckPips}}<i class="pip round{{#if filled}} on{{/if}}"></i>{{/each}}</span>
     </div>
     <p class="note">One pool, every soldier. Request a spend from your own roll card in chat.</p>
-    <button type="button" class="mini wide" data-action="openParty">{{icon 'users'}}Open the pool</button>
+    <button type="button" class="mini wide" data-action="openParty">{{twIcon 'users'}}Open the pool</button>
    </div>
-   {{else}}{{#if isGM}}<button type="button" class="mini wide" data-action="createParty">{{icon 'plusSquare'}}Create a shared pool</button>
+   {{else}}{{#if isGM}}<button type="button" class="mini wide" data-action="createParty">{{twIcon 'plusSquare'}}Create a shared pool</button>
    {{else}}<p class="empty">Awaiting the GM's pool.</p>{{/if}}{{/if}}
   </section>
 
 {{/if}}
   <section class="box">
-   <div class="sec"><span class="num">{{#if isTitan}}§5{{else}}§7{{/if}}</span>Readiness</div>
+   <div class="sec"><span class="num">{{#if isTitan}}§5{{else}}§7{{/if}}</span>Melee reach<span class="k">hand-to-hand</span></div>
+   <div class="reach{{#if reach.bodyGate}} gated{{/if}}">
+    <div class="rhead">
+     <label class="rh-own" title="Your own height in metres">
+      <input type="number" name="{{reach.path}}" min="0" step="0.1" value="{{reach.own}}" aria-label="Your height in metres">
+      <span>{{reach.ownLabel}}</span>
+     </label>
+     <span class="rh-band"><b>{{reach.bandLabel}}</b><small>Titans you can engage</small></span>
+    </div>
+    <div class="ruler" role="img" aria-label="Titan heights within hand-to-hand reach: {{reach.bandLabel}}">
+     {{#each reach.cells}}<i class="rc {{verdict}}" title="{{title}}"><b>{{label}}</b></i>{{/each}}
+    </div>
+    <div class="rkey"><span><i class="rc in"></i>reach</span><span><i class="rc hard"></i>difficult</span><span><i class="rc fail"></i>auto-fail</span><span><i class="rc out"></i>out</span></div>
+    <ul class="rlines">
+     {{#each reach.lines}}<li class="rl-{{tone}}">{{twIcon icon}}<span>{{text}}</span></li>{{/each}}
+    </ul>
+   </div>
+  </section>
+  <section class="box">
+   <div class="sec"><span class="num">{{#if isTitan}}§6{{else}}§8{{/if}}</span>Readiness</div>
    <div class="ready">
     {{#unless isTitan}}
     <div class="rrow">
-     <span class="rl">{{icon 'wind'}}Dodge fatigue<small>−1 Agility per dodge</small></span>
+     <span class="rl">{{twIcon 'wind'}}Dodge fatigue<small>−1 Agility per dodge</small></span>
      <span class="num tight">
-      <button type="button" data-action="nudge" data-path="system.fatigue" data-delta="-1" data-min="0" aria-label="Less fatigue">{{icon 'minus'}}</button>
+      <button type="button" data-action="nudge" data-path="system.fatigue" data-delta="-1" data-min="0" aria-label="Less fatigue">{{twIcon 'minus'}}</button>
       <b data-live="fatigue">{{system.fatigue}}</b>
-      <button type="button" data-action="nudge" data-path="system.fatigue" data-delta="1" data-min="0" aria-label="More fatigue">{{icon 'plus'}}</button>
+      <button type="button" data-action="nudge" data-path="system.fatigue" data-delta="1" data-min="0" aria-label="More fatigue">{{twIcon 'plus'}}</button>
      </span>
     </div>
-    <button type="button" class="mini wide" data-action="catchBreath">{{icon 'refresh'}}Catch breath</button>
+    <button type="button" class="mini wide" data-action="catchBreath">{{twIcon 'refresh'}}Catch breath</button>
     {{/unless}}
     <label class="check"><input type="checkbox" name="system.nextDifficult" {{checked system.nextDifficult}}><span>Next roll is difficult</span></label>
     <label class="check"><input type="checkbox" name="system.dead" {{checked system.dead}}><span>{{#if isTitan}}Killed{{else}}Deceased{{/if}}, by GM ruling</span></label>
    </div>
    {{#unless isTitan}}
    <details class="tuck">
-    <summary>{{icon 'caret'}}Consciousness adjustments</summary>
+    <summary>{{twIcon 'caret'}}Consciousness adjustments</summary>
     <div class="grid2">
      <label class="field"><span>Other loss</span><input type="number" name="{{lossPath}}" value="{{loss}}"></label>
      <label class="field"><span>Max adjustment</span><input type="number" name="{{maxPath}}" value="{{maxAdjustment}}"></label>
@@ -174,7 +186,7 @@
   </section>
 
   {{#unless isTitan}}{{#if editable}}
-  <button type="button" class="recruit" data-action="createCharacter">{{icon 'feather'}}Create character</button>
+  <button type="button" class="recruit" data-action="createCharacter">{{twIcon 'feather'}}Create character</button>
   {{/if}}{{/unless}}
  </aside>
 </div>

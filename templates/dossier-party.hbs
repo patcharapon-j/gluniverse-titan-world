@@ -7,16 +7,16 @@
    {{#if editable}}
    <div class="pool-ctl">
     <span class="num">
-     <button type="button" data-action="nudge" data-path="system.luck.value" data-delta="-1" data-min="0" aria-label="Spend one">{{icon 'minus'}}</button>
+     <button type="button" data-action="nudge" data-path="system.luck.value" data-delta="-1" data-min="0" aria-label="Spend one">{{twIcon 'minus'}}</button>
      <span>spend</span>
-     <button type="button" data-action="nudge" data-path="system.luck.value" data-delta="1" data-min="0" aria-label="Restore one">{{icon 'plus'}}</button>
+     <button type="button" data-action="nudge" data-path="system.luck.value" data-delta="1" data-min="0" aria-label="Restore one">{{twIcon 'plus'}}</button>
     </span>
     <label class="field inline-field"><span>Mission maximum</span><input type="number" min="0" name="system.luck.max" value="{{system.luck.max}}"></label>
    </div>
    {{/if}}
   </div>
   <p class="note">Set one or two points per player. A player requests luck from their own roll card in chat; the GM approves each spend, and the primary GM processes them one at a time so two spends can never take the same point.</p>
-  {{#if isGM}}<button type="button" class="mini primary" data-action="resetMission">{{icon 'refresh'}}Refresh for the next mission</button>{{/if}}
+  {{#if isGM}}<button type="button" class="mini primary" data-action="resetMission">{{twIcon 'refresh'}}Refresh for the next mission</button>{{/if}}
  </section>
 
  <section class="roster">

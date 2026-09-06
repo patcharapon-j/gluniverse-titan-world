@@ -1,13 +1,13 @@
 <div class="bg">
  <div class="full">
   <div class="sec"><span class="num">§1</span>Service record<span class="k">Personnel division</span>
-   <button type="button" class="mini" data-action="openCompendium" data-pack="advancement">{{icon 'arrowUp'}}Advancement</button>
+   <button type="button" class="mini" data-action="openCompendium" data-pack="advancement">{{twIcon 'arrowUp'}}Advancement</button>
   </div>
   <div class="reqlines">
-   <label class="reqline"><span class="lab">{{icon 'flag'}}Regiment</span><input name="system.regiment" value="{{system.regiment}}"></label>
-   <label class="reqline"><span class="lab">{{icon 'duty'}}Rank</span><input name="system.rank" value="{{system.rank}}"></label>
-   <label class="reqline"><span class="lab">{{icon 'map'}}Origin</span><input name="system.origin" value="{{system.origin}}"></label>
-   <label class="reqline"><span class="lab">{{icon 'body'}}Height (m)</span><input type="number" step="0.1" min="0" name="system.height" value="{{system.height}}"></label>
+   <label class="reqline"><span class="lab">{{twIcon 'flag'}}Regiment</span><input name="system.regiment" value="{{system.regiment}}"></label>
+   <label class="reqline"><span class="lab">{{twIcon 'duty'}}Rank</span><input name="system.rank" value="{{system.rank}}"></label>
+   <label class="reqline"><span class="lab">{{twIcon 'map'}}Origin</span><input name="system.origin" value="{{system.origin}}"></label>
+   <label class="reqline"><span class="lab">{{twIcon 'body'}}Height (m)</span><input type="number" step="0.1" min="0" name="system.height" value="{{system.height}}"></label>
   </div>
  </div>
  <div>
@@ -31,12 +31,12 @@
   <ul class="rewards">
    {{#each stats}}
    <li class="{{#if advanced}}on{{/if}}">
-    <i class="pip{{#if advanced}} on{{/if}}"></i>{{icon icon}}
+    <i class="pip{{#if advanced}} on{{/if}}"></i>{{twIcon icon}}
     <span>{{label}}<small>{{#if advanced}}Advanced · base {{value}}{{else}}{{#if capped}}At the +3 ceiling{{else}}Available once, to a maximum of +3{{/if}}{{/if}}</small></span>
     <b>{{display}}</b>
    </li>
    {{/each}}
   </ul>
-  {{#if editable}}<button type="button" class="mini primary" data-action="advance">{{icon 'arrowUp'}}Record an advancement</button>{{/if}}
+  {{#if editable}}<button type="button" class="mini primary" data-action="advance">{{twIcon 'arrowUp'}}Record an advancement</button>{{/if}}
  </div>
 </div>

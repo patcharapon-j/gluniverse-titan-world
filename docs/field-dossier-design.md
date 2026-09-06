@@ -82,6 +82,19 @@ no archival label below 9 px, because typewriter digits stop being legible.
   supply gauge whose slots take the shape of the thing being counted (gas cylinders,
   blade slivers, flare shells, bandage rolls) with spent slots hatched through, the
   count, and a stepper. A depleted line is stamped SPENT across its gauge.
+- **Melee reach** — Titan size answered as a ruler rather than a table. Every height
+  the book lists, 3 m to 15 m, is drawn as a cell and painted against the band you can
+  actually reach: green inside it, hatched amber where the Titan stands five metres or
+  more over you and every roll turns difficult, hatched red where you are in reach but
+  automatically fail for want of a Titan body or Body +2, grey outside it. Your own
+  height is editable in the panel — `system.height` for a human or a mindless Titan,
+  `system.shift.height` for a form, halved automatically for a weak one. Beneath the
+  ruler, four lines state the band, the difficulty threshold, the decapitation kill and
+  what happens out of reach, rewritten from the Titan's own side on a Titan sheet.
+- **Titan bites** — a bite is one wound that deepens by count, so it is drawn as one
+  track: fang-shaped boxes filled as bites land, with the major and crippling thresholds
+  marked on the boxes that cross them and named underneath. The Armoured Titan halves
+  the damage, which moves both thresholds rather than changing the reading.
 - **Marked difficult** — a striped red banner between the tabs and the panel body, so it
   stays on screen whichever tab is open, carrying what the penalty does and a Clear
   button. The header tag becomes a solid stamp, quick actions take dashed red edges, and
@@ -106,6 +119,11 @@ brass for 520 ms. Nothing loops, and `prefers-reduced-motion` disables all of it
 
 `system.capacity` on gear records what a full load looks like, which is what drives the
 field-kit pips (`2/6 blades`). Equipping a loadout sets it from the granted quantity.
+
+`system.height` is the actor's own height in metres and drives the melee reach ruler;
+`system.shift.height` is the Titan form's height for a shifter, and a weak form reads
+as half of it. `system.bites` counts Titan bites taken, which the sheet resolves into a
+single deepening cutting wound.
 
 `system.fear` holds the standing fear state — `steady`, `shaken` or `frozen`. A Face
 fear roll writes it: 10+ steadies, 7-9 shakes and also marks the next roll difficult,

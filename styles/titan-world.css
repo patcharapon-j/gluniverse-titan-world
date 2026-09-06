@@ -1136,3 +1136,61 @@
  .tw-item .sheet-body{padding:12px 16px}
  .tw-item .grid2,.tw-item .outcomes{grid-template-columns:1fr}
 }
+
+/* ── Melee reach ─────────────────────────────────────────────────────────── */
+/* Titan size answered as a ruler rather than a table: the band you can actually
+   reach is painted across every height the book lists. */
+.tw .reach{display:flex;flex-direction:column;gap:7px}
+.tw .rhead{display:flex;align-items:flex-end;gap:9px}
+.tw .rh-own{display:flex;flex-direction:column;gap:1px;flex:0 0 74px}
+.tw .rh-own input{width:100%;text-align:center;font:700 15px var(--fd)}
+.tw .rh-own span{font:8.5px var(--fl);letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);text-align:center}
+.tw .rh-band{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}
+.tw .rh-band b{font:700 15px var(--fd);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tw .rh-band small{font:8.5px var(--fl);letter-spacing:.16em;text-transform:uppercase;color:var(--ink3)}
+.tw .ruler{display:flex;gap:2px;align-items:flex-end;padding-bottom:3px;border-bottom:1px solid var(--rule)}
+.tw .rc{
+ flex:1 1 0;min-width:0;height:30px;display:grid;place-items:center;
+ border:1px solid var(--ink2);background:rgba(255,255,255,.35);
+ font:9px var(--fl);letter-spacing:.02em;color:var(--ink3);transition:background .16s;
+}
+.tw .rc b{font-weight:400;font-size:9.5px}
+/* Hatched cells would swallow the number, so it gets its own scrap of paper. */
+.tw .rc.hard b,.tw .rc.fail b{background:rgba(244,236,216,.82);padding:0 3px;line-height:1.25}
+.tw .rc.in{background:linear-gradient(170deg,color-mix(in srgb,var(--green) 42%,white),color-mix(in srgb,var(--green) 72%,white));border-color:var(--green);color:#1d3323}
+.tw .rc.hard{background:repeating-linear-gradient(-45deg,color-mix(in srgb,var(--minor) 55%,white) 0 4px,color-mix(in srgb,var(--minor) 30%,white) 4px 8px);border-color:var(--minor);color:#4a3608}
+.tw .rc.fail{background:repeating-linear-gradient(-45deg,color-mix(in srgb,var(--red) 45%,white) 0 4px,color-mix(in srgb,var(--red) 22%,white) 4px 8px);border-color:var(--red);color:var(--red-lo)}
+.tw .rc.out{background:rgba(36,31,27,.05);border-color:rgba(79,70,61,.35);color:rgba(122,111,98,.75)}
+.tw .rkey{display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;font:8px var(--fl);letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+.tw .rkey span{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.tw .rkey .rc{flex:0 0 10px;width:10px;height:10px;min-width:0}
+.tw .rlines{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.tw .rlines li{display:flex;gap:6px;align-items:flex-start;font:10.5px/1.4 var(--fb);color:var(--ink2)}
+.tw .rlines .i{width:13px;height:13px;flex:0 0 13px;margin-top:1px;color:var(--ink3)}
+.tw .rlines .rl-ok .i{color:var(--green)}
+.tw .rlines .rl-warn .i{color:var(--minor)}
+.tw .rlines .rl-grave{color:var(--red-lo)}
+.tw .rlines .rl-grave .i{color:var(--red)}
+.tw .reach.gated .rh-band b{color:var(--red)}
+
+/* ── Titan bites ─────────────────────────────────────────────────────────── */
+/* One wound that deepens by count: the thresholds are drawn onto the track. */
+.tw .bites{display:flex;flex-direction:column;gap:6px;--bt:var(--ink2)}
+.tw .bites.b-minor{--bt:var(--minor)}
+.tw .bites.b-major{--bt:var(--major)}
+.tw .bites.b-crippling{--bt:var(--crippling)}
+.tw .btop{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tw .btop .bl{display:flex;align-items:baseline;gap:7px;min-width:0}
+.tw .btop .bl b{font:700 22px var(--fd);line-height:1;color:var(--bt)}
+.tw .btop .bl small{font:9px var(--fl);letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tw .btrack{display:flex;gap:3px;align-items:flex-end;flex-wrap:wrap}
+.tw .bb{
+ width:13px;height:15px;flex:0 0 13px;border:1px solid var(--ink2);
+ background:repeating-linear-gradient(45deg,transparent 0 2px,rgba(36,31,27,.14) 2px 3px);
+ clip-path:polygon(0 0,100% 0,100% 70%,50% 100%,0 70%);
+}
+.tw .bb.on{background:linear-gradient(165deg,color-mix(in srgb,var(--bt) 62%,white),var(--bt));border-color:var(--bt)}
+.tw .bb.at-major{box-shadow:0 3px 0 -1px var(--major)}
+.tw .bb.at-crippling{box-shadow:0 3px 0 -1px var(--crippling)}
+.tw .bmarks{display:flex;justify-content:space-between;gap:8px;font:8px var(--fl);letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+.tw .bhint{margin:0;font:10.5px/1.4 var(--fb);color:var(--bt)}

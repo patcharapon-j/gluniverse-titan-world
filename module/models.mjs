@@ -9,10 +9,10 @@ export function registerModels() {
       stats:new f.SchemaField(Object.fromEntries(Object.keys(STATS).map(k=>[k,number(0,{integer:true,min:-3,max:3})]))),
       regiment:string('Survey Corps'),rank:string('Recruit'),origin:string(),anchor:string(),drive:string(),background:string(),
       consciousness:new f.SchemaField({loss:number(),titanLoss:number(),maxAdjustment:number(),titanMaxAdjustment:number()}),fatigue:number(0,{min:0,integer:true}),
-      nextDifficult:bool(),dead:bool(),height:number(1.7,{min:0}),notes:string(),
+      nextDifficult:bool(),dead:bool(),height:number(1.7,{min:0}),bites:number(0,{min:0,integer:true}),notes:string(),
       fear:string('steady',{choices:['steady','shaken','frozen']}),
       advanced:new f.SchemaField(Object.fromEntries(Object.keys(STATS).map(k=>[k,bool()]))),
-      shift:new f.SchemaField({active:bool(),experienced:bool(),armourIntact:bool(true),weak:bool(),absorption:number(0,{min:0,integer:true}),yearsRemaining:number(13,{min:0}),notes:string()}),
+      shift:new f.SchemaField({active:bool(),experienced:bool(),armourIntact:bool(true),weak:bool(),height:number(15,{min:0}),absorption:number(0,{min:0,integer:true}),yearsRemaining:number(13,{min:0}),notes:string()}),
       luck:new f.SchemaField({value:number(0,{min:0,integer:true}),max:number(0,{min:0,integer:true})})
     }; }
   }

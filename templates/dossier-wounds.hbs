@@ -34,8 +34,8 @@
   </div>
   {{#if editable}}
   <div class="wbtns">
-   <button type="button" class="mini wide primary" data-action="addWound">{{icon 'drop'}}Record injury</button>
-   <button type="button" class="mini wide" data-action="openCompendium" data-pack="injuries">{{icon 'book'}}Injury templates</button>
+   <button type="button" class="mini wide primary" data-action="addWound">{{twIcon 'drop'}}Record injury</button>
+   <button type="button" class="mini wide" data-action="openCompendium" data-pack="injuries">{{twIcon 'book'}}Injury templates</button>
   </div>
   {{/if}}
  </div>
@@ -46,7 +46,7 @@
    {{#each ledger}}
    <div class="wrow {{severity}}{{#if clear}} clear{{/if}}">
     <div class="lc">
-     <span class="lch">{{icon icon}}<b>{{short}}</b>
+     <span class="lch">{{twIcon icon}}<b>{{short}}</b>
       <span class="pips">{{#each pips}}<i class="pip{{#if filled}} on{{/if}}"></i>{{/each}}</span>
      </span>
      <small class="{{#if applied}}pen{{/if}}">{{hint}}</small>
@@ -56,7 +56,7 @@
       {{#each wounds}}
       <div class="wentry {{severity}}{{#if healed}} healed{{/if}}">
        <div class="wtop">
-        {{icon typeIcon}}<b>{{severityLabel}} · {{typeLabel}}</b>
+        {{twIcon typeIcon}}<b>{{severityLabel}} · {{typeLabel}}</b>
         {{#if label}}<span class="wname">{{label}}</span>{{/if}}
         <span class="wtags">
          {{#if penalty}}<i class="tg pen">{{penalty}}</i>{{/if}}
@@ -74,10 +74,10 @@
        </ul>
        {{#if ../../editable}}
        <div class="wact">
-        {{#unless healed}}<button type="button" class="mini" data-action="treatWound" data-item-id="{{id}}">{{icon 'bandage'}}Treat</button>{{/unless}}
-        <button type="button" class="mini" data-action="toggleHealed" data-item-id="{{id}}">{{icon 'check'}}{{#if healed}}Reopen{{else}}Heal{{/if}}</button>
-        <button type="button" class="mini icon" data-action="editItem" data-item-id="{{id}}" aria-label="Edit {{name}}">{{icon 'edit'}}</button>
-        <button type="button" class="mini icon danger" data-action="deleteItem" data-item-id="{{id}}" aria-label="Remove {{name}}">{{icon 'trash'}}</button>
+        {{#unless healed}}<button type="button" class="mini" data-action="treatWound" data-item-id="{{id}}">{{twIcon 'bandage'}}Treat</button>{{/unless}}
+        <button type="button" class="mini" data-action="toggleHealed" data-item-id="{{id}}">{{twIcon 'check'}}{{#if healed}}Reopen{{else}}Heal{{/if}}</button>
+        <button type="button" class="mini icon" data-action="editItem" data-item-id="{{id}}" aria-label="Edit {{name}}">{{twIcon 'edit'}}</button>
+        <button type="button" class="mini icon danger" data-action="deleteItem" data-item-id="{{id}}" aria-label="Remove {{name}}">{{twIcon 'trash'}}</button>
        </div>
        {{/if}}
       </div>

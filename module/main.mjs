@@ -9,8 +9,8 @@ import {icon,SPRITE} from './icons.mjs';
 registerDiceSoNice();
 function registerHelpers() {
  const safe=value=>new Handlebars.SafeString(value);
- Handlebars.registerHelper('icon',(name,options)=>safe(icon(String(name??'gear'),options?.hash?.class??'')));
- Handlebars.registerHelper('signed',value=>{const n=Number(value)||0;return n>0?`+${n}`:n<0?`−${Math.abs(n)}`:'0';});
+ Handlebars.registerHelper('twIcon',(name,options)=>safe(icon(String(name??'gear'),options?.hash?.class??'')));
+ Handlebars.registerHelper('twSigned',value=>{const n=Number(value)||0;return n>0?`+${n}`:n<0?`−${Math.abs(n)}`:'0';});
  Handlebars.registerHelper('twEq',(a,b)=>a===b);
 }
 class TitanActor extends foundry.documents.Actor {

@@ -8,7 +8,7 @@
   </button>
   <div class="ident">
    <div class="ident-top">
-    <div class="kicker">{{icon 'wings'}}{{kind}}</div>
+    <div class="kicker">{{twIcon 'wings'}}{{kind}}</div>
     <input class="name" name="name" value="{{item.name}}" aria-label="Item name" spellcheck="false">
     <div class="meta">
      {{#if isMove}}<span>Roll <b>{{statLabel}}</b></span><span>Group <b>{{system.category}}</b></span>{{/if}}
@@ -23,7 +23,7 @@
   </div>
   {{#if isMove}}
   <div class="hdr-right">
-   <button type="button" class="rollbig" data-action="roll">{{icon 'dice'}}<span>Roll<small>{{statLabel}}</small></span></button>
+   <button type="button" class="rollbig" data-action="roll">{{twIcon 'dice'}}<span>Roll<small>{{statLabel}}</small></span></button>
   </div>
   {{/if}}
  </header>
@@ -38,14 +38,14 @@
    {{/if}}
    {{#if isGear}}
     <label class="field"><span>Quantity</span><span class="num field-num">
-     <button type="button" data-action="nudge" data-path="system.quantity" data-delta="-1" data-min="0" aria-label="One fewer">{{icon 'minus'}}</button>
+     <button type="button" data-action="nudge" data-path="system.quantity" data-delta="-1" data-min="0" aria-label="One fewer">{{twIcon 'minus'}}</button>
      <input type="number" min="0" name="system.quantity" value="{{system.quantity}}">
-     <button type="button" data-action="nudge" data-path="system.quantity" data-delta="1" data-min="0" aria-label="One more">{{icon 'plus'}}</button>
+     <button type="button" data-action="nudge" data-path="system.quantity" data-delta="1" data-min="0" aria-label="One more">{{twIcon 'plus'}}</button>
     </span></label>
     <label class="field"><span>Capacity <small>drives kit pips</small></span><span class="num field-num">
-     <button type="button" data-action="nudge" data-path="system.capacity" data-delta="-1" data-min="0" aria-label="Less capacity">{{icon 'minus'}}</button>
+     <button type="button" data-action="nudge" data-path="system.capacity" data-delta="-1" data-min="0" aria-label="Less capacity">{{twIcon 'minus'}}</button>
      <input type="number" min="0" name="system.capacity" value="{{system.capacity}}">
-     <button type="button" data-action="nudge" data-path="system.capacity" data-delta="1" data-min="0" aria-label="More capacity">{{icon 'plus'}}</button>
+     <button type="button" data-action="nudge" data-path="system.capacity" data-delta="1" data-min="0" aria-label="More capacity">{{twIcon 'plus'}}</button>
     </span></label>
     <label class="field"><span>Uses remaining</span><input type="number" min="0" name="system.uses" value="{{system.uses}}"></label>
     <label class="field"><span>Statistic modified while carried</span><select name="system.bonusStat">{{selectOptions bonusStats selected=system.bonusStat}}</select></label>
@@ -60,9 +60,9 @@
     <label class="field"><span>Injury type</span><select name="system.injuryType">{{selectOptions injuryTypes selected=system.injuryType}}</select></label>
     <label class="field"><span>Body / form</span><select name="system.formScope">{{selectOptions formScopes selected=system.formScope}}</select></label>
     <label class="field"><span>Consciousness lost</span><span class="num field-num">
-     <button type="button" data-action="nudge" data-path="system.consciousnessLoss" data-delta="-1" data-min="0" aria-label="Less loss">{{icon 'minus'}}</button>
+     <button type="button" data-action="nudge" data-path="system.consciousnessLoss" data-delta="-1" data-min="0" aria-label="Less loss">{{twIcon 'minus'}}</button>
      <input type="number" min="0" name="system.consciousnessLoss" value="{{system.consciousnessLoss}}">
-     <button type="button" data-action="nudge" data-path="system.consciousnessLoss" data-delta="1" data-min="0" aria-label="More loss">{{icon 'plus'}}</button>
+     <button type="button" data-action="nudge" data-path="system.consciousnessLoss" data-delta="1" data-min="0" aria-label="More loss">{{twIcon 'plus'}}</button>
     </span></label>
    {{/if}}
   </div>
@@ -94,7 +94,7 @@
   <section class="rules">{{{description}}}</section>
   {{#if editable}}
   <details class="tuck">
-   <summary>{{icon 'caret'}}Edit description HTML</summary>
+   <summary>{{twIcon 'caret'}}Edit description HTML</summary>
    <textarea name="system.description" class="code">{{system.description}}</textarea>
   </details>
   {{/if}}

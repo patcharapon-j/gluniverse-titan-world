@@ -1,40 +1,40 @@
 <div class="sec">
  <span class="num">§1</span>Field actions<span class="k">{{actionCount}} catalogued · click a row to roll</span>
- <button type="button" class="mini" data-action="openCompendium" data-pack="moves">{{icon 'book'}}Compendium</button>
+ <button type="button" class="mini" data-action="openCompendium" data-pack="moves">{{twIcon 'book'}}Compendium</button>
 </div>
 
 <div class="featured">
  {{#each quickActions}}{{#if primary}}
  <button type="button" class="act primary" data-action="rollMove" data-key="{{key}}">
-  {{icon icon}}<span class="an">{{alias}}<small>{{name}} · {{statLabel}} {{modDisplay}}</small></span>{{icon 'dice'}}
+  {{twIcon icon}}<span class="an">{{alias}}<small>{{name}} · {{statLabel}} {{modDisplay}}</small></span>{{twIcon 'dice'}}
  </button>
  {{/if}}{{/each}}
  <div class="acts wide">
   {{#each quickActions}}{{#unless primary}}
   <button type="button" class="act s-{{tone}}{{#if difficult}} hard{{/if}}" data-action="rollMove" data-key="{{key}}">
-   {{icon icon}}<span class="an">{{name}}<small>{{statShort}} {{modDisplay}}</small></span>
+   {{twIcon icon}}<span class="an">{{name}}<small>{{statShort}} {{modDisplay}}</small></span>
   </button>
   {{/unless}}{{/each}}
  </div>
 </div>
 
 <div class="act-bar">
- <label class="search">{{icon 'search'}}<input type="search" data-move-search placeholder="Search actions or source section…" aria-label="Search field actions" spellcheck="false"></label>
+ <label class="search">{{twIcon 'search'}}<input type="search" data-move-search placeholder="Search actions or source section…" aria-label="Search field actions" spellcheck="false"></label>
  <div class="chips">
   {{#each actionCategories}}
-  <button type="button" class="chip{{#if active}} on{{/if}}" data-action="filterCategory" data-category="{{key}}">{{icon icon}}<span>{{label}}</span><b>{{count}}</b></button>
+  <button type="button" class="chip{{#if active}} on{{/if}}" data-action="filterCategory" data-category="{{key}}">{{twIcon icon}}<span>{{label}}</span><b>{{count}}</b></button>
   {{/each}}
  </div>
  <div class="chips stat-chips" role="group" aria-label="Filter by statistic">
   {{#each actionStats}}
-  <button type="button" class="chip s-{{tone}}{{#if active}} on{{/if}}" data-action="filterStat" data-stat="{{key}}" title="{{label}} {{mod}} · {{count}} actions">{{icon icon}}<span>{{short}}</span><em>{{mod}}</em><b>{{count}}</b></button>
+  <button type="button" class="chip s-{{tone}}{{#if active}} on{{/if}}" data-action="filterStat" data-stat="{{key}}" title="{{label}} {{mod}} · {{count}} actions">{{twIcon icon}}<span>{{short}}</span><em>{{mod}}</em><b>{{count}}</b></button>
   {{/each}}
  </div>
 </div>
 
 {{#if ownedMoves}}
 <section class="agroup" data-move-group>
- <div class="sec"><span class="num">{{icon 'feather'}}</span>Owned and custom<span class="k">{{ownedMoves.length}}</span></div>
+ <div class="sec"><span class="num">{{twIcon 'feather'}}</span>Owned and custom<span class="k">{{ownedMoves.length}}</span></div>
  <div class="alist">
   {{#each ownedMoves}}
   <div class="arow owned s-{{tone}}{{#if difficult}} hard{{/if}}" data-move-name="{{name}} {{source}}" data-item-id="{{id}}" draggable="true">
@@ -43,8 +43,8 @@
    <span class="an">{{name}}{{#if line}}<small>{{line}}</small>{{/if}}</span>
    <span class="aflags">{{#if difficult}}<i class="flag hard" title="Difficult: below 10 fails">D</i>{{/if}}{{#if combat}}<i class="flag combat{{#if combatHot}} hot{{/if}}" title="Combat roll">C</i>{{/if}}</span>
    <span class="aedit">
-    <button type="button" data-action="editItem" data-item-id="{{id}}" aria-label="Edit {{name}}">{{icon 'edit'}}</button>
-    <button type="button" data-action="deleteItem" data-item-id="{{id}}" aria-label="Remove {{name}}">{{icon 'trash'}}</button>
+    <button type="button" data-action="editItem" data-item-id="{{id}}" aria-label="Edit {{name}}">{{twIcon 'edit'}}</button>
+    <button type="button" data-action="deleteItem" data-item-id="{{id}}" aria-label="Remove {{name}}">{{twIcon 'trash'}}</button>
    </span>
   </div>
   {{/each}}
@@ -54,10 +54,10 @@
 
 {{#each actionGroups}}
 <section class="agroup" data-move-group>
- <div class="sec"><span class="num">{{icon icon}}</span>{{name}}<span class="k">{{count}} actions</span></div>
+ <div class="sec"><span class="num">{{twIcon icon}}</span>{{name}}<span class="k">{{count}} actions</span></div>
  {{#each clusters}}
  <div class="cluster s-{{tone}}" data-move-cluster>
-  <div class="chead">{{icon icon}}<span>{{label}}</span><em>{{mod}}</em><i></i></div>
+  <div class="chead">{{twIcon icon}}<span>{{label}}</span><em>{{mod}}</em><i></i></div>
   <div class="alist">
    {{#each moves}}
    <div class="arow s-{{tone}}{{#if difficult}} hard{{/if}}" data-move-name="{{name}} {{source}}">
@@ -65,7 +65,7 @@
     <span class="atile"><b>{{statShort}}</b><em>{{modDisplay}}</em></span>
     <span class="an">{{name}}{{#if line}}<small>{{line}}</small>{{/if}}</span>
     <span class="aflags">{{#if difficult}}<i class="flag hard" title="Difficult: below 10 fails">D</i>{{/if}}{{#if combat}}<i class="flag combat{{#if combatHot}} hot{{/if}}" title="Combat roll: difficult at low consciousness">C</i>{{/if}}</span>
-    <span class="aroll">{{icon 'dice'}}</span>
+    <span class="aroll">{{twIcon 'dice'}}</span>
    </div>
    {{/each}}
   </div>

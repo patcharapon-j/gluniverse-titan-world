@@ -26,22 +26,22 @@
  </svg>
  <div class="seal-t">Sealed</div>
  <p>This section covers transformation protocols, absorption, inherited memory and the thirteen-year term. It opens once an inherited power is on file.</p>
- <div class="req">{{icon 'lock'}}Requires an inherited Titan power</div>
- {{#if editable}}<button type="button" class="mini primary" data-action="openCompendium" data-pack="powers">{{icon 'book'}}Open the Nine Powers</button>{{/if}}
+ <div class="req">{{twIcon 'lock'}}Requires an inherited Titan power</div>
+ {{#if editable}}<button type="button" class="mini primary" data-action="openCompendium" data-pack="powers">{{twIcon 'book'}}Open the Nine Powers</button>{{/if}}
 </div>
 {{else}}
 <div class="shift">
  <div class="shift-main">
   <div class="sec">
    <span class="num">§1</span>Inherited powers<span class="k">{{ownedPowers.length}} on file</span>
-   <button type="button" class="mini" data-action="openCompendium" data-pack="powers">{{icon 'book'}}Nine powers</button>
+   <button type="button" class="mini" data-action="openCompendium" data-pack="powers">{{twIcon 'book'}}Nine powers</button>
   </div>
   <div class="powers">
    {{#each ownedPowers}}
    <div class="prow{{#if system.equipped}} on{{/if}}" data-item-id="{{id}}" draggable="true">
-    <button type="button" class="pname" data-action="editItem" data-item-id="{{id}}">{{icon 'shifting'}}<span>{{name}}</span>{{#if system.bonusStat}}<i class="tg">+1 {{system.bonusStat}}</i>{{/if}}</button>
-    <button type="button" class="mini{{#if system.equipped}} primary{{/if}}" data-action="toggleEquipped" data-item-id="{{id}}">{{#if system.equipped}}{{icon 'check'}}Active{{else}}Inactive{{/if}}</button>
-    <button type="button" class="mini icon danger" data-action="deleteItem" data-item-id="{{id}}" aria-label="Remove {{name}}">{{icon 'trash'}}</button>
+    <button type="button" class="pname" data-action="editItem" data-item-id="{{id}}">{{twIcon 'shifting'}}<span>{{name}}</span>{{#if system.bonusStat}}<i class="tg">+1 {{system.bonusStat}}</i>{{/if}}</button>
+    <button type="button" class="mini{{#if system.equipped}} primary{{/if}}" data-action="toggleEquipped" data-item-id="{{id}}">{{#if system.equipped}}{{twIcon 'check'}}Active{{else}}Inactive{{/if}}</button>
+    <button type="button" class="mini icon danger" data-action="deleteItem" data-item-id="{{id}}" aria-label="Remove {{name}}">{{twIcon 'trash'}}</button>
    </div>
    {{/each}}
   </div>
@@ -50,7 +50,7 @@
   <div class="sec"><span class="num">§2</span>Current form</div>
   <div class="formstate">
    <button type="button" class="mini wide{{#unless system.shift.active}} primary{{/unless}}" data-action="shift">
-    {{icon 'shifting'}}{{#if system.shift.active}}Leave Titan form{{else}}Enter Titan form{{/if}}
+    {{twIcon 'shifting'}}{{#if system.shift.active}}Leave Titan form{{else}}Enter Titan form{{/if}}
    </button>
    <label class="check"><input type="checkbox" name="system.shift.experienced" {{checked system.shift.experienced}}><span>Experienced shifter</span></label>
    <label class="check"><input type="checkbox" name="system.shift.armourIntact" {{checked system.shift.armourIntact}}><span>Armour intact</span></label>
@@ -62,21 +62,21 @@
   <section class="box">
    <div class="sec"><span class="num">§3</span>The term</div>
    <div class="ready">
-    <div class="rrow"><span class="rl">{{icon 'clock'}}Years remaining</span>
+    <div class="rrow"><span class="rl">{{twIcon 'clock'}}Years remaining</span>
      <span class="num tight">
-      <button type="button" data-action="nudge" data-path="system.shift.yearsRemaining" data-delta="-1" data-min="0" aria-label="One year fewer">{{icon 'minus'}}</button>
+      <button type="button" data-action="nudge" data-path="system.shift.yearsRemaining" data-delta="-1" data-min="0" aria-label="One year fewer">{{twIcon 'minus'}}</button>
       <b data-live="years">{{system.shift.yearsRemaining}}</b>
-      <button type="button" data-action="nudge" data-path="system.shift.yearsRemaining" data-delta="1" data-min="0" aria-label="One year more">{{icon 'plus'}}</button>
+      <button type="button" data-action="nudge" data-path="system.shift.yearsRemaining" data-delta="1" data-min="0" aria-label="One year more">{{twIcon 'plus'}}</button>
      </span>
     </div>
-    <div class="rrow"><span class="rl">{{icon 'drop'}}Absorption penalty</span>
+    <div class="rrow"><span class="rl">{{twIcon 'drop'}}Absorption penalty</span>
      <span class="num tight">
-      <button type="button" data-action="nudge" data-path="system.shift.absorption" data-delta="-1" data-min="0" aria-label="Less absorption">{{icon 'minus'}}</button>
+      <button type="button" data-action="nudge" data-path="system.shift.absorption" data-delta="-1" data-min="0" aria-label="Less absorption">{{twIcon 'minus'}}</button>
       <b data-live="absorption">−{{system.shift.absorption}}</b>
-      <button type="button" data-action="nudge" data-path="system.shift.absorption" data-delta="1" data-min="0" aria-label="More absorption">{{icon 'plus'}}</button>
+      <button type="button" data-action="nudge" data-path="system.shift.absorption" data-delta="1" data-min="0" aria-label="More absorption">{{twIcon 'plus'}}</button>
      </span>
     </div>
-    <label class="field"><span>Titan height (metres)</span><input type="number" name="system.height" value="{{system.height}}" step="0.1" min="0"></label>
+    <label class="field"><span>Titan form height (metres)</span><input type="number" name="system.shift.height" value="{{system.shift.height}}" step="0.1" min="0"></label>
    </div>
   </section>
   <section class="box">
@@ -86,6 +86,24 @@
     <label class="field"><span>Max adjustment</span><input type="number" name="system.consciousness.titanMaxAdjustment" value="{{system.consciousness.titanMaxAdjustment}}"></label>
    </div>
    <p class="note">The Titan body keeps its own ledger. Wounds recorded while transformed never affect the human body.</p>
+  </section>
+  <section class="box">
+   <div class="sec"><span class="num">§5</span>Titan bites<span class="k">cutting</span></div>
+   <div class="bites b-{{bites.severity}}">
+    <div class="btop">
+     <span class="bl"><b data-live="bites">{{bites.bites}}</b><small>{{bites.label}}</small></span>
+     <span class="num tight">
+      <button type="button" data-action="nudge" data-path="system.bites" data-delta="-1" data-min="0" aria-label="One bite fewer">{{twIcon 'minus'}}</button>
+      <button type="button" data-action="nudge" data-path="system.bites" data-delta="1" data-min="0" aria-label="One bite more">{{twIcon 'plus'}}</button>
+     </span>
+    </div>
+    <div class="btrack" role="img" aria-label="{{bites.bites}} bites recorded, major at {{bites.major}}, crippling at {{bites.crippling}}">
+     {{#each bites.boxes}}<i class="bb{{#if taken}} on{{/if}}{{#if mark}} at-{{mark}}{{/if}}" title="{{title}}"></i>{{/each}}
+    </div>
+    <div class="bmarks"><span>major at {{bites.major}}</span><span>crippling at {{bites.crippling}}</span></div>
+    <p class="bhint">{{bites.hint}}</p>
+    <p class="note">{{bites.note}}</p>
+   </div>
   </section>
   <label class="field"><span>Form, borrowed ability and GM rulings</span><textarea name="system.shift.notes" class="ruled">{{system.shift.notes}}</textarea></label>
  </aside>
