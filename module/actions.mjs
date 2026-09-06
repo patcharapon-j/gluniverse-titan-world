@@ -1,6 +1,6 @@
 import {STATS,REGIONS,ARRAYS,validateArray} from './rules.mjs';
 import {CONTENT} from '../data/content.mjs';
-import {ID,esc,field,select,prompt,confirm,requireOwner,requireGM} from './ui.mjs';
+import {ID,esc,field,select,check,prompt,confirm,requireOwner,requireGM} from './ui.mjs';
 import {getParty} from './rolls.mjs';
 const fresh=doc=>{const copy=foundry.utils.deepClone(doc);delete copy._id;return copy;};
 export async function createCharacter(actor) {
@@ -24,7 +24,7 @@ export async function equipLoadout(actor,provided=null) {
  else if(!await confirm('Equip loadout',`Add ${loadout.name} to ${actor.name}? Existing equipment will remain.`))return;
  const entries=[...spec.base.filter(e=>!choice.remove?.includes(e.name)),...choice.items];
  const quantities=new Map();for(const e of entries)quantities.set(e.name,(quantities.get(e.name)||0)+e.quantity);
- const docs=[...quantities].map(([name,quantity])=>{const base=CONTENT.gear.find(g=>g.name===name);if(!base)throw new Error('Unknown gear '+name);const d=fresh(base);d.system.quantity=quantity;return d;});
+ const docs=[...quantities].map(([name,quantity])=>{const base=CONTENT.gear.find(g=>g.name===name);if(!base)throw new Error('Unknown gear '+name);const d=fresh(base);d.system.quantity=quantity;d.system.capacity=quantity;return d;});
  await actor.createEmbeddedDocuments('Item',docs);
 }
 export async function advance(actor) {
@@ -82,7 +82,7 @@ export async function toggleShift(actor) {
  if(actor.type==='titan')throw new Error('Mindless Titans do not switch forms. Use a Soldier actor for a shifter.');
  if(!actor.items.some(i=>i.type==='power'))throw new Error('Add a Titan power from the compendium first.');
  const active=actor.system.shift.active;
- const data=await prompt(active?'Leave Titan form':'Enter Titan form',`<p>Apply only after the GM resolves the transformation or dismount roll. Human and Titan injuries are tracked separately. Use a new form to clear the old Titan body's injuries.</p>${active?'':`<p class="warning">The source conflicts on shifting with crippling wounds. Confirm full, partial, or exceptional weak form with the GM.</p><label><input name="weak" type="checkbox"> Exceptional weak form (physical stats −1, consciousness maximum 1)</label><br><label><input name="fresh" type="checkbox" checked> New Titan body: clear old Titan injuries and exhaustion</label>`}`,'Apply form');
+ const data=await prompt(active?'Leave Titan form':'Enter Titan form',`<p>Apply only after the GM resolves the transformation or dismount roll. Human and Titan injuries are tracked separately. Use a new form to clear the old Titan body's injuries.</p>${active?'':`<p class="warning">The source conflicts on shifting with crippling wounds. Confirm full, partial, or exceptional weak form with the GM.</p><div class="checks">${check('Exceptional weak form — physical stats −1, consciousness maximum 1','weak')}${check('New Titan body — clear old Titan injuries and exhaustion','fresh',true)}</div>`}`,'Apply form');
  if(!data)return;
  if(!active&&data.fresh){const ids=actor.items.filter(i=>i.type==='wound'&&i.system.formScope==='titan').map(i=>i.id);if(ids.length)await actor.deleteEmbeddedDocuments('Item',ids);await actor.update({'system.consciousness.titanLoss':0});}
  await actor.update({'system.shift.active':!active,'system.shift.weak':!active&&!!data.weak});

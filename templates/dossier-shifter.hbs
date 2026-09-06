@@ -1,0 +1,93 @@
+{{#unless ownedPowers}}
+<div class="locked">
+ <svg class="seal" viewBox="0 0 150 150" aria-hidden="true">
+  <defs>
+   <radialGradient id="tw-wax" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#b8383a"/><stop offset=".55" stop-color="#8e2323"/><stop offset="1" stop-color="#4f1212"/></radialGradient>
+   <filter id="tw-waxtex"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" result="n"/><feColorMatrix in="n" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .25 0" result="g"/><feComposite in="g" in2="SourceAlpha" operator="in" result="gc"/><feBlend in="SourceGraphic" in2="gc" mode="multiply"/></filter>
+   <filter id="tw-emboss" x="-20%" y="-20%" width="140%" height="140%">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="1.2" result="b"/>
+    <feSpecularLighting in="b" surfaceScale="3" specularConstant=".6" specularExponent="18" lighting-color="#ffd9c9" result="s"><fePointLight x="40" y="20" z="90"/></feSpecularLighting>
+    <feComposite in="s" in2="SourceAlpha" operator="in" result="s2"/>
+    <feComposite in="SourceGraphic" in2="s2" operator="arithmetic" k1="0" k2="1" k3=".9" k4="0"/>
+   </filter>
+  </defs>
+  <path filter="url(#tw-waxtex)" fill="url(#tw-wax)" d="M75 13c9 0 14 6 22 8s17-2 22 5 1 15 5 23 12 12 11 21-9 13-12 21-1 17-8 22-15 0-23 3-13 9-22 9-14-6-22-9-17 1-23-4-3-15-8-22-12-12-11-21 9-13 12-21 1-17 8-22 15 0 23-3 13-9 22-9z"/>
+  <path d="M75 13c9 0 14 6 22 8s17-2 22 5 1 15 5 23 12 12 11 21-9 13-12 21-1 17-8 22-15 0-23 3-13 9-22 9-14-6-22-9-17 1-23-4-3-15-8-22-12-12-11-21 9-13 12-21 1-17 8-22 15 0 23-3 13-9 22-9z" fill="none" stroke="#3a0c0c" stroke-opacity=".45"/>
+  <circle cx="75" cy="75" r="45" fill="#7a1c1c" fill-opacity=".55"/>
+  <circle cx="75" cy="75" r="45" fill="none" stroke="#3a0c0c" stroke-opacity=".6" stroke-width="1.5"/>
+  <circle cx="75" cy="75" r="43" fill="none" stroke="#f0c6b8" stroke-opacity=".35"/>
+  <circle cx="75" cy="75" r="36" fill="none" stroke="#3a0c0c" stroke-opacity=".5"/>
+  <g filter="url(#tw-emboss)">
+   <path fill="#9c2b2b" d="M75 96 48 68c6-3 13-1 18 4-2-9-8-15-17-17 10-3 20 1 24 10 4-9 14-13 24-10-9 2-15 8-17 17 5-5 12-7 18-4z"/>
+   <path fill="#c94d4d" fill-opacity=".9" transform="translate(0 -1)" d="M75 96 48 68c6-3 13-1 18 4-2-9-8-15-17-17 10-3 20 1 24 10 4-9 14-13 24-10-9 2-15 8-17 17 5-5 12-7 18-4z"/>
+  </g>
+  <text x="75" y="107" text-anchor="middle" class="seal-mark">RESTRICTED</text>
+  <text x="75" y="50" text-anchor="middle" class="seal-mark">S · CORPS</text>
+ </svg>
+ <div class="seal-t">Sealed</div>
+ <p>This section covers transformation protocols, absorption, inherited memory and the thirteen-year term. It opens once an inherited power is on file.</p>
+ <div class="req">{{icon 'lock'}}Requires an inherited Titan power</div>
+ {{#if editable}}<button type="button" class="mini primary" data-action="openCompendium" data-pack="powers">{{icon 'book'}}Open the Nine Powers</button>{{/if}}
+</div>
+{{else}}
+<div class="shift">
+ <div class="shift-main">
+  <div class="sec">
+   <span class="num">§1</span>Inherited powers<span class="k">{{ownedPowers.length}} on file</span>
+   <button type="button" class="mini" data-action="openCompendium" data-pack="powers">{{icon 'book'}}Nine powers</button>
+  </div>
+  <div class="powers">
+   {{#each ownedPowers}}
+   <div class="prow{{#if system.equipped}} on{{/if}}" data-item-id="{{id}}" draggable="true">
+    <button type="button" class="pname" data-action="editItem" data-item-id="{{id}}">{{icon 'shifting'}}<span>{{name}}</span>{{#if system.bonusStat}}<i class="tg">+1 {{system.bonusStat}}</i>{{/if}}</button>
+    <button type="button" class="mini{{#if system.equipped}} primary{{/if}}" data-action="toggleEquipped" data-item-id="{{id}}">{{#if system.equipped}}{{icon 'check'}}Active{{else}}Inactive{{/if}}</button>
+    <button type="button" class="mini icon danger" data-action="deleteItem" data-item-id="{{id}}" aria-label="Remove {{name}}">{{icon 'trash'}}</button>
+   </div>
+   {{/each}}
+  </div>
+  <p class="note">Enable only the powers used in the current transformation. Beast and Female bonuses need their stat chosen on the power item. Confirm combined or conflicting powers with the GM.</p>
+
+  <div class="sec"><span class="num">§2</span>Current form</div>
+  <div class="formstate">
+   <button type="button" class="mini wide{{#unless system.shift.active}} primary{{/unless}}" data-action="shift">
+    {{icon 'shifting'}}{{#if system.shift.active}}Leave Titan form{{else}}Enter Titan form{{/if}}
+   </button>
+   <label class="check"><input type="checkbox" name="system.shift.experienced" {{checked system.shift.experienced}}><span>Experienced shifter</span></label>
+   <label class="check"><input type="checkbox" name="system.shift.armourIntact" {{checked system.shift.armourIntact}}><span>Armour intact</span></label>
+   <label class="check"><input type="checkbox" name="system.shift.weak" {{checked system.shift.weak}}><span>Exceptional weak form</span></label>
+  </div>
+ </div>
+
+ <aside class="side">
+  <section class="box">
+   <div class="sec"><span class="num">§3</span>The term</div>
+   <div class="ready">
+    <div class="rrow"><span class="rl">{{icon 'clock'}}Years remaining</span>
+     <span class="num tight">
+      <button type="button" data-action="nudge" data-path="system.shift.yearsRemaining" data-delta="-1" data-min="0" aria-label="One year fewer">{{icon 'minus'}}</button>
+      <b data-live="years">{{system.shift.yearsRemaining}}</b>
+      <button type="button" data-action="nudge" data-path="system.shift.yearsRemaining" data-delta="1" data-min="0" aria-label="One year more">{{icon 'plus'}}</button>
+     </span>
+    </div>
+    <div class="rrow"><span class="rl">{{icon 'drop'}}Absorption penalty</span>
+     <span class="num tight">
+      <button type="button" data-action="nudge" data-path="system.shift.absorption" data-delta="-1" data-min="0" aria-label="Less absorption">{{icon 'minus'}}</button>
+      <b data-live="absorption">−{{system.shift.absorption}}</b>
+      <button type="button" data-action="nudge" data-path="system.shift.absorption" data-delta="1" data-min="0" aria-label="More absorption">{{icon 'plus'}}</button>
+     </span>
+    </div>
+    <label class="field"><span>Titan height (metres)</span><input type="number" name="system.height" value="{{system.height}}" step="0.1" min="0"></label>
+   </div>
+  </section>
+  <section class="box">
+   <div class="sec"><span class="num">§4</span>Titan-body consciousness</div>
+   <div class="grid2">
+    <label class="field"><span>Other loss</span><input type="number" name="system.consciousness.titanLoss" value="{{system.consciousness.titanLoss}}"></label>
+    <label class="field"><span>Max adjustment</span><input type="number" name="system.consciousness.titanMaxAdjustment" value="{{system.consciousness.titanMaxAdjustment}}"></label>
+   </div>
+   <p class="note">The Titan body keeps its own ledger. Wounds recorded while transformed never affect the human body.</p>
+  </section>
+  <label class="field"><span>Form, borrowed ability and GM rulings</span><textarea name="system.shift.notes" class="ruled">{{system.shift.notes}}</textarea></label>
+ </aside>
+</div>
+{{/unless}}

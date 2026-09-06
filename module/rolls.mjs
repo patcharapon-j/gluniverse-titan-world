@@ -1,7 +1,19 @@
 import {STATS,outcome,rollModifiers,clamp} from './rules.mjs';
 import {CONTENT} from '../data/content.mjs';
-import {ID,esc,field,select,prompt,requireOwner,requireGM,report} from './ui.mjs';
-const LABELS={success:'10+ · Success',partial:'7–9 · Partial result',failure:'Failure',snakeEyes:'Snake eyes · Automatic failure',doubleSix:'Double six · Best possible result'};
+import {ID,esc,field,select,check,prompt,requireOwner,requireGM,report} from './ui.mjs';
+const LABELS={success:'10+ · Success',partial:'7–9 · Partial result',failure:'6− · Failure',snakeEyes:'Snake eyes · Automatic failure',doubleSix:'Double six · Best result'};
+const BAND={success:'hit',doubleSix:'hit',partial:'mix',failure:'miss',snakeEyes:'miss'};
+// The three thresholds, drawn as a scale so the tier reached is read before the number is.
+const TIERS=[{key:'failure',band:'miss',range:'6−',label:'Failure'},
+ {key:'partial',band:'mix',range:'7–9',label:'Partial'},
+ {key:'success',band:'hit',range:'10+',label:'Success'}];
+const TIER_OF={success:'success',doubleSix:'success',partial:'partial',failure:'failure',snakeEyes:'failure'};
+const EXTREME={doubleSix:{band:'hit',text:'Double six · the best possible result'},
+ snakeEyes:{band:'miss',text:'Snake eyes · automatic failure'}};
+const FACE={1:[[50,50]],2:[[27,27],[73,73]],3:[[27,27],[50,50],[73,73]],4:[[27,27],[73,27],[27,73],[73,73]],
+ 5:[[27,27],[73,27],[50,50],[27,73],[73,73]],6:[[27,27],[73,27],[27,50],[73,50],[27,73],[73,73]]};
+const die=(n,dropped=false)=>`<div class="die${dropped?' dropped':''}" aria-label="d6 showing ${n}">${(FACE[n]??[]).map(([x,y])=>`<i style="left:${x}%;top:${y}%"></i>`).join('')}</div>`;
+const chatIcon=name=>`<svg class="i" aria-hidden="true"><use href="#tw-i-${name}"/></svg>`;
 export function moveByKey(key){return CONTENT.moves.find(m=>m.system.key===key);}
 export async function rollActor(actor,stat,{move=null}={}) {
  requireOwner(actor);
@@ -12,15 +24,25 @@ export async function rollActor(actor,stat,{move=null}={}) {
  if(move?.system.key==='dodge-a-bullet'&&(d.stats.agility<3||d.majorLeg))warning+='The source requires Agility +3 and no major leg wound. GM approval is required. ';
  if(move?.system.key==='rest-for-the-night'&&d.restBlocked)warning+='Rest automatically fails with major wounds or untreated crippling wounds. Treat the injuries first. ';
  if(move?.system.key?.startsWith('transform-')&&actor.items.some(i=>i.type==='wound'&&i.system.severity==='crippling'&&!i.system.healed))warning+='The source conflicts on shifting with crippling injuries. Confirm the form with the GM. ';
- const data=await prompt(move?.name??`Roll ${STATS[stat]}`,`${warning?`<p class="warning">${esc(warning)}</p>`:''}${select('Stat','stat',STATS,stat)}<div class="grid2">${field('Advantage (0 to 3)','advantage',0,'number')}${field('Other modifier','modifier',0,'number')}</div><label class="field"><span><input type="checkbox" name="difficult" ${move?.system.difficult||actor.system.nextDifficult?'checked':''}> Difficult roll (below 10 fails)</span></label><label class="field"><span><input type="checkbox" name="combat" ${move?.system.combat?'checked':''}> Combat roll (apply low-consciousness difficulty)</span></label>${select('Visibility','messageMode',{public:'Public',gm:'GM and me',blind:'GM only',self:'Only me'},game.settings.get('core','messageMode'))}<p class="note">Advantage is capped at +3. Agility includes dodge fatigue. The GM decides when a roll is possible.</p>`,'Roll 2d6');
+ const data=await prompt(move?.name??`Roll ${STATS[stat]}`,`${warning?`<p class="warning">${esc(warning)}</p>`:''}${select('Stat','stat',STATS,stat)}<div class="grid2">${field('Advantage (0 to 3)','advantage',0,'number')}${field('Other modifier','modifier',0,'number')}</div><div class="checks">${check('Difficult roll — below 10 always fails','difficult',!!(move?.system.difficult||actor.system.nextDifficult))}${check('Combat roll — apply low-consciousness difficulty','combat',!!move?.system.combat)}</div>${select('Visibility','messageMode',{public:'Public',gm:'GM and me',blind:'GM only',self:'Only me'},game.settings.get('core','messageMode'))}<p class="note">Advantage is capped at +3. Agility includes dodge fatigue. The GM decides when a roll is possible.</p>`,'Roll 2d6');
  if(!data)return;
  if(warning.includes('Rest automatically fails'))return ui.notifications.warn('Rest is blocked until the listed injuries are treated.');
  const modifiers=rollModifiers(d,actor.system,data.stat,{advantage:data.advantage,modifier:data.modifier,combat:!!data.combat,difficult:!!data.difficult});
  if(move?.system.key?.startsWith('resist-')&&move.system.key.includes('absorption')) modifiers.modifier-=actor.system.shift.absorption;
  const roll=await new foundry.dice.Roll('2d6 + @stat + @advantage + @modifier + @fatigue',modifiers).evaluate();
- const meta={actorUuid:actor.uuid,name:move?.name??STATS[data.stat],stat:data.stat,modifiers,difficult:modifiers.difficult,moveKey:move?.system.key??'',moveData:move?{name:move.name,system:move.system.toObject?move.system.toObject():foundry.utils.deepClone(move.system)}:null,luckBonus:0,revision:0};
+ const meta={actorUuid:actor.uuid,actorName:actor.name,actorImg:actor.img,name:move?.name??STATS[data.stat],stat:data.stat,modifiers,difficult:modifiers.difficult,moveKey:move?.system.key??'',moveData:move?{name:move.name,system:move.system.toObject?move.system.toObject():foundry.utils.deepClone(move.system)}:null,luckBonus:0,revision:0};
  const message=await foundry.documents.ChatMessage.create({speaker:foundry.documents.ChatMessage.getSpeaker({actor}),rolls:[roll],content:await rollContent(meta,roll),flags:{[ID]:{roll:meta}}},{messageMode:data.messageMode});
- if(actor.system.nextDifficult)await actor.update({'system.nextDifficult':false});
+ const after={};
+ if(actor.system.nextDifficult)after['system.nextDifficult']=false;
+ // Facing fear sets a standing state the sheet tracks: 10+ steadies you, 7-9 shakes you, below that freezes you.
+ if(move?.system.key==='face-fear'&&actor.type==='soldier') {
+  const dice=roll.dice[0].results.filter(r=>r.active).map(r=>r.result);
+  const result=outcome(dice,roll.total,modifiers.difficult);
+  if(result==='success'||result==='doubleSix')after['system.fear']='steady';
+  else if(result==='partial'){after['system.fear']='shaken';after['system.nextDifficult']=true;}
+  else after['system.fear']='frozen';
+ }
+ if(Object.keys(after).length)await actor.update(after);
  return message;
 }
 export async function rollContent(meta,roll,history='') {
@@ -28,7 +50,41 @@ export async function rollContent(meta,roll,history='') {
  const result=outcome(dice,total,meta.difficult),move=meta.moveData??moveByKey(meta.moveKey);
  const detail=move?.system[result==='doubleSix'?'success':result]??({success:'You succeed.',partial:'You make progress, with a complication.',failure:'Find a new approach before trying again.',snakeEyes:'Automatic failure, regardless of modifiers.',doubleSix:'The best possible outcome.'}[result]);
  const rules=move?await foundry.applications.ux.TextEditor.enrichHTML(move.system.description,{async:true}):'';
- return `<section class="tw chat-card"><div class="eyebrow">${esc(meta.name)}${meta.difficult?' · Difficult':''}</div><div class="result ${['failure','snakeEyes'].includes(result)?'fail':''}">${esc(total)} · ${esc(LABELS[result])}</div><p>${esc(detail)}</p><p class="note">Dice ${dice.join(' + ')} · ${esc(STATS[meta.stat])} ${meta.modifiers.stat>=0?'+':''}${meta.modifiers.stat} · advantage +${meta.modifiers.advantage} · modifier ${meta.modifiers.modifier} · fatigue ${meta.modifiers.fatigue}${meta.luckBonus?' · luck +'+meta.luckBonus:''}</p>${history?`<p class="note">${esc(history)}</p>`:''}<div class="inline"><button type="button" data-tw-action="luck-plus">Request luck +1</button><button type="button" data-tw-action="luck-reroll">Request reroll</button><button type="button" data-tw-action="consequence">GM consequence</button></div>${rules?`<details><summary>Source rules · ${esc(move.system.source)}</summary><div class="rules">${rules}</div></details>`:''}</section>`;
+ const m=meta.modifiers,sign=n=>`${n>=0?'+':'−'}${Math.abs(n)}`;
+ const parts=[`${esc(STATS[meta.stat])} ${sign(m.stat)}`];
+ if(m.advantage)parts.push(`advantage +${m.advantage}`);
+ if(m.modifier)parts.push(`modifier ${sign(m.modifier)}`);
+ if(m.fatigue)parts.push(`fatigue ${sign(m.fatigue)}`);
+ if(meta.luckBonus)parts.push(`luck +${meta.luckBonus}`);
+ const reached=TIER_OF[result];
+ const scale=TIERS.map(tier=>{
+  // A difficult roll has no middle ground, so that segment is struck out rather than hidden.
+  const off=meta.difficult&&tier.key==='partial';
+  return `<i class="t ${tier.band}${tier.key===reached?' on':''}${off?' off':''}"><b>${tier.range}</b><span>${esc(tier.label)}</span></i>`;
+ }).join('');
+ const extreme=EXTREME[result];
+ const portrait=meta.actorImg
+  ? `<span class="hp"><img src="${esc(meta.actorImg)}" alt=""></span>`
+  : `<span class="hp none">${chatIcon('wings')}</span>`;
+ const subtitle=[meta.name,move?.system.source].filter(Boolean).join(' · ');
+ return `<section class="tw chat-card ${BAND[result]}">
+<header class="hero">${portrait}
+<span class="hn"><b>${esc(meta.actorName||meta.name)}</b><small>${esc(subtitle)}</small></span>
+${meta.difficult?`<span class="hstamp">${chatIcon('stamp')}Difficult</span>`:''}</header>
+<div class="r"><div class="total${['failure','snakeEyes'].includes(result)?' fail':''}">${esc(total)}</div>
+<div class="rr"><div class="dice">${dice.map(n=>die(n)).join('')}</div><div class="mod">${parts.join(' · ')}</div></div></div>
+<div class="tiers" role="img" aria-label="${esc(LABELS[result])}">${scale}</div>
+${extreme?`<div class="band ${extreme.band}">${esc(extreme.text)}</div>`:''}
+<div class="outcome"><span class="attr">${esc(move?move.name:STATS[meta.stat])} · ${esc(TIERS.find(t=>t.key===reached).range)}</span>
+<div class="why">${esc(detail)}</div></div>
+${history?`<div class="history">${esc(history)}</div>`:''}
+<div class="inline">
+<button type="button" data-tw-action="luck-plus">${chatIcon('luck')}Luck +1</button>
+<button type="button" data-tw-action="luck-reroll">${chatIcon('refresh')}Reroll</button>
+<button type="button" data-tw-action="consequence">${chatIcon('stamp')}GM consequence</button>
+</div>
+${rules?`<details><summary>Source rules · ${esc(move.system.source)}</summary><div class="rules">${rules}</div></details>`:''}
+</section>`;
 }
 export function getParty() {const id=game.settings.get(ID,'partyActor');return game.actors.get(id)??game.actors.find(a=>a.type==='party');}
 export async function requestLuck(source,kind) {
@@ -38,7 +94,12 @@ export async function requestLuck(source,kind) {
  if(party.system.luck.value<1)throw new Error('The party has no luck remaining.');
  const existing=game.messages.find(m=>m.getFlag(ID,'luckRequest')?.source===source.id&&m.getFlag(ID,'luckRequest')?.revision===meta.revision&&!m.getFlag(ID,'resolved'));
  if(existing)return ui.notifications.info('A luck request for this roll is already pending.');
- return foundry.documents.ChatMessage.create({content:`<section class="tw chat-card"><b>${esc(game.user.name)} requests ${kind==='plus'?'+1':'a reroll'} using party luck.</b><p>${esc(meta.name)}</p><button type="button" data-tw-action="approve-luck">GM: approve spend</button><button type="button" data-tw-action="deny-luck">GM: decline</button></section>`,whisper:foundry.documents.ChatMessage.getWhisperRecipients('GM').map(u=>u.id),flags:{[ID]:{luckRequest:{source:source.id,kind,revision:meta.revision}}}});
+ return foundry.documents.ChatMessage.create({content:`<section class="tw chat-card">
+<div class="eyebrow">${chatIcon('luck')}<span>Party luck requested</span></div>
+<div class="band info">${esc(game.user.name)} · ${kind==='plus'?'+1':'reroll'}</div>
+<div class="why">${esc(meta.name)} — ${party.system.luck.value} point${party.system.luck.value===1?'':'s'} remain in the pool.</div>
+<div class="inline"><button type="button" data-tw-action="approve-luck">${chatIcon('check')}Approve</button><button type="button" data-tw-action="deny-luck">${chatIcon('close')}Decline</button></div>
+</section>`,whisper:foundry.documents.ChatMessage.getWhisperRecipients('GM').map(u=>u.id),flags:{[ID]:{luckRequest:{source:source.id,kind,revision:meta.revision}}}});
 }
 let luckQueue=Promise.resolve();
 export function approveLuck(request) {
@@ -63,7 +124,7 @@ async function applyLuck(request) {
  const diceUpdate=req.kind==='reroll'?{rolls:[...source.rolls.map(r=>r.toJSON()),roll.toJSON()]}:{};
  try {await source.update({...diceUpdate,content:await rollContent(updated,roll,`Previous total ${oldTotal}. Party luck spent for ${req.kind==='plus'?'+1':'a reroll'}.`),[`flags.${ID}.roll`]:updated});}
  catch(error){await party.update({'system.luck.value':value});await request.setFlag(ID,'resolved',false);throw error;}
- await request.update({content:`<p>Luck approved for ${esc(source.author.name)}. ${party.system.luck.value} points remain.</p>`,[`flags.${ID}.resolved`]:'approved'});
+ await request.update({content:`<section class="tw chat-card"><div class="eyebrow">${chatIcon('luck')}<span>Luck approved</span></div><div class="band hit">Spent for ${esc(source.author.name)}</div><div class="why">${party.system.luck.value} point${party.system.luck.value===1?'':'s'} remain in the shared pool.</div></section>`,[`flags.${ID}.resolved`]:'approved'});
 }
 export function registerChat(consequence) {
  Hooks.on('renderChatMessageHTML',(message,html)=>{
@@ -74,7 +135,7 @@ export function registerChat(consequence) {
     if(action==='luck-plus')await requestLuck(message,'plus');
     else if(action==='luck-reroll')await requestLuck(message,'reroll');
     else if(action==='approve-luck')await approveLuck(message);
-    else if(action==='deny-luck'){requireGM();await message.update({content:'<p>Luck request declined by the GM.</p>',[`flags.${ID}.resolved`]:'declined'});}
+    else if(action==='deny-luck'){requireGM();await message.update({content:`<section class="tw chat-card"><div class="eyebrow">${chatIcon('luck')}<span>Party luck</span></div><div class="band miss">Declined by the GM</div></section>`,[`flags.${ID}.resolved`]:'declined'});}
     else if(action==='consequence')await consequence(message);
    }catch(error){report(error);}finally{button.disabled=false;}});
   });

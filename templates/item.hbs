@@ -1,6 +1,102 @@
-<div><header class="dossier-head" style="grid-template-columns:48px 1fr"><img class="crest" src="{{item.img}}" alt=""><div class="identity"><div class="eyebrow">{{item.type}}</div><input name="name" value="{{item.name}}" aria-label="Item name"></div></header><div class="sheet-body"><label class="field">Source section<input name="system.source" value="{{system.source}}"></label>
-{{#if isMove}}<div class="grid2"><label class="field">Stat<select name="system.stat">{{selectOptions stats selected=system.stat}}</select></label><label class="field">Category<input name="system.category" value="{{system.category}}"></label></div><p><label><input type="checkbox" name="system.difficult" {{checked system.difficult}}> Difficult</label> <label><input type="checkbox" name="system.combat" {{checked system.combat}}> Combat</label></p><button type="button" data-action="roll">Roll action</button><label class="field">10+ result<textarea name="system.success">{{system.success}}</textarea></label><label class="field">7–9 result<textarea name="system.partial">{{system.partial}}</textarea></label><label class="field">Failure result<textarea name="system.failure">{{system.failure}}</textarea></label><label class="field">Snake-eyes result<textarea name="system.snakeEyes">{{system.snakeEyes}}</textarea></label>{{/if}}
-{{#if isGear}}<div class="grid2"><label class="field">Quantity<input type="number" min="0" name="system.quantity" value="{{system.quantity}}"></label><label class="field">Uses remaining<input type="number" min="0" name="system.uses" value="{{system.uses}}"></label><label class="field">Stat modified while carried<select name="system.bonusStat">{{selectOptions bonusStats selected=system.bonusStat}}</select></label><label class="field">Modifier<input type="number" name="system.bonus" value="{{system.bonus}}"></label></div><label><input type="checkbox" name="system.equipped" {{checked system.equipped}}> Carried / active</label>{{/if}}
-{{#if isPower}}<label class="field">Beast / Female bonus stat (GM choice)<select name="system.bonusStat">{{selectOptions bonusStats selected=system.bonusStat}}</select></label><label><input type="checkbox" name="system.equipped" {{checked system.equipped}}> Use this power when transformed</label>{{/if}}
-{{#if isWound}}<div class="grid2"><label class="field">Region<select name="system.region">{{selectOptions regions selected=system.region}}</select></label><label class="field">Severity<select name="system.severity">{{selectOptions severity selected=system.severity}}</select></label><label class="field">Injury type<select name="system.injuryType">{{selectOptions injuryTypes selected=system.injuryType}}</select></label><label class="field">Body / form<select name="system.formScope">{{selectOptions formScopes selected=system.formScope}}</select></label><label class="field">Consciousness lost<input type="number" min="0" name="system.consciousnessLoss" value="{{system.consciousnessLoss}}"></label></div><p><label><input type="checkbox" name="system.treated" {{checked system.treated}}> Treated / bleeding stopped</label></p><p><label><input type="checkbox" name="system.fromMajor" {{checked system.fromMajor}}> Minor wound healed from major</label></p><p><label><input type="checkbox" name="system.healed" {{checked system.healed}}> Healed / ignore this wound</label></p>{{/if}}
-<section class="rules">{{{description}}}</section>{{#if editable}}<details><summary>Edit description HTML</summary><textarea name="system.description" style="min-height:180px">{{system.description}}</textarea></details>{{/if}}</div></div>
+<div class="dossier-page item-page">
+ {{{sprite}}}
+ <i class="paper-grain" aria-hidden="true"></i><i class="paper-foxing" aria-hidden="true"></i><i class="paper-margin" aria-hidden="true"></i>
+ <header class="hdr">
+  <button type="button" class="portrait small" data-action="editImage" aria-label="Change image">
+   <span class="pc a"></span><span class="pc b"></span><span class="pc c"></span><span class="pc d"></span>
+   <img src="{{item.img}}" alt="">
+  </button>
+  <div class="ident">
+   <div class="ident-top">
+    <div class="kicker">{{icon 'wings'}}{{kind}}</div>
+    <input class="name" name="name" value="{{item.name}}" aria-label="Item name" spellcheck="false">
+    <div class="meta">
+     {{#if isMove}}<span>Roll <b>{{statLabel}}</b></span><span>Group <b>{{system.category}}</b></span>{{/if}}
+     {{#if system.source}}<span>Source <b>{{system.source}}</b></span>{{/if}}
+    </div>
+   </div>
+   <div class="tags">
+    {{#if isMove}}{{#if system.difficult}}<span class="tag warn">Difficult</span>{{/if}}{{#if system.combat}}<span class="tag">Combat</span>{{/if}}{{/if}}
+    {{#if isGear}}<span class="tag{{#if system.equipped}} hot{{/if}}">{{#if system.equipped}}Carried{{else}}Stowed{{/if}}</span>{{/if}}
+    {{#if isWound}}<span class="tag hot">{{system.severity}} · {{system.injuryType}}</span><span class="tag">{{system.formScope}} body</span>{{/if}}
+   </div>
+  </div>
+  {{#if isMove}}
+  <div class="hdr-right">
+   <button type="button" class="rollbig" data-action="roll">{{icon 'dice'}}<span>Roll<small>{{statLabel}}</small></span></button>
+  </div>
+  {{/if}}
+ </header>
+
+ <div class="sheet-body">
+  <div class="sec"><span class="num">§1</span>Definition</div>
+  <div class="grid2">
+   <label class="field"><span>Source section</span><input name="system.source" value="{{system.source}}"></label>
+   {{#if isMove}}
+    <label class="field"><span>Statistic</span><select name="system.stat">{{selectOptions stats selected=system.stat}}</select></label>
+    <label class="field"><span>Category</span><input name="system.category" value="{{system.category}}"></label>
+   {{/if}}
+   {{#if isGear}}
+    <label class="field"><span>Quantity</span><span class="num field-num">
+     <button type="button" data-action="nudge" data-path="system.quantity" data-delta="-1" data-min="0" aria-label="One fewer">{{icon 'minus'}}</button>
+     <input type="number" min="0" name="system.quantity" value="{{system.quantity}}">
+     <button type="button" data-action="nudge" data-path="system.quantity" data-delta="1" data-min="0" aria-label="One more">{{icon 'plus'}}</button>
+    </span></label>
+    <label class="field"><span>Capacity <small>drives kit pips</small></span><span class="num field-num">
+     <button type="button" data-action="nudge" data-path="system.capacity" data-delta="-1" data-min="0" aria-label="Less capacity">{{icon 'minus'}}</button>
+     <input type="number" min="0" name="system.capacity" value="{{system.capacity}}">
+     <button type="button" data-action="nudge" data-path="system.capacity" data-delta="1" data-min="0" aria-label="More capacity">{{icon 'plus'}}</button>
+    </span></label>
+    <label class="field"><span>Uses remaining</span><input type="number" min="0" name="system.uses" value="{{system.uses}}"></label>
+    <label class="field"><span>Statistic modified while carried</span><select name="system.bonusStat">{{selectOptions bonusStats selected=system.bonusStat}}</select></label>
+    <label class="field"><span>Modifier</span><input type="number" name="system.bonus" value="{{system.bonus}}"></label>
+   {{/if}}
+   {{#if isPower}}
+    <label class="field"><span>Beast / Female bonus statistic</span><select name="system.bonusStat">{{selectOptions bonusStats selected=system.bonusStat}}</select></label>
+   {{/if}}
+   {{#if isWound}}
+    <label class="field"><span>Region</span><select name="system.region">{{selectOptions regions selected=system.region}}</select></label>
+    <label class="field"><span>Severity</span><select name="system.severity">{{selectOptions severity selected=system.severity}}</select></label>
+    <label class="field"><span>Injury type</span><select name="system.injuryType">{{selectOptions injuryTypes selected=system.injuryType}}</select></label>
+    <label class="field"><span>Body / form</span><select name="system.formScope">{{selectOptions formScopes selected=system.formScope}}</select></label>
+    <label class="field"><span>Consciousness lost</span><span class="num field-num">
+     <button type="button" data-action="nudge" data-path="system.consciousnessLoss" data-delta="-1" data-min="0" aria-label="Less loss">{{icon 'minus'}}</button>
+     <input type="number" min="0" name="system.consciousnessLoss" value="{{system.consciousnessLoss}}">
+     <button type="button" data-action="nudge" data-path="system.consciousnessLoss" data-delta="1" data-min="0" aria-label="More loss">{{icon 'plus'}}</button>
+    </span></label>
+   {{/if}}
+  </div>
+  <div class="checks">
+   {{#if isMove}}
+    <label class="check"><input type="checkbox" name="system.difficult" {{checked system.difficult}}><span>Difficult — below 10 always fails</span></label>
+    <label class="check"><input type="checkbox" name="system.combat" {{checked system.combat}}><span>Combat — difficult at low consciousness</span></label>
+   {{/if}}
+   {{#if isGear}}<label class="check"><input type="checkbox" name="system.equipped" {{checked system.equipped}}><span>Carried and active</span></label>{{/if}}
+   {{#if isPower}}<label class="check"><input type="checkbox" name="system.equipped" {{checked system.equipped}}><span>Use this power while transformed</span></label>{{/if}}
+   {{#if isWound}}
+    <label class="check"><input type="checkbox" name="system.treated" {{checked system.treated}}><span>Treated — bleeding stopped</span></label>
+    <label class="check"><input type="checkbox" name="system.fromMajor" {{checked system.fromMajor}}><span>Minor wound healed down from a major</span></label>
+    <label class="check"><input type="checkbox" name="system.healed" {{checked system.healed}}><span>Healed — ignore for derived statistics</span></label>
+   {{/if}}
+  </div>
+
+  {{#if isMove}}
+  <div class="sec"><span class="num">§2</span>Outcomes</div>
+  <div class="outcomes">
+   <label class="ocard hit"><span class="ol">10+ · Success</span><textarea name="system.success">{{system.success}}</textarea></label>
+   <label class="ocard mix"><span class="ol">7–9 · Partial</span><textarea name="system.partial">{{system.partial}}</textarea></label>
+   <label class="ocard miss"><span class="ol">6− · Failure</span><textarea name="system.failure">{{system.failure}}</textarea></label>
+   <label class="ocard grim"><span class="ol">Snake eyes</span><textarea name="system.snakeEyes">{{system.snakeEyes}}</textarea></label>
+  </div>
+  {{/if}}
+
+  <div class="sec"><span class="num">§{{#if isMove}}3{{else}}2{{/if}}</span>Source text</div>
+  <section class="rules">{{{description}}}</section>
+  {{#if editable}}
+  <details class="tuck">
+   <summary>{{icon 'caret'}}Edit description HTML</summary>
+   <textarea name="system.description" class="code">{{system.description}}</textarea>
+  </details>
+  {{/if}}
+ </div>
+</div>

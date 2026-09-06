@@ -1,7 +1,82 @@
-<header class="dossier-head">
- <button type="button" class="portrait-frame" data-action="editPortrait" aria-label="Change character portrait">
-  {{#if portraitAvailable}}<img src="{{actor.img}}" alt="{{actor.name}}">{{else}}<span class="portrait-placeholder"><img src="systems/gluniverse-titan-world/assets/crest.svg" alt=""><span>No photograph<br>on file</span></span>{{/if}}
+<header class="hdr">
+ <button type="button" class="portrait" data-action="editPortrait" aria-label="Change portrait">
+  <span class="pc a"></span><span class="pc b"></span><span class="pc c"></span><span class="pc d"></span>
+  {{#if portraitAvailable}}<img src="{{actor.img}}" alt="{{actor.name}}">
+  {{else}}<span class="stamp">No photograph<br>on file<br>— S.C. archive —</span>{{/if}}
  </button>
- <div class="identity"><div class="eyebrow">{{#if isParty}}Expedition command{{else}}Personnel archive · Titan World{{/if}}</div><input name="name" value="{{actor.name}}" aria-label="Character name"><div class="identity-meta"><span>{{#if system.regiment}}{{system.regiment}}{{else}}Regiment unassigned{{/if}}</span><span>{{#if system.rank}}{{system.rank}}{{else}}Service record{{/if}}</span></div><div class="identity-tags">{{#if isParty}}<span class="tag">Shared resource</span><span class="tag status-tag">GM managed</span>{{else}}<span class="tag">{{#if d.titan}}Titan body{{else}}Human body{{/if}}</span><span class="tag status-tag">{{d.status}}</span>{{/if}}<button type="button" class="text-button" data-action="openRules">System guide <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></button></div></div>
- <div class="header-readiness"><span class="serial">File / {{serial}}</span>{{#if isParty}}<span class="eyebrow">Party luck</span><div class="vital-value" data-live="luck">{{system.luck.value}}<small>/ {{system.luck.max}}</small></div>{{else}}<span class="eyebrow">{{#if d.mindless}}Titan status{{else}}Consciousness{{/if}}</span>{{#if d.mindless}}<span class="titan-status">Nape intact</span>{{else}}<div class="vital-value" data-live="consciousness">{{d.value}}<small>/ {{d.max}}</small></div><div class="meter" aria-label="Consciousness {{d.value}} of {{d.max}}">{{#each meter}}<i class="{{#if empty}}empty{{/if}}"></i>{{/each}}</div>{{/if}}{{/if}}</div>
+ <div class="ident">
+  <div class="ident-top">
+   <div class="kicker">{{icon 'wings'}}{{#if isParty}}Expedition command{{else}}{{#if isTitan}}Titan observation record{{else}}Survey Corps · personnel record{{/if}}{{/if}}<span class="serial">{{serial}}</span></div>
+   <input class="name" name="name" value="{{actor.name}}" aria-label="Name" spellcheck="false">
+   <div class="meta">
+    {{#if isParty}}
+     <span>Pool <b>Shared</b></span><span>Refresh <b>Per mission</b></span><span>Squad <b>{{roster.length}}</b></span>
+    {{else}}
+    {{#if isTitan}}
+     <span>Height <b>{{system.height}} m</b></span>
+     <span>Class <b>{{#if system.rank}}{{system.rank}}{{else}}Pure Titan{{/if}}</b></span>
+     <span>Sighted <b>{{#if system.origin}}{{system.origin}}{{else}}Unrecorded{{/if}}</b></span>
+    {{else}}
+     <span>Regiment <b>{{#if system.regiment}}{{system.regiment}}{{else}}Unassigned{{/if}}</b></span>
+     <span>Rank <b>{{#if system.rank}}{{system.rank}}{{else}}—{{/if}}</b></span>
+     <span>Origin <b>{{#if system.origin}}{{system.origin}}{{else}}—{{/if}}</b></span>
+     <span>Height <b>{{system.height}} m</b></span>
+    {{/if}}
+    {{/if}}
+   </div>
+  </div>
+  <div class="tags">
+   {{#if isParty}}
+    <span class="tag hot">{{icon 'users'}}Shared resource</span><span class="tag">GM managed</span>
+   {{else}}
+    <span class="tag hot">{{#if d.titan}}{{icon 'shifting'}}Titan body{{else}}{{icon 'body'}}Human body{{/if}}</span>
+    <span class="tag st-{{statusTone}}">{{d.status}}</span>
+    {{#unless isTitan}}<span class="tag st-{{fear.tone}}" title="{{fear.line}}">{{icon fear.icon}}{{fear.label}}</span>{{/unless}}
+    {{#if system.shift.active}}<span class="tag">Transformed · {{system.shift.yearsRemaining}} yrs left</span>{{/if}}
+    {{#if system.fatigue}}<span class="tag warn">{{icon 'wind'}}Fatigue −{{system.fatigue}}</span>{{/if}}
+    {{#if system.nextDifficult}}<span class="tag stamped">{{icon 'stamp'}}Next roll difficult</span>{{/if}}
+   {{/if}}
+   <button type="button" class="tag link" data-action="openRules">{{icon 'book'}}Guide{{icon 'external'}}</button>
+  </div>
+ </div>
+ <div class="hdr-right">
+  {{#if isParty}}
+   <div class="cons luck">
+    <div class="lbl">Party luck</div>
+    <div class="val" data-live="luck">{{system.luck.value}}<small>/ {{system.luck.max}}</small></div>
+    <div class="formula">Requested on a roll card · GM approves</div>
+   </div>
+  {{else}}{{#if d.mindless}}
+   <div class="cons">
+    <div class="lbl">Titan status</div>
+    <div class="nape">{{icon 'target'}}Nape intact</div>
+    <div class="formula">{{system.height}} m · killed by a nape strike</div>
+   </div>
+  {{else}}
+   <div class="cons{{#if critical}} crit{{/if}}">
+    <div class="lbl">Consciousness{{#if track.coma}} · coma{{/if}}</div>
+    <div class="consrow">
+     <div class="val{{#if track.deficit}} under{{/if}}" data-live="consciousness">{{d.value}}<small>/ {{d.max}}</small></div>
+     {{#if editable}}
+     <div class="num tight vert" role="group" aria-label="Adjust consciousness">
+      <button type="button" data-action="nudge" data-path="{{lossPath}}" data-delta="-1" aria-label="Restore one consciousness">{{icon 'plus'}}</button>
+      <button type="button" data-action="nudge" data-path="{{lossPath}}" data-delta="1" aria-label="Lose one consciousness">{{icon 'minus'}}</button>
+     </div>
+     {{/if}}
+    </div>
+    <div class="track" aria-label="{{d.value}} of {{d.max}} consciousness">
+     {{#each track.boxes}}<i class="cbox {{state}}"></i>{{/each}}
+     {{#unless track.boxes}}<span class="ctiny">No maximum remains</span>{{/unless}}
+    </div>
+    {{#if track.below}}
+    <div class="track under" aria-label="{{track.deficit}} below zero">
+     <span class="ctiny">Below zero</span>
+     {{#each track.below}}<i class="cbox neg{{#if fatal}} fatal{{/if}}"></i>{{/each}}
+    </div>
+    {{/if}}
+    <div class="formula">{{formula.text}}</div>
+    <div class="formula grim">{{formula.death}}{{#if track.wounded}} · wounds −{{track.wounded}}{{/if}}{{#if track.voided}} · max −{{track.voided}}{{/if}}</div>
+   </div>
+  {{/if}}{{/if}}
+ </div>
 </header>

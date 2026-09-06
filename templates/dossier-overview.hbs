@@ -1,20 +1,180 @@
-<div class="overview-grid">
- <main class="overview-main">
-  <div class="section-head"><h2 class="section-title"><span>01</span> Aptitude assessment</h2>{{#if editable}}<button type="button" class="text-button" data-action="advance">Advance <i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button>{{/if}}</div>
-  <div class="stat-grid">{{#each stats}}<div class="stat {{#if modified}}modified{{/if}}">
-   <button type="button" class="stat-roll" data-action="rollStat" data-stat="{{key}}" aria-label="Roll {{label}} {{display}}"><span class="stat-label">{{label}}</span><span class="stat-description">{{description}}</span><span class="stat-value" data-live="stat-{{key}}">{{display}}</span><span class="roll-mark"><i class="fa-solid fa-dice" aria-hidden="true"></i> Roll</span></button>
-   <label class="base-stat">Base <input name="system.stats.{{key}}" type="number" min="-3" max="3" value="{{value}}" aria-label="Base {{label}}"></label>{{#if modified}}<span class="modifier-note">Adjusted</span>{{/if}}{{#if advanced}}<span class="advancement-mark" title="Advanced">↑</span>{{/if}}
-  </div>{{/each}}</div>
-  <section class="condition-section"><div class="section-head"><h2 class="section-title"><span>02</span> Physical condition</h2><span class="section-caption">{{#if d.titan}}Titan{{else}}Human{{/if}} body</span></div>
-  <div class="condition-grid">{{#each regions}}<button type="button" class="condition-region {{severity}}" data-action="twTab" data-tab="injuries" aria-label="{{label}}: {{summary}}"><span>{{label}}</span><small>{{summary}}</small><span class="pips">{{#each pips}}<i class="pip {{#if filled}}filled{{/if}}"></i>{{/each}}</span></button>{{/each}}</div></section>
-  <section class="engagement"><div class="section-head"><h2 class="section-title"><span>03</span> Titan engagement</h2><button type="button" class="text-button" data-action="twTab" data-tab="actions">All actions →</button></div><div class="quick-actions">{{#each quickMoves}}<button type="button" data-action="rollMove" data-key="{{system.key}}"><span>{{name}}</span><small>Roll + {{system.stat}}</small><i class="fa-solid fa-angle-right" aria-hidden="true"></i></button>{{/each}}</div></section>
-  {{#if d.deathReview}}<p class="warning">Death threshold reached. GM review required.</p>{{/if}}{{#if d.combatDifficult}}<p class="warning">Combat rolls are difficult at this consciousness.</p>{{/if}}
- </main>
- <aside class="field-sidebar">
-  <section class="field-box"><h2 class="section-title"><span>04</span> Field kit</h2><div class="kit-list">{{#each kit}}<div class="kit-row {{#if empty}}depleted{{/if}}"><button type="button" class="kit-name" data-action="editItem" data-item-id="{{id}}">{{name}}{{#if system.uses}}<small>{{system.uses}} uses remaining</small>{{/if}}</button><span data-live="kit-{{id}}" class="kit-count">{{system.quantity}}</span><button type="button" class="kit-spend" data-action="quantity" data-item-id="{{id}}" data-delta="-1" aria-label="Use one {{name}}" {{#if empty}}disabled{{/if}}>−</button></div>{{else}}<p class="empty">No carried equipment.<br>Prepare a loadout before departure.</p>{{/each}}</div><button type="button" class="text-button" data-action="twTab" data-tab="equipment">Manage equipment →</button></section>
-  <section class="field-box luck-box"><div class="section-head"><h2 class="section-title"><span>05</span> Shared luck</h2>{{#if party}}<span class="luck-total" data-live="party-luck">{{party.value}}<small>/ {{party.max}}</small></span>{{/if}}</div>{{#if party}}<div class="pips luck-pips" aria-label="{{party.value}} luck remaining">{{#each luckPips}}<i class="pip {{#if filled}}filled{{/if}}"></i>{{/each}}</div><p class="note">One pool. Every soldier.<br>Request a spend from your roll in chat.</p><button type="button" data-action="openParty">Open party pool</button>{{else}}{{#if isGM}}<button type="button" data-action="createParty">Create shared pool</button>{{else}}<p class="note">Awaiting the GM's party pool.</p>{{/if}}{{/if}}</section>
-  <section class="field-box"><h2 class="section-title"><span>06</span> Readiness</h2><label class="field">Dodge fatigue<input type="number" min="0" name="system.fatigue" value="{{system.fatigue}}"></label><button type="button" data-action="catchBreath">Catch breath</button><label class="check-field"><input type="checkbox" name="system.nextDifficult" {{checked system.nextDifficult}}> Next roll difficult</label>
-  <details><summary>Consciousness adjustments</summary><label class="field">Other loss<input type="number" name="{{lossPath}}" value="{{loss}}"></label><label class="field">Maximum adjustment<input type="number" name="{{maxPath}}" value="{{maxAdjustment}}"></label><p class="note">Wound loss: {{d.woundLoss}}. Negative other loss restores consciousness.</p><label class="check-field"><input type="checkbox" name="system.dead" {{checked system.dead}}> Deceased, by GM ruling</label></details></section>
-  {{#if editable}}<button type="button" class="recruit-button" data-action="createCharacter"><i class="fa-solid fa-feather-pointed" aria-hidden="true"></i> Create character</button>{{/if}}
+<div class="ov">
+ <div class="ov-main">
+  <div class="sec">
+   <span class="num">§1</span>Statistics<span class="k">click a card to roll 2d6</span>
+   {{#unless isTitan}}{{#if editable}}<button type="button" class="mini" data-action="advance">{{icon 'arrowUp'}}Advance</button>{{/if}}{{/unless}}
+  </div>
+  <div class="stats">
+   {{#each stats}}
+   <div class="stat s-{{tone}}{{#if modified}} modified{{/if}}{{#if penalty}} penalised{{/if}}"{{#if why}} title="{{label}} {{display}} — {{why}}"{{/if}}>
+    <button type="button" class="stat-hit" data-action="rollStat" data-stat="{{key}}" aria-label="Roll {{label}} {{display}}"></button>
+    <div class="stat-key">
+     <span class="big" data-live="stat-{{key}}"><span class="sign">{{sign}}</span>{{abs}}</span>
+     <label class="base" title="Base {{label}}"><input type="number" name="system.stats.{{key}}" min="-3" max="3" step="1" value="{{value}}" aria-label="Base {{label}}"><span>base</span></label>
+    </div>
+    <div class="stat-body">
+     <div class="stat-top">
+      {{icon icon}}<span class="name">{{label}}</span>
+      {{#if advanced}}<span class="adv" title="Advanced this campaign">{{icon 'arrowUp'}}</span>{{/if}}
+     </div>
+     <p class="desc">{{description}}</p>
+     {{#if anyReason}}
+     <div class="rsns">
+      {{#each shown}}<i class="rsn {{tone}}{{#if atRoll}} atroll{{/if}}" title="{{display}} {{label}}{{#if atRoll}} — applied when you roll{{/if}}">{{display}} {{short}}</i>{{/each}}
+      {{#if extra}}<i class="rsn more" title="Full breakdown on the Gear tab">+{{extra}} more</i>{{/if}}
+     </div>
+     {{/if}}
+    </div>
+    <span class="rollmark">{{icon 'dice'}}Roll</span>
+   </div>
+   {{/each}}
+  </div>
+
+  <div class="sec"><span class="num">§2</span>Condition<span class="k">{{#if d.titan}}Titan{{else}}Human{{/if}} body · click for the log</span></div>
+  <div class="cond">
+   {{#each ledger}}
+   <button type="button" class="loc {{severity}}" data-action="twTab" data-tab="injuries" aria-label="{{label}}: {{headline}}{{#if applied}}, {{applied}}{{/if}}">
+    <span class="nm">{{icon icon}}<span>{{short}}</span><i></i></span>
+    <span class="sv">{{headline}}</span>
+    <span class="locfoot">
+     <span class="pips">{{#each pips}}<i class="pip{{#if filled}} on{{/if}}"></i>{{/each}}</span>
+     {{#if applied}}<b title="{{applied}}">{{appliedShort}}</b>{{/if}}
+    </span>
+   </button>
+   {{/each}}
+  </div>
+
+  {{#unless isTitan}}
+  <div class="sec">
+   <span class="num">§3</span>Engagement<span class="k">the rolls you reach for first</span>
+   <button type="button" class="mini" data-action="twTab" data-tab="actions">All {{actionCount}}{{icon 'chevron'}}</button>
+  </div>
+  <div class="engage">
+   {{#each quickActions}}{{#if primary}}
+   <button type="button" class="act primary" data-action="rollMove" data-key="{{key}}">
+    {{icon icon}}<span class="an">{{alias}}<small>{{name}} · {{statLabel}} {{modDisplay}}</small></span>{{icon 'dice'}}
+   </button>
+   {{/if}}{{/each}}
+   <div class="fearbar f-{{fear.tone}}">
+    <span class="fl">{{icon fear.icon}}Fear</span>
+    <span class="fseg" role="group" aria-label="Fear state">
+     {{#each fear.states}}
+     <button type="button" class="{{#if on}}on{{/if}}" data-action="setFear" data-state="{{key}}" title="{{line}}" aria-pressed="{{#if on}}true{{else}}false{{/if}}">{{label}}</button>
+     {{/each}}
+    </span>
+    <span class="fp">{{fear.line}}</span>
+   </div>
+   <div class="acts wide">
+    {{#each quickActions}}{{#unless primary}}
+    <button type="button" class="act s-{{tone}}{{#if difficult}} hard{{/if}}" data-action="rollMove" data-key="{{key}}">
+     {{icon icon}}<span class="an">{{name}}<small>{{statShort}} {{modDisplay}}{{#if difficult}} · difficult{{/if}}</small></span>
+    </button>
+    {{/unless}}{{/each}}
+   </div>
+  </div>
+  {{/unless}}
+
+  {{#if warnings}}
+  <div class="sec"><span class="num">{{#if isTitan}}§3{{else}}§4{{/if}}</span>Standing rulings<span class="k">{{warnings.length}} in force</span></div>
+  <div class="alerts">
+   {{#each warnings}}<div class="alert {{tone}}">{{icon icon}}<span>{{text}}</span></div>{{/each}}
+  </div>
+  {{/if}}
+ </div>
+
+ <aside class="side">
+{{#if isTitan}}
+  <section class="box">
+   <div class="sec"><span class="num">§4</span>Titan profile</div>
+   <div class="ready">
+    <div class="rrow"><span class="rl">{{icon 'hunting'}}Height</span>
+     <span class="num tight">
+      <button type="button" data-action="nudge" data-path="system.height" data-delta="-1" data-min="0" aria-label="Shorter">{{icon 'minus'}}</button>
+      <b data-live="height">{{system.height}}</b>
+      <button type="button" data-action="nudge" data-path="system.height" data-delta="1" data-min="0" aria-label="Taller">{{icon 'plus'}}</button>
+     </span>
+    </div>
+    <div class="rrow"><span class="rl">{{icon 'target'}}Killed by</span><b>Nape strike</b></div>
+    <div class="rrow"><span class="rl">{{icon 'body'}}Body</span><b>Fixed at +3</b></div>
+   </div>
+   <p class="note">Mindless Titans have no consciousness track and no shared luck. Body is fixed at +3 and the nape is the only kill.</p>
+  </section>
+
+{{else}}
+  <section class="box">
+   <div class="sec"><span class="num">§5</span>Field kit<button type="button" class="mini" data-action="twTab" data-tab="equipment">All{{icon 'chevron'}}</button></div>
+   <div class="kit">
+    {{#if kit}}<div class="khead"><span>Item</span><span>Supply</span><span>Held</span></div>{{/if}}
+    {{#each kit}}
+    <div class="krow k-{{kind}}{{#if low}} low{{/if}}{{#if empty}} out{{/if}}">
+     <button type="button" class="kl" data-action="editItem" data-item-id="{{id}}" title="{{name}}">
+      <span class="kchip">{{icon icon}}</span><span class="kn">{{name}}</span>
+     </button>
+     <span class="gauge{{#if empty}} spent{{/if}}" role="img" aria-label="{{quantity}} of {{#if capacity}}{{capacity}}{{else}}{{quantity}}{{/if}}">
+      {{#if empty}}<i class="kstamp">Spent</i>
+      {{else}}{{#if pips}}{{#each pips}}<i class="gs{{#if filled}} on{{/if}}"></i>{{/each}}
+      {{else}}{{#if single}}<i class="gs one on"></i>
+      {{else}}<i class="gbar"><b style="width:{{percent}}%"></b></i>{{/if}}{{/if}}{{/if}}
+     </span>
+     <span class="kq"><b data-live="kit-{{id}}">{{quantity}}</b>{{#unless pips}}{{#if capacity}}<small>/{{capacity}}</small>{{/if}}{{/unless}}</span>
+     <span class="num tight">
+      <button type="button" data-action="quantity" data-item-id="{{id}}" data-delta="-1" aria-label="Spend one {{name}}" {{#if empty}}disabled{{/if}}>{{icon 'minus'}}</button>
+      <button type="button" data-action="quantity" data-item-id="{{id}}" data-delta="1" aria-label="Restore one {{name}}">{{icon 'plus'}}</button>
+     </span>
+    </div>
+    {{else}}
+    <p class="empty">No carried equipment.<br>Prepare a loadout before departure.</p>
+    <button type="button" class="mini wide" data-action="equipLoadout">{{icon 'pack'}}Equip a loadout</button>
+    {{/each}}
+   </div>
+  </section>
+
+  <section class="box">
+   <div class="sec"><span class="num">§6</span>Shared luck</div>
+   {{#if party}}
+   <div class="luckbox">
+    <div class="lt" data-live="party-luck">{{party.value}}<small>/{{party.max}}</small>
+     <span class="pips luck">{{#each luckPips}}<i class="pip round{{#if filled}} on{{/if}}"></i>{{/each}}</span>
+    </div>
+    <p class="note">One pool, every soldier. Request a spend from your own roll card in chat.</p>
+    <button type="button" class="mini wide" data-action="openParty">{{icon 'users'}}Open the pool</button>
+   </div>
+   {{else}}{{#if isGM}}<button type="button" class="mini wide" data-action="createParty">{{icon 'plusSquare'}}Create a shared pool</button>
+   {{else}}<p class="empty">Awaiting the GM's pool.</p>{{/if}}{{/if}}
+  </section>
+
+{{/if}}
+  <section class="box">
+   <div class="sec"><span class="num">{{#if isTitan}}§5{{else}}§7{{/if}}</span>Readiness</div>
+   <div class="ready">
+    {{#unless isTitan}}
+    <div class="rrow">
+     <span class="rl">{{icon 'wind'}}Dodge fatigue<small>−1 Agility per dodge</small></span>
+     <span class="num tight">
+      <button type="button" data-action="nudge" data-path="system.fatigue" data-delta="-1" data-min="0" aria-label="Less fatigue">{{icon 'minus'}}</button>
+      <b data-live="fatigue">{{system.fatigue}}</b>
+      <button type="button" data-action="nudge" data-path="system.fatigue" data-delta="1" data-min="0" aria-label="More fatigue">{{icon 'plus'}}</button>
+     </span>
+    </div>
+    <button type="button" class="mini wide" data-action="catchBreath">{{icon 'refresh'}}Catch breath</button>
+    {{/unless}}
+    <label class="check"><input type="checkbox" name="system.nextDifficult" {{checked system.nextDifficult}}><span>Next roll is difficult</span></label>
+    <label class="check"><input type="checkbox" name="system.dead" {{checked system.dead}}><span>{{#if isTitan}}Killed{{else}}Deceased{{/if}}, by GM ruling</span></label>
+   </div>
+   {{#unless isTitan}}
+   <details class="tuck">
+    <summary>{{icon 'caret'}}Consciousness adjustments</summary>
+    <div class="grid2">
+     <label class="field"><span>Other loss</span><input type="number" name="{{lossPath}}" value="{{loss}}"></label>
+     <label class="field"><span>Max adjustment</span><input type="number" name="{{maxPath}}" value="{{maxAdjustment}}"></label>
+    </div>
+    <p class="note">Wound loss {{d.woundLoss}} is applied separately and struck out on the track. A negative maximum adjustment strikes boxes off the sheet entirely.</p>
+   </details>
+   {{/unless}}
+  </section>
+
+  {{#unless isTitan}}{{#if editable}}
+  <button type="button" class="recruit" data-action="createCharacter">{{icon 'feather'}}Create character</button>
+  {{/if}}{{/unless}}
  </aside>
 </div>

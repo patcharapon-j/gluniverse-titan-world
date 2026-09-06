@@ -28,7 +28,10 @@ for(const visibility of ['public','gm','blind','self'])test(`Luck rerolls append
  await spend('reroll');await spend('reroll');await spend('plus');
  assert.equal(sequence,2);assert.deepEqual(source.rolls.map(r=>r.total),[7,8,9]);
  assert.equal(updates[0].rolls.length,2);assert.equal(updates[1].rolls.length,3);
- assert.equal('rolls' in updates[2],false);assert.match(updates[2].content,/10 ·/);
+ assert.equal('rolls' in updates[2],false);
+ assert.match(updates[2].content,/<div class="total">10<\/div>/);
+ assert.match(updates[2].content,/class="tw chat-card hit"/);
+ assert.match(updates[2].content,/<i class="t hit on"><b>10\+<\/b><span>Success<\/span><\/i>/);
  assert.equal(party.system.luck.value,2);
  assert.deepEqual({whisper:source.whisper,blind:source.blind,speaker:source.speaker},original);
  for(const update of updates)for(const key of ['author','whisper','blind','speaker'])assert.equal(key in update,false);

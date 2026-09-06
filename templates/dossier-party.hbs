@@ -1,0 +1,39 @@
+<div class="party">
+ <section class="pool">
+  <div class="sec"><span class="num">§1</span>Shared luck pool<span class="k">one pool, every soldier</span></div>
+  <div class="pool-face">
+   <div class="pool-val" data-live="pool">{{system.luck.value}}<small>/{{system.luck.max}}</small></div>
+   <div class="pips luck big">{{#each luckPips}}<i class="pip round{{#if filled}} on{{/if}}"></i>{{/each}}</div>
+   {{#if editable}}
+   <div class="pool-ctl">
+    <span class="num">
+     <button type="button" data-action="nudge" data-path="system.luck.value" data-delta="-1" data-min="0" aria-label="Spend one">{{icon 'minus'}}</button>
+     <span>spend</span>
+     <button type="button" data-action="nudge" data-path="system.luck.value" data-delta="1" data-min="0" aria-label="Restore one">{{icon 'plus'}}</button>
+    </span>
+    <label class="field inline-field"><span>Mission maximum</span><input type="number" min="0" name="system.luck.max" value="{{system.luck.max}}"></label>
+   </div>
+   {{/if}}
+  </div>
+  <p class="note">Set one or two points per player. A player requests luck from their own roll card in chat; the GM approves each spend, and the primary GM processes them one at a time so two spends can never take the same point.</p>
+  {{#if isGM}}<button type="button" class="mini primary" data-action="resetMission">{{icon 'refresh'}}Refresh for the next mission</button>{{/if}}
+ </section>
+
+ <section class="roster">
+  <div class="sec"><span class="num">§2</span>Squad{{#if roster}}<span class="k">{{roster.length}} on file</span>{{/if}}</div>
+  <div class="rlist">
+   {{#each roster}}
+   <button type="button" class="rcard {{tone}}" data-action="openActor" data-actor-id="{{id}}">
+    <img src="{{img}}" alt="">
+    <span class="rn">{{name}}<small>{{status}}</small></span>
+    <span class="rv">{{value}}<small>/{{max}}</small></span>
+   </button>
+   {{else}}<p class="empty">No soldier dossiers are visible to you yet.</p>{{/each}}
+  </div>
+ </section>
+
+ <section class="pnotes">
+  <div class="sec"><span class="num">§3</span>Mission notes</div>
+  <label class="field"><textarea name="system.notes" class="ruled tall">{{system.notes}}</textarea></label>
+ </section>
+</div>

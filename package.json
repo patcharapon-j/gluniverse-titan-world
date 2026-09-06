@@ -6,6 +6,8 @@
   "scripts": {
     "build": "node --preserve-symlinks --preserve-symlinks-main scripts/build-packs.mjs",
     "test": "node --preserve-symlinks --preserve-symlinks-main --test tests/*.test.mjs",
-    "check": "node --preserve-symlinks --preserve-symlinks-main scripts/check.mjs"
+    "check": "node --preserve-symlinks --preserve-symlinks-main scripts/check.mjs",
+    "preview": "node --preserve-symlinks --preserve-symlinks-main scripts/preview.mjs",
+    "preview:serve": "node scripts/serve.mjs"
   }
 }
