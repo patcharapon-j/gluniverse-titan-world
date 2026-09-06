@@ -4,7 +4,7 @@ The user is designing the final appearance separately. Do not treat `preview/ind
 
 ## Files to replace or adapt
 
-- `styles/titan-world.css`: current temporary styles, scoped with `.tw`.
+- `styles/titan-world.css`: field dossier styles, scoped with `.tw`.
 - `templates/actor.hbs`: one Handlebars root element inside the Foundry ApplicationV2 form.
 - `templates/item.hbs`: same requirement for Item sheets.
 - `module/sheets.mjs`: prepares view context and maps `data-action` controls to behavior. Keep business rules in the other modules.

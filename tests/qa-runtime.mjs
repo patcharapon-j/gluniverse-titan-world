@@ -41,6 +41,36 @@ Hooks.once('ready',async()=>{
   let duplicateBlocked=false;try{await approveLuck(request);}catch{duplicateBlocked=true;}check('Duplicate luck request rejected',duplicateBlocked&&party.system.luck.value===3);
   const rerollRequest=await requestLuck(message,'reroll');await approveLuck(rerollRequest);check('Luck reroll updates roll and clears +1',party.system.luck.value===2&&message.getFlag(ID,'roll').luckBonus===0&&message.getFlag(ID,'roll').revision===2);
   await actor.sheet.render(true);
+  const waitUntil=async predicate=>{for(let i=0;i<40;i++){if(predicate())return true;await new Promise(resolve=>setTimeout(resolve,50));}return false;};
+  await party.update({'system.luck.value':1});
+  check('Open soldier sheet receives shared party updates',await waitUntil(()=>actor.sheet.element.querySelector('[data-live="party-luck"]')?.textContent.trim().startsWith('1')));
+  await actor.update({'system.stats.body':1});
+  check('Base edit refreshes derived consciousness immediately',await waitUntil(()=>actor.sheet.element.querySelector('[data-live="consciousness"]')?.textContent.trim().startsWith('4')));
+  actor.sheet._twTab='background';await actor.sheet.render(true);
+  const anchor=actor.sheet.element.querySelector('[name="system.anchor"]');anchor.focus();anchor.value='Unsaved typing survives a party update';anchor.setSelectionRange(7,7);
+  await party.update({'system.luck.value':2});
+  await waitUntil(()=>actor.sheet.element.querySelector('[name="system.anchor"]')!==anchor);
+  const restored=actor.sheet.element.querySelector('[name="system.anchor"]');
+  check('Live updates preserve focused unsaved text and caret',restored.value==='Unsaved typing survives a party update'&&document.activeElement===restored&&restored.selectionStart===7);
+  restored.blur();actor.sheet._twTab='actions';await actor.sheet.render(true);
+  const search=actor.sheet.element.querySelector('[data-move-search]');search.value='nape';search.dispatchEvent(new Event('input'));
+  await party.update({'system.luck.value':3});
+  await waitUntil(()=>actor.sheet.element.querySelector('[data-move-search]')!==search);
+  check('Action search survives live updates',actor.sheet.element.querySelector('[data-move-search]').value==='nape'&&[...actor.sheet.element.querySelectorAll('[data-move-name]:not([hidden])')].every(row=>row.dataset.moveName.toLowerCase().includes('nape')));
+  actor.sheet._twTab='record';await actor.update({'system.stats.body':0});await actor.sheet.render(true);
+  const bodyInput=actor.sheet.element.querySelector('[name="system.stats.body"]');bodyInput.value='1';bodyInput.dispatchEvent(new Event('change',{bubbles:true}));
+  check('Native form change saves and updates derived display',await waitUntil(()=>actor.system.stats.body===1&&actor.sheet.element.querySelector('[data-live="consciousness"]')?.textContent.trim().startsWith('4')));
+  await actor.update({'system.stats.body':0});await actor.sheet.render(true);
+  const scrollBody=actor.sheet.element.querySelector('.sheet-body');scrollBody.scrollTop=80;const scrollBefore=scrollBody.scrollTop;
+  await party.update({'system.luck.value':2});await waitUntil(()=>actor.sheet.element.querySelector('.sheet-body')!==scrollBody);
+  check('Live refresh preserves scroll position',Math.abs(actor.sheet.element.querySelector('.sheet-body').scrollTop-scrollBefore)<2);
+  let tabsFit=true;
+  for(const tab of ['record','injuries','equipment','actions','background','powers']){actor.sheet._twTab=tab;await actor.sheet.render(true);const body=actor.sheet.element.querySelector('.sheet-body');tabsFit&&=body.scrollWidth<=body.clientWidth+1;}
+  check('All six dossier pages fit without horizontal overflow',tabsFit);
+  actor.sheet._twTab='record';await actor.sheet.render(true);actor.sheet.setPosition({width:640});
+  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+  const narrowBody=actor.sheet.element.querySelector('.sheet-body');check('Narrow dossier reflows without horizontal overflow',narrowBody.scrollWidth<=narrowBody.clientWidth+1);
+  actor.sheet.setPosition({width:980});await actor.sheet.render(true);
  }catch(error){results.push({name:'Runtime error',pass:false,error:error.stack??error.message});console.error('TW QA',error);}
  const panel=document.createElement('details');panel.id='tw-qa-results';panel.style.cssText='position:fixed;bottom:8px;left:8px;z-index:10000;background:#eee;color:#111;padding:10px;max-width:620px;max-height:300px;overflow:auto';
  const summary=document.createElement('summary');summary.textContent=`Titan World QA: ${results.filter(r=>r.pass).length}/${results.length} checks passed`;

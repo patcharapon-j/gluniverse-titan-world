@@ -47,4 +47,14 @@ Testing used a separate temporary data directory and two browser sessions. Real 
 
 ## Limits
 
-The exact latest release, 14.367, was researched but not installed here. The manifest records 14.363 as verified. Final artwork and visual styling await the user's selected design. Narrative consequences and source contradictions remain GM-assisted by design; this is not a full combat simulation.
+The exact latest release, 14.367, was researched but not installed here. The manifest records 14.363 as verified. The field dossier now implements the supplied design direction; custom character portraits can be set per actor. Narrative consequences and source contradictions remain GM-assisted by design; this is not a full combat simulation.
+
+## Field dossier validation
+
+- 19 automated tests passed, covering the rules, Dice So Nice integration, release increments, condition-region grouping, and actual inventory counts.
+- 33 checks passed in the isolated Foundry 14.363 world. The added checks exercise shared party updates, derived consciousness, native form-change saving, unsaved text/caret retention, action-search retention, scroll retention, all six pages, and a 640px sheet width.
+- Separate GM and player browser sessions confirmed shared luck changes and equipment expenditure propagate to the other client's open sheet.
+- Recording a major head wound through the dialog immediately changed consciousness from 3 to 1 and marked the head in the injury diagram.
+- The final live reload reported no console warnings or errors.
+- Visual inspection covered the live overview and injury ledger. Motion only runs on tab changes or changed values and respects prefers-reduced-motion.
+- Fonts are bundled locally with their OFL / Apache licenses. No remote font request is needed.

@@ -2,7 +2,7 @@
 
 Unofficial Foundry VTT **v14-only** game system built from `docs/Titan World_ 3rd Edition.md`.
 
-The rules engine, native compendiums, and functional sheets are implemented. **The final visual design is pending the user's selected UI.** The current sheets are for playtesting and will be replaced without changing the document model or compendium IDs.
+The system includes native compendiums and a parchment field dossier inspired by military archives. The resizable sheets use locally bundled fonts, a leather binding, indexed sections, a live injury diagram, and shared party luck. Edits save on change. Open sheets refresh from Foundry documents while preserving scroll, search, and in-progress text editing. Motion is limited to tab changes and highlights on changed values, with reduced-motion support.
 
 ## Install from manifest
 
@@ -109,4 +109,4 @@ Close worlds using this system before rebuilding compendiums. Never rewrite an o
 
 ## UI handoff
 
-Use `docs/ui-integration.md` when the selected Claude/ChatGPT visual design arrives. Preserve the system data paths, registered actions, ownership checks, and compendium IDs while replacing the presentation.
+The field dossier follows the supplied HTML draft, with live Foundry data and refined controls. See `docs/field-dossier-design.md` for its visual direction. Preserve data paths, registered actions, ownership checks, and compendium IDs when extending it. Font licenses are bundled in `assets/fonts`.

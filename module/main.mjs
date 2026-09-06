@@ -1,6 +1,6 @@
 import {derive} from './rules.mjs';
 import {registerModels} from './models.mjs';
-import {TitanActorSheet,TitanItemSheet} from './sheets.mjs';
+import {TitanActorSheet,TitanItemSheet,refreshPartyDisplays} from './sheets.mjs';
 import {rollActor,registerChat,getParty} from './rolls.mjs';
 import {consequence,createParty,resetMission} from './actions.mjs';
 import {ID,report} from './ui.mjs';
@@ -15,7 +15,7 @@ Hooks.once('init',()=>{
  registerModels();CONFIG.Actor.documentClass=TitanActor;
  game.settings.register(ID,'stackWounds',{name:'Stack wound penalties in the same region',hint:'Default: one stat penalty per wounded region. Enable to apply one penalty per wound.',scope:'world',config:true,type:Boolean,default:false,requiresReload:true});
  game.settings.register(ID,'woundedBodyMax',{name:'Use wounded Body for maximum consciousness',hint:'Default: use Body before wound penalties, then subtract wound loss. Enable if the GM rules that chest wounds also lower the maximum.',scope:'world',config:true,type:Boolean,default:false,requiresReload:true});
- game.settings.register(ID,'partyActor',{name:'Party luck actor ID',hint:'Normally set by Create shared pool. If using multiple Party actors, enter the active one’s ID.',scope:'world',config:true,type:String,default:''});
+ game.settings.register(ID,'partyActor',{name:'Party luck actor ID',hint:'Normally set by Create shared pool. If using multiple Party actors, enter the active one’s ID.',scope:'world',config:true,type:String,default:'',onChange:refreshPartyDisplays});
  const sheets=foundry.applications.apps.DocumentSheetConfig;
  sheets.registerSheet(CONFIG.Actor.documentClass,ID,TitanActorSheet,{types:['soldier','titan','party'],makeDefault:true,label:'TW.Sheet'});
  sheets.registerSheet(CONFIG.Item.documentClass,ID,TitanItemSheet,{types:['gear','move','power','wound','loadout','advancement'],makeDefault:true,label:'TW.Sheet'});
