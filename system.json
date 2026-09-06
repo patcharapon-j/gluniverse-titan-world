@@ -2,7 +2,7 @@
   "id": "gluniverse-titan-world",
   "title": "Titan World · Third Edition",
   "description": "Private Titan World Third Edition system with full source compendiums and GM-assisted rules. Foundry v14 only.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "compatibility": {
     "minimum": "14",
     "verified": "14.363",
@@ -177,5 +177,5 @@
   },
   "url": "https://github.com/patcharapon-j/gluniverse-titan-world",
   "manifest": "https://github.com/patcharapon-j/gluniverse-titan-world/releases/latest/download/system.json",
-  "download": "https://github.com/patcharapon-j/gluniverse-titan-world/releases/download/v1.0.0/gluniverse-titan-world.zip"
+  "download": "https://github.com/patcharapon-j/gluniverse-titan-world/releases/download/v1.0.1/gluniverse-titan-world.zip"
 }
