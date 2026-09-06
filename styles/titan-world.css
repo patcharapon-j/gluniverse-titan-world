@@ -738,6 +738,52 @@
 .tw .aedit button:hover{color:var(--red);border-color:var(--rule);background:rgba(255,255,255,.5)}
 .tw .aedit .i{width:12px;height:12px}
 
+/* Each catalogued action unfolds its own result ladder, so a player can read what a
+   10+, a 7-9, a 6 or lower and snake eyes each do before deciding to spend the roll. */
+.tw .aitem{display:flex;flex-direction:column;min-width:0}
+.tw .aitem[hidden]{display:none}
+.tw details.aout{border-left:3px solid transparent;margin-bottom:1px}
+.tw details.aout>summary{
+ display:flex;align-items:center;justify-content:flex-end;gap:5px;padding:1px 7px 2px;cursor:pointer;list-style:none;
+ font:8px var(--fl);letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);opacity:.62;
+}
+.tw .aitem:hover details.aout>summary,.tw details.aout[open]>summary{opacity:1}
+.tw details.aout>summary::-webkit-details-marker{display:none}
+.tw details.aout>summary:hover{color:var(--red)}
+.tw details.aout>summary .i{width:10px;height:10px;transition:transform .2s var(--ease)}
+.tw details.aout[open]{border-left-color:var(--sc,var(--ink3));background:rgba(255,255,255,.16)}
+.tw details.aout[open]>summary{color:var(--red)}
+.tw details.aout[open]>summary .i{transform:rotate(-180deg)}
+/* One row per tier: the threshold on a stamped tab, the authored result beside it */
+.tw .olist{list-style:none;display:grid;gap:0;margin:0;padding:0 8px 7px}
+.tw .orow{
+ display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px;align-items:start;
+ padding:4px 0;border-top:1px dotted var(--rule);
+}
+.tw .orow:first-child{border-top:0}
+.tw .orow .ot{
+ display:flex;flex-direction:column;align-items:center;padding:2px 3px;
+ background:var(--ink3);color:var(--paper-hi);box-shadow:1px 1px 0 rgba(36,31,27,.3);
+}
+.tw .orow.hit .ot{background:var(--blue)}
+.tw .orow.mix .ot{background:var(--minor)}
+.tw .orow.miss .ot{background:var(--red)}
+.tw .orow.grim .ot{background:var(--ink)}
+.tw .orow .ot b{font:700 12px/1.1 var(--fd)}
+.tw .orow .ot em{font:7.5px/1.1 var(--fl);font-style:normal;letter-spacing:0;text-transform:uppercase;text-align:center;opacity:.85}
+.tw .orow .od{font:11.5px/1.45 var(--fb);color:var(--ink2)}
+.tw .orow .od i{color:var(--ink3)}
+.tw .orow.off .ot{opacity:.45;text-decoration:line-through}
+.tw .orow.off .od{color:var(--ink3)}
+/* On a roll card, the tier that actually landed is flagged in the margin */
+.tw .orow.on{background:rgba(185,146,74,.16);box-shadow:inset 3px 0 0 var(--brass)}
+.tw .orow.on .od{color:var(--ink)}
+.tw .osrc{
+ display:flex;align-items:center;gap:5px;margin:0;padding:0 8px 6px;
+ font:8.5px var(--fl);letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);
+}
+.tw .osrc .i{width:11px;height:11px}
+
 /* ── Wounds tab ──────────────────────────────────────────────────────────── */
 .tw .wd{display:grid;grid-template-columns:250px minmax(0,1fr);gap:16px;align-items:start}
 .tw .wcol{min-width:0}

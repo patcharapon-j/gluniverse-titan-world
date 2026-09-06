@@ -9,7 +9,7 @@ import {injuryLedger,fieldKit,actionGroups,actionCategories,actionStats,actionRo
 import {SPRITE} from './icons.mjs';
 const {HandlebarsApplicationMixin}=foundry.applications.api;
 const {ActorSheetV2,ItemSheetV2}=foundry.applications.sheets;
-const PARTIALS=['header','overview','actions','wounds','gear','shifter','record','party'];
+const PARTIALS=['header','overview','actions','outcomes','wounds','gear','shifter','record','party'];
 const TABS={
  soldier:[['record','Overview','shield'],['actions','Actions','combat'],['injuries','Wounds','drop'],['equipment','Gear','pack'],['powers','Shifter','shifting'],['background','Record','note']],
  titan:[['record','Overview','hunting'],['injuries','Wounds','drop'],['background','Record','note']]

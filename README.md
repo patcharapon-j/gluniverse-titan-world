@@ -49,6 +49,7 @@ Integration follows the official [chat integration](https://riccisi.gitlab.io/fo
 - Six editable stats and a validated starting-array assignment dialog; one-time stat advancement up to +3.
 - Foundry dice rolls with advantage capped at +3, additional modifiers, difficult rolls, natural snake-eyes/double-six outcomes, visibility modes, and source rules in chat.
 - 77 searchable field actions, including the stages of Titan combat, first aid, fear, firearms, wrestling, soldier duties, shifting, and absorption.
+- Every one of those actions carries its own 10+, 7–9, 6-or-lower and snake-eyes result, written out from its source section. The roll card prints the tier that landed and lists the whole ladder beside it, and each row of the Actions tab expands to the same ladder before you roll. Where the rulebook leaves a tier undefined, the text says so and hands the call to the GM.
 - Editable equipment quantities, first-aid-kit uses, carried modifiers, and starting packs with their choices.
 - Region/type/severity injury Items, derived penalties and consciousness, treatment/downgrade actions, and editable GM adjustments.
 - Separate human and Titan wound ledgers and exhaustion. Transformation applies supported power modifiers while preserving the human body state. New Titan bodies can discard old Titan wounds.

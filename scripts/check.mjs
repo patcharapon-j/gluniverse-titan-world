@@ -12,5 +12,10 @@ const manifest=JSON.parse(await fs.readFile(path.join(root,'system.json'),'utf8'
 if(manifest.compatibility.minimum!=='14'||manifest.compatibility.maximum!=='14')throw new Error('v14-only gate missing');
 for(const rel of [...manifest.esmodules,...manifest.styles,...manifest.languages.map(l=>l.path),...manifest.packs.map(p=>p.path)])await fs.access(path.join(root,rel));
 if(CONTENT.moves.length!==77||CONTENT.powers.length!==9||CONTENT.loadouts.length!==3)throw new Error('Incomplete catalog');
-for(const move of CONTENT.moves)if(!move.system.description||!move.system.source)throw new Error('Missing move source '+move.name);
+for(const move of CONTENT.moves){
+ if(!move.system.description||!move.system.source)throw new Error('Missing move source '+move.name);
+ // A roll card is only self-sufficient if every tier was written out for this action.
+ for(const tier of ['success','partial','failure','snakeEyes'])
+  if(!move.system[tier]||/^Resolve the/.test(move.system[tier]))throw new Error(`Field action "${move.name}" has no authored ${tier} result`);
+}
 console.log('Syntax, templates, manifest, and content checks passed.');

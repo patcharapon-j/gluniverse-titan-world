@@ -1,4 +1,4 @@
-import {REGIONS,REGIONAL_STAT,STATS,TITAN_HEIGHTS,meleeReach,meleeAgainst,biteTally} from './rules.mjs';
+import {REGIONS,REGIONAL_STAT,STATS,TITAN_HEIGHTS,meleeReach,meleeAgainst,biteTally,moveOutcomes} from './rules.mjs';
 import {CATEGORY_ICON,REGION_ICON,INJURY_ICON,STAT_ICON,gearIcon} from './icons.mjs';
 const SEVERITY={minor:1,major:2,crippling:3};
 export const SEVERITY_LABEL={minor:'Minor',major:'Major',crippling:'Crippling'};
@@ -222,14 +222,18 @@ export function actionGroups(moves,derived,{search='',category='',stat=''}={}) {
 }
 export function actionRow(move,derived,extra={}) {
  const system=move.system,stat=system.stat,mod=Number(derived?.stats?.[stat]??0);
- const generic=/^Resolve the/.test(system.success??'');
+ // Every catalogue action carries its own authored result ladder, so a player can read
+ // what a 10+, a 7-9 and a 6 or lower each mean before deciding to roll it.
+ const outcomes=moveOutcomes(system);
  return {...extra,key:system.key,name:move.name,id:move.id,category:system.category,
   icon:extra.icon??CATEGORY_ICON[system.category]??'combat',stat,statLabel:STATS[stat],statShort:STAT_SHORT[stat],tone:STAT_KEY[stat],
   mod,modDisplay:signed(mod),
   difficult:!!system.difficult,combat:!!system.combat,source:system.source,
   // A combat flag only matters while low consciousness is turning those rolls difficult.
   combatHot:!!system.combat&&!!derived?.combatDifficult,
-  line:generic?system.source:system.success};
+  outcomes,anyOutcome:outcomes.length>0,
+  hit:outcomes.find(o=>o.key==='success')?.text??'',
+  line:system.source};
 }
 /** Category chips for the actions toolbar. */
 export function actionCategories(moves,active='') {

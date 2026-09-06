@@ -1,12 +1,9 @@
-import {STATS,outcome,rollModifiers,clamp,meleeReach} from './rules.mjs';
+import {STATS,outcome,rollModifiers,clamp,meleeReach,RESULT_TIERS,moveOutcomes} from './rules.mjs';
 import {CONTENT} from '../data/content.mjs';
 import {ID,esc,field,select,check,prompt,requireOwner,requireGM,report} from './ui.mjs';
 const LABELS={success:'10+ · Success',partial:'7–9 · Partial result',failure:'6− · Failure',snakeEyes:'Snake eyes · Automatic failure',doubleSix:'Double six · Best result'};
 const BAND={success:'hit',doubleSix:'hit',partial:'mix',failure:'miss',snakeEyes:'miss'};
 // The three thresholds, drawn as a scale so the tier reached is read before the number is.
-const TIERS=[{key:'failure',band:'miss',range:'6−',label:'Failure'},
- {key:'partial',band:'mix',range:'7–9',label:'Partial'},
- {key:'success',band:'hit',range:'10+',label:'Success'}];
 const TIER_OF={success:'success',doubleSix:'success',partial:'partial',failure:'failure',snakeEyes:'failure'};
 const EXTREME={doubleSix:{band:'hit',text:'Double six · the best possible result'},
  snakeEyes:{band:'miss',text:'Snake eyes · automatic failure'}};
@@ -62,7 +59,13 @@ export async function rollActor(actor,stat,{move=null}={}) {
 export async function rollContent(meta,roll,history='') {
  const dice=roll.dice[0].results.filter(r=>r.active).map(r=>r.result),total=roll.total+Number(meta.luckBonus||0);
  const result=outcome(dice,total,meta.difficult),move=meta.moveData??moveByKey(meta.moveKey);
- const detail=move?.system[result==='doubleSix'?'success':result]??({success:'You succeed.',partial:'You make progress, with a complication.',failure:'Find a new approach before trying again.',snakeEyes:'Automatic failure, regardless of modifiers.',doubleSix:'The best possible outcome.'}[result]);
+ // Two sixes reads as the best possible result, so it borrows the 10+ text unless the
+ // action writes its own. Every other tier prints exactly what the action was authored with.
+ const authored=result==='doubleSix'&&!move?.system.doubleSix?'success':result;
+ const detail=move?.system[authored]??({success:'You succeed.',partial:'You make progress, with a complication.',failure:'Find a new approach before trying again.',snakeEyes:'Automatic failure, regardless of modifiers.',doubleSix:'The best possible outcome.'}[result]);
+ // The whole ladder travels with the card, so the GM never has to open the rulebook to
+ // read what the other tiers would have done.
+ const ladder=moveOutcomes(move?.system??{}),marked=result==='doubleSix'?'success':result;
  const rules=move?await foundry.applications.ux.TextEditor.enrichHTML(move.system.description,{async:true}):'';
  const m=meta.modifiers,sign=n=>`${n>=0?'+':'−'}${Math.abs(n)}`;
  const parts=[`${esc(STATS[meta.stat])} ${sign(m.stat)}`];
@@ -71,7 +74,7 @@ export async function rollContent(meta,roll,history='') {
  if(m.fatigue)parts.push(`fatigue ${sign(m.fatigue)}`);
  if(meta.luckBonus)parts.push(`luck +${meta.luckBonus}`);
  const reached=TIER_OF[result];
- const scale=TIERS.map(tier=>{
+ const scale=RESULT_TIERS.map(tier=>{
   // A difficult roll has no middle ground, so that segment is struck out rather than hidden.
   const off=meta.difficult&&tier.key==='partial';
   return `<i class="t ${tier.band}${tier.key===reached?' on':''}${off?' off':''}"><b>${tier.range}</b><span>${esc(tier.label)}</span></i>`;
@@ -89,7 +92,7 @@ ${meta.difficult?`<span class="hstamp">${chatIcon('stamp')}Difficult</span>`:''}
 <div class="rr"><div class="dice">${dice.map(n=>die(n)).join('')}</div><div class="mod">${parts.join(' · ')}</div></div></div>
 <div class="tiers" role="img" aria-label="${esc(LABELS[result])}">${scale}</div>
 ${extreme?`<div class="band ${extreme.band}">${esc(extreme.text)}</div>`:''}
-<div class="outcome"><span class="attr">${esc(move?move.name:STATS[meta.stat])} · ${esc(TIERS.find(t=>t.key===reached).range)}</span>
+<div class="outcome"><span class="attr">${esc(move?move.name:STATS[meta.stat])} · ${esc(RESULT_TIERS.find(t=>t.key===reached).range)}</span>
 <div class="why">${esc(detail)}</div></div>
 ${history?`<div class="history">${esc(history)}</div>`:''}
 <div class="inline">
@@ -97,6 +100,7 @@ ${history?`<div class="history">${esc(history)}</div>`:''}
 <button type="button" data-tw-action="luck-reroll">${chatIcon('refresh')}Reroll</button>
 <button type="button" data-tw-action="consequence">${chatIcon('stamp')}GM consequence</button>
 </div>
+${ladder.length?`<details class="ladder"><summary>Every result for ${esc(move.name)}</summary><ol class="olist">${ladder.map(row=>`<li class="orow ${row.band}${row.key===marked?' on':''}${row.struck?' off':''}"><span class="ot"><b>${esc(row.range)}</b><em>${esc(row.label)}</em></span><span class="od">${esc(row.text)}${row.struck?' <i>This roll is difficult: there is no middle result.</i>':''}</span></li>`).join('')}</ol></details>`:''}
 ${rules?`<details><summary>Source rules · ${esc(move.system.source)}</summary><div class="rules">${rules}</div></details>`:''}
 </section>`;
 }
