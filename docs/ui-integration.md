@@ -8,6 +8,7 @@ The user is designing the final appearance separately. Do not treat `preview/ind
 - `templates/actor.hbs`: one Handlebars root element inside the Foundry ApplicationV2 form.
 - `templates/item.hbs`: same requirement for Item sheets.
 - `module/sheets.mjs`: prepares view context and maps `data-action` controls to behavior. Keep business rules in the other modules.
+- `templates/dossier-outcomes.hbs`: the per-action result ladder rendered under every row of the Actions tab. It expects `outcomes`, `anyOutcome`, and `source` from `actionRow`.
 
 ## Preserve
 
@@ -21,6 +22,7 @@ The user is designing the final appearance separately. Do not treat `preview/ind
 - Party actor `system.luck.value` and `.max`. Player spending remains a request on their own roll card, approved by the GM.
 - Actor-owned Item drag data and UUIDs. Owned move macros resolve the Item UUID.
 - Chat uses v14 `messageMode` values `public`, `gm`, `blind`, and `self`; the hook is `renderChatMessageHTML` with native HTML elements.
+- The four authored result fields on every move Item: `system.success`, `.partial`, `.failure`, `.snakeEyes`, plus the optional `.doubleSix`. `RESULT_TIERS` and `moveOutcomes()` in `rules.mjs` are the single source of the tier labels and ranges; roll cards, the Actions tab and the Item sheet all read them from there. A roll card must keep printing the tier that landed and the full ladder, so the table never needs the rulebook mid-scene.
 
 ## Behavioral modules
 

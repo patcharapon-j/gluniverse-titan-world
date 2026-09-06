@@ -3,6 +3,23 @@ export const REGIONS = {head:'Head', chest:'Chest', leftArm:'Left arm', rightArm
 export const REGIONAL_STAT = {head:'mind', chest:'body', leftArm:'technique', rightArm:'technique', leftLeg:'agility', rightLeg:'agility'};
 export const ARRAYS = {rookie:[1,1,0,0,-1,-1], soldier:[2,1,1,0,0,-1], expert:[2,1,1,1,0,-1], specialist:[3,2,1,0,-1,-1]};
 export const clamp = (n,min,max) => Math.min(max,Math.max(min,Number(n)||0));
+// The three thresholds every roll is read against, lowest first, plus the natural
+// snake-eyes tier that overrides them. Roll cards, action lists and item sheets all
+// name the tiers from here so they cannot drift apart.
+export const RESULT_TIERS = [
+  {key:'failure', band:'miss', range:'6−', label:'Failure'},
+  {key:'partial', band:'mix',  range:'7–9', label:'Partial'},
+  {key:'success', band:'hit',  range:'10+',  label:'Success'}
+];
+export const SNAKE_EYES_TIER = {key:'snakeEyes', band:'grim', range:'1+1', label:'Snake eyes'};
+// Every authored result for one action, best first, ready to print without the rulebook.
+// A difficult roll has no middle ground, so its 7-9 row is marked struck rather than dropped.
+export function moveOutcomes(system={}) {
+  const rows = [...RESULT_TIERS].reverse().map(tier=>({...tier,
+    text:String(system[tier.key]??'').trim(), struck:!!system.difficult && tier.key==='partial'}));
+  rows.push({...SNAKE_EYES_TIER, text:String(system.snakeEyes??'').trim(), struck:false});
+  return rows.filter(row=>row.text);
+}
 export function outcome(dice,total,difficult=false) {
   if (dice.length === 2 && dice.every(d=>d===1)) return 'snakeEyes';
   if (dice.length === 2 && dice.every(d=>d===6)) return 'doubleSix';

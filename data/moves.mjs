@@ -79,25 +79,393 @@ export const MOVES = [
  ['Attack with a crystal weapon','technique','Titan Shifter Table','Shifting'],
  ['Attack with hardening','heart','Titan Shifter Table','Shifting']
 ];
+// Every action carries all four result tiers, written out from the source section
+// named beside it, so a roll card can be read without opening the rulebook. Where
+// the source leaves a tier undefined, the entry says so rather than inventing one.
 export const OUTCOMES = {
- 'First aid':['Downgrade a major wound to minor and restore its consciousness loss. Minor piercing becomes minor cutting.','Stop non-crippling bleeding, but do not heal the wound.','The patient loses 1 consciousness. Major cutting bleeding may now be lethal.','The major wound becomes crippling.'],
- 'Line up a nape strike':['Line up, gain +1 advantage on the strike, and move immediately after the kill.','Line up, but cannot move immediately after the kill.','Fail to line up. Find a new approach.'],
- 'Strike the nape':['Kill the Titan if the positioning requirements are met.','GM chooses: kill but lose blades, or expose the nape for an ally with advantage.','Fail the attack; the Titan notices and focuses on you.'],
- 'Incapacitate a Titan limb':['Incapacitate the limb. Technique +3 permits dismemberment.','Inflict a major wound without fully incapacitating it.','Fail; the Titan notices you.'],
- 'Face fear':['Overcome this fear.','Your next roll is difficult.','Freeze in fear until someone helps or you reach safety.'],
- 'Rally a comrade':['Your comrade fully recovers and may act.','They may follow and act, but automatically fail rolls until they rest for a minute.','Someone else must try, or get them to safety for roughly half an hour.'],
- 'Rest for the night':['Restore consciousness and heal eligible minor wounds.','Restore consciousness.','Cannot sleep. Major wounds or untreated crippling wounds prevent rest.'],
- 'Gather information':['Ask the GM two specific questions with truthful answers.','Ask two questions; one answer is a believable lie.','Learn nothing.'],
- 'Transform as a novice':['Transform and rampage. An ally can calm you with a difficult Duty roll.','A partial form performs one task, chosen with the GM.','Fail to transform.'],
- 'Transform with experience':['Transform without issues.','Transform with a weakness chosen by the GM.','Transform weakened and destroy carried items. Total 2 or lower has the exceptional weak-form result; GM resolves natural snake-eyes conflict.','General snake-eyes failure conflicts with the experienced table’s weak-form result. GM decides.'],
- 'Dismount a Titan form':['Exit safely. Consciousness becomes 1; recover before shifting again.','Exit safely. Consciousness becomes 1; recover before shifting again.','Remain stuck and immediately fail the first stage of absorption.'],
- 'Resist early absorption':['Continue for now; the GM determines the interval.','Limbs fuse into the nape and must be severed to free you.','The rulebook omits this outcome. GM adjudication required.'],
- 'Resist final absorption':['Hold on a little longer.','Rampage and attack everything around you.','Rampage and fuse completely into the nape.'],
- 'Drink':['Gain +1 Heart.','Gain +1 Heart, lose 1 Agility or Technique.','Lose 1 Agility and Technique.'],
- 'Sober up':['Remove inebriation effects.','Remove inebriation effects.','Remain inebriated.'],
- 'Throw an explosive':['Hit your target directly.','Target is caught in the blast; a human gains +1 advantage to escape.','Miss entirely.','The explosive detonates in your hand.'],
- 'Escape a blast':['Escape the blast, but become prone.','One limb is caught. Roll Body for severity.','Every limb receives a major burn. Roll Body for possible crippling wounds.'],
- 'Dodge a bullet':['Compare against the attacker; the source also says above 10, which needs a GM ruling.','The difficult dodge fails.','The dodge fails.'],
- 'Disarm an opponent':['If you beat the opponent, take control of their weapon.','If you beat the opponent, knock the weapon away.','If you still beat the opponent, disarm them but receive an appropriate minor wound.'],
- 'Wrestle':['Compare with the opponent; the lower roll is pinned. A losing 10+ may still attack.','Compare with the opponent; the lower roll is pinned.','Compare with the opponent; the lower roll is pinned.']
+ 'First aid':[
+  'The major wound becomes a minor wound, and the consciousness it cost is restored. Mark the minor wound as healed down from a major: it cannot clear again before the mission ends. On a minor piercing wound instead, it becomes a minor cutting wound. On a crippling cutting wound, the limb stays gone, but the bleeding stops and lost consciousness can be restored.',
+  'The wound is not healed, but you stop the bleeding from any non-crippling wound.',
+  'The patient loses one point of consciousness, and bleeding from a major cutting wound loses its cap — it can now be lethal.',
+  'Automatic failure. The major wound becomes crippling.'],
+ 'Recover a minor wound':[
+  'Remove one minor wound of the GM’s choice — never a piercing one, and never one left behind by a healed major wound. Instead of a wound, the GM may restore a point of consciousness lost to fighting, bleeding, or anything unrelated to a major wound.',
+  'Only a 10+ recovers anything here. Nothing heals this rest.',
+  'Nothing heals. Rest again later.',
+  'Automatic failure. Nothing heals.'],
+ 'Suffocation':[
+  'You hold your breath. No consciousness is lost this round.',
+  'A 9 or lower fails: lose one point of consciousness.',
+  'Lose one point of consciousness. It returns once you have a minute to catch your breath. Titans do not suffocate.',
+  'Automatic failure. Lose one point of consciousness, and keep rolling until you are free or your attacker stops.'],
+ 'Resist bleeding from burns':[
+  'The major burn holds closed. No bleeding.',
+  'The source only says you pass or begin to bleed, and defines no middle result. Treat it as holding for now, with the GM free to open it at the next strain.',
+  'The burn opens. It bleeds like a major cutting wound: consciousness drains at the GM’s call, capped at −1 until five such wounds stand.',
+  'Automatic failure. The burn bleeds, and only first aid will close it.'],
+ 'Throw an explosive':[
+  'Your target is hit by the explosive itself. Against a Titan this incapacitates the limb you aimed at; aiming at the nape needs Agility and Technique +3 unless the Titan is distracted or already incapacitated.',
+  'Not dead-on, but the target is caught in the blast. A person gains +1 advantage on escaping it.',
+  'You miss your target altogether.',
+  'Automatic failure. The explosive detonates in your hand.'],
+ 'Shoot a gas canister':[
+  'The canister is hit and detonates exactly when you want it to. Treat it as an explosion: anyone beside it rolls + Agility to escape the blast.',
+  'A 9 or lower misses: the canister is not hit, and does not detonate.',
+  'You miss. The canister does not detonate.',
+  'Automatic failure. The shot misses and nothing goes off.'],
+ 'Escape a blast':[
+  'You escape the blast completely, and are only knocked prone.',
+  'A single limb is caught in the blast. Roll + Body to see how badly.',
+  'You are completely caught: a major burn wound on every limb. Roll + Body or take a crippling wound on one or more of them.',
+  'Automatic failure. You are completely caught — a major burn on every limb, then roll + Body against crippling wounds.'],
+ 'Withstand a blast':[
+  'One limb caught: only a minor burn on it. Fully caught: no crippling wound on top of the major burns.',
+  'One limb caught: a major burn on that limb. Fully caught: no crippling wound is added.',
+  'One limb caught: a major burn on that limb. Fully caught: a crippling burn on one or more limbs, at the GM’s choice.',
+  'Automatic failure. A crippling burn on the limb that was caught — or on one or more limbs if you were fully caught.'],
+ 'Evade a Titan’s grasp':[
+  'You get clear of the hand. Every later Agility check is −1 until you catch your breath.',
+  'Compare with the Titan: beating it still gets you clear, and the GM says what the near miss cost you in ground or gear. Every later Agility check is −1 until you catch your breath.',
+  'The Titan has you. Slice free with a difficult roll + Technique, or pry out with a difficult roll + Body. A struck blow from a Titan outside your melee range is worse: on its 10+ with your Body below +2 you are killed; otherwise a crippling blunt wound to the chest, or a major one if it rolled 6 or lower and still beat you.',
+  'Automatic failure. The Titan has you, whatever it rolled.'],
+ 'Slice free of a grasp':[
+  'With a free hand and your blades, you open the Titan’s hand and drop free, gear intact.',
+  'Below 10 fails on this difficult roll. You are still held.',
+  'You are still held. A 6 or lower means you must find a new approach before rolling again — you cannot simply roll until you are free.',
+  'Automatic failure. You are still held, and must find a new approach.'],
+ 'Pry free of a grasp':[
+  'You force the hand open and get out — but it takes long enough that your gear is crushed and destroyed on the way.',
+  'Below 10 fails on this difficult roll. You are still held.',
+  'You are still held. A 6 or lower means you must find a new approach before rolling again — you cannot simply roll until you are free.',
+  'Automatic failure. You are still held, and must find a new approach.'],
+ 'Reach a captured comrade':[
+  'You have time to deal with something else first and still intervene.',
+  'You can intervene, but must act immediately — nothing else first.',
+  'You cannot reach them in time. If every escape attempt has failed and nobody else intervenes, the Titan eats them and they die.',
+  'Automatic failure. You cannot reach them in time.'],
+ 'Evade a falling Titan':[
+  'You get clear of the falling body.',
+  'One limb other than the chest is pinned under it.',
+  'Your whole body is trapped underneath and your consciousness is reduced to zero. For wound purposes this counts as the chest.',
+  'Automatic failure. Trapped underneath: consciousness to zero, counted as the chest.'],
+ 'Survive being crushed':[
+  'The weight does not break anything.',
+  'A 9 or lower fails: a major blunt wound on the pinned limb.',
+  'A major blunt wound on the pinned limb.',
+  'Automatic failure. A major blunt wound on the pinned limb.'],
+ 'Withstand a steaming corpse':[
+  'The evaporating corpse does not burn you this time. Roll again after each action while you are still under it.',
+  'A minor burn on the exposed limb. Roll again after each action while you are still under it.',
+  'A major burn on the exposed limb. Roll again after each action while you are still under it.',
+  'Automatic failure. A major burn on the exposed limb.'],
+ 'Lift a Titan off a comrade':[
+  'You free your comrade completely.',
+  'You free a single limb.',
+  'You cannot shift it, and cannot try again alone. If another comrade also rolled 6 or lower, lift together: everyone rolls + Body, add the results and divide by the number lifting, rounding down. Repeat until it comes up. The GM may grant advantage as the corpse evaporates.',
+  'Automatic failure. Nothing moves. Combine rolls with the others and lift together.'],
+ 'Lift a burning Titan safely':[
+  'You take the heat without harm while you lift.',
+  'A 9 or lower fails: a minor burn on both arms.',
+  'A minor burn on both arms.',
+  'Automatic failure. A minor burn on both arms.'],
+ 'Reposition before regeneration':[
+  'You are in position before the wound closes. Now roll + Agility again to line up the strike. A comrade taking the kill after you incapacitated the Titan only needs that one line-up roll.',
+  'The source gives no middle result here. Treat it as reaching position with a complication the GM names, then line up as usual.',
+  'The Titan regenerates before you are set. Find a new approach.',
+  'Automatic failure. The wound closes and the Titan is whole again.'],
+ 'Line up a nape strike':[
+  'You are lined up: gain +1 advantage on the strike, and you may move again immediately after the kill, before anything else reacts. A Titan that is neither confused nor incapacitated can only be killed by someone with Agility +3, and only on this 10+.',
+  'You are lined up, but cannot move right away after the kill.',
+  'You fail to line up. Find a new approach before trying again.',
+  'Automatic failure. You do not get into position.'],
+ 'Strike the nape':[
+  'The Titan is killed, provided the positioning requirements were met.',
+  'The GM chooses: you kill it but lose your blades, or you scrape off enough skin for someone else to try. In the second case the Titan turns on you and you cannot attack again, but the next attacker gains advantage on their roll + Technique, after their own roll + Agility to line up.',
+  'The attack fails. The Titan notices you and focuses on you, ignoring any other distraction.',
+  'Automatic failure. The Titan notices you and focuses on you.'],
+ 'Incapacitate a Titan limb':[
+  'The limb is incapacitated; with Technique +3 you may dismember it instead. A major arm wound makes it drop what it holds, a major leg wound slows it badly or drops it outright, and a major head wound blinds it or forces its jaw open until it heals.',
+  'You do not fully incapacitate the limb, but you deal a major wound to it, likely slowing the Titan down.',
+  'The attack fails, and the Titan notices you.',
+  'Automatic failure. The Titan notices you and focuses on you.'],
+ 'Hook directly onto a Titan':[
+  'The hook holds and the Titan does not catch the wire. Make this difficult roll again for every further action until you unhook.',
+  'Below 10 fails on this difficult roll: the Titan grabs your wire.',
+  'The Titan feels the hook, grabs your wire, and you are left helpless. It does not need to have noticed you first — priority one is to use your environment, not the Titan’s body.',
+  'Automatic failure. Your wire is caught and you are left helpless.'],
+ 'Leave a Titan’s sight':[
+  'You break its line of sight.',
+  'The source gives only success and failure here. Treat 7–9 as slipping out of sight with a complication the GM names.',
+  'It turns or moves to keep track of you, and may start closing in. Moving right beside a Titan also gives it a free grab attempt.',
+  'Automatic failure. It keeps you in sight and comes for you.'],
+ 'Distract a Titan':[
+  'Beat the Titan’s roll + Mind and it is dazed: whoever strikes next gains advantage on getting into position for the kill. Take +1 advantage for each comrade helping to distract it.',
+  'Compare with the Titan’s roll + Mind. Beating it still dazes the Titan; the GM decides what the near miss costs you.',
+  'It is not confused. It stays locked on whoever it was already hunting.',
+  'Automatic failure. The Titan is not confused, and may turn on you.'],
+ 'Resist distraction':[
+  'The Titan keeps its focus. Beat the distracting roll and it is not dazed.',
+  'Compare with the distracting roll: the higher result wins. A tie is the GM’s call — the source does not settle it.',
+  'The Titan is dazed. The attackers gain advantage on getting into position for the kill.',
+  'Automatic failure. The Titan is dazed and its nape is open.'],
+ 'Place a blade without ODM':[
+  'The titan-slaying blade goes into the right spot. Next, a difficult roll + Body to force it the way you want.',
+  'Below 10 fails on this difficult roll: you fall off the Titan and your blade sticks in its nape.',
+  'You fall off the Titan, and your blade is stuck in its nape. Roll + Body to hang on.',
+  'Automatic failure. You fall, and the blade stays in the nape.'],
+ 'Force a blade without ODM':[
+  'The blade moves the way you need it to. Next, a difficult roll + Agility to slice the chunk out faster than it regenerates.',
+  'Below 10 fails on this difficult roll: you fall off the Titan and your blade sticks in its nape.',
+  'You fall off the Titan, and your blade is stuck in its nape. Roll + Body to hang on.',
+  'Automatic failure. You fall, and the blade stays in the nape.'],
+ 'Slice the nape without ODM':[
+  'You cut the chunk out faster than it can regenerate. The Titan is dead.',
+  'Below 10 fails on this difficult roll: you fall off the Titan and your blade sticks in its nape.',
+  'You fall off the Titan, and your blade is stuck in its nape. Roll + Body to hang on.',
+  'Automatic failure. You fall, and the blade stays in the nape.'],
+ 'Hang on to a stuck blade':[
+  'You keep your grip. Roll again every time the Titan moves.',
+  'You keep the hilt, but the blade snaps off.',
+  'The source gives only 10+ and 7–9 here. Treat 6 or lower as losing your grip entirely; the GM decides the fall.',
+  'Automatic failure. You lose your grip, and the GM decides the fall.'],
+ 'Extract a stuck blade':[
+  'The sword comes out of the nape.',
+  'The blade snaps, and you are left holding the hilt.',
+  'The source gives only 10+ and 7–9 here. Treat 6 or lower as the blade staying put, at the GM’s call.',
+  'Automatic failure. The blade stays in the nape.'],
+ 'Face fear':[
+  'You master it. If this was a first Titan sighting, you no longer owe a Heart roll at every sighting.',
+  'Your next roll is difficult. If this was a first Titan sighting, you must roll + Heart every time you see a Titan until you make a 10+.',
+  'You are completely frozen in fear until someone snaps you out of it or you are carried somewhere safe. A 9 or lower at a first sighting also means rolling + Heart at every Titan you see until you make a 10+.',
+  'Automatic failure. You are frozen in fear until someone snaps you out of it.'],
+ 'Rally a comrade':[
+  'They recover completely and can act again.',
+  'They can follow you and act somewhat, but automatically fail every roll until they have a minute to rest.',
+  'You fail completely. Someone else must try, or they must be taken somewhere entirely safe for roughly half an hour to calm down.',
+  'Automatic failure. Someone else must try, or get them to safety.'],
+ 'Intimidate an NPC':[
+  'The NPC is thoroughly frightened, and will do as commanded. This is rolled against an NPC, never against another player’s character.',
+  'They are afraid, but may lash back, and may hesitate to follow orders.',
+  'Either you failed to frighten them at all, or you frightened them so badly that they see no choice but to attack you. The GM decides which.',
+  'Automatic failure. The GM decides whether they are unmoved or driven to attack you.'],
+ 'Melee initiative':[
+  'Compare with your opponent: the highest result acts first. Taking someone by surprise skips this roll — you simply act first.',
+  'Compare with your opponent: the highest result acts first.',
+  'Compare with your opponent: the highest result acts first. This is unlikely to be it.',
+  'Automatic failure. Your opponent acts first.'],
+ 'Melee attack':[
+  'Beat the defender’s evasion roll and the blow lands hard. Unarmed it is a minor injury, and once you have dealt as many injuries as their Body + Heart − your Body, further hits take a point of consciousness instead — unless you are Titan-sized or have Technique or Body +3, in which case those hits are major injuries. Armed, it is a major wound, and if the defender rolled 6 or lower you may make it crippling. After a hit that deals an injury you may go for a second attack with a difficult roll.',
+  'Beat the defender’s evasion roll and you connect: a minor injury unarmed, a minor wound with a weapon. If they rolled higher than you, nothing lands.',
+  'The attack does no damage — a miss, or simply not hard enough. The same is true whenever the defender rolls higher than you.',
+  'Automatic failure. Nothing lands, whatever the defender rolled.'],
+ 'Evade a melee attack':[
+  'Beat the attacker’s roll and nothing lands. If the stat you evaded with is +3, you may counterattack as a free action and still attack normally on your turn — and a counterattack may throw your opponent to the ground. Against an armed attacker you may instead roll + Technique to disarm them.',
+  'Compare with the attacker: the higher roll wins. Beating them means nothing lands.',
+  'The evasion fails if the attacker beat you. If they rolled 6 or lower as well, nothing lands anyway.',
+  'Automatic failure. Whatever the attacker rolled stands against you.'],
+ 'Parry with blades':[
+  'Beat the attacker’s roll and the blow is turned aside. With Technique +3 you may counterattack as a free action and still attack normally on your turn; against an armed attacker you may instead roll + Technique to disarm them.',
+  'Compare with the attacker: the higher roll wins. Beating them means the blow is turned aside.',
+  'The parry fails if the attacker beat you. If they rolled 6 or lower as well, nothing lands anyway.',
+  'Automatic failure. Whatever the attacker rolled stands against you.'],
+ 'Second combo attack':[
+  'The second hit lands, and is resolved exactly like the first. Two hits is the limit before your opponent gets a chance to react.',
+  'Below 10 fails on this difficult roll: you are left open, and your opponent gains advantage on their next attack against you. It does not stack.',
+  'You are left open. Your opponent gains advantage on hitting you; it does not stack.',
+  'Automatic failure. You are left wide open, and your opponent gains advantage on hitting you.'],
+ 'Attack a restrained opponent':[
+  'The blow lands with no chance of a dodge. Unarmed you keep taking consciousness once you are past their injury threshold — enough of this beats someone to death. Armed, wounds land as normal, up to a crippling wound for an execution.',
+  'The blow lands — a restrained opponent cannot dodge. A minor injury unarmed, a minor wound with a weapon.',
+  'Even against a helpless target the blow does nothing. An execution with a low Technique is a brutal, messy affair.',
+  'Automatic failure. The blow does nothing.'],
+ 'Disarm an opponent':[
+  'Beat your opponent’s roll and you take control of the weapon yourself. Disarming after a 10+ defensive roll also lets you strike as you take it: +1 advantage on that free attack, and their defensive roll counts as difficult.',
+  'Beat your opponent’s roll and the weapon is knocked out of their hand, though you do not gain control of it.',
+  'If you still beat your opponent, the weapon is knocked from their hand, but you take an appropriate minor wound on the limb you used. If they beat you, they get a free attack action with their weapon.',
+  'Automatic failure. Your opponent keeps the weapon, and gets a free attack action with it.'],
+ 'See through a dirty trick':[
+  'You see it coming. The trick gains them nothing.',
+  'You are caught out: they gain +1 advantage on their next attack roll against you.',
+  'You are caught badly: they gain +2 advantage on their next attack roll against you.',
+  'Automatic failure. They gain +2 advantage on their next attack roll against you.'],
+ 'Endure a painful dirty trick':[
+  'You take the pain and keep your feet. Nothing beyond the attack itself. This roll is difficult if the attacker’s Body or Technique — whichever the attack used — is +2 or higher.',
+  'Lose one extra point of consciousness immediately.',
+  'Lose a point of consciousness, and fall prone. This does not stack: the same trick will not drop you twice.',
+  'Automatic failure. Lose a point of consciousness and fall prone.'],
+ 'Wrestle':[
+  'Compare with your opponent: the lower roll is pinned, and cannot move until they win another contest of Body. Even a 10+ that is still the lower roll can punch or use a weapon from the ground, and those attacks can be dodged or blocked as normal. You may instead choose to strangle, which follows the suffocation rules until you stop or they break free.',
+  'Compare with your opponent: the lower roll is pinned until they win another contest of Body.',
+  'Compare with your opponent: the lower roll is pinned until they win another contest of Body. This is unlikely to be the higher roll.',
+  'Automatic failure. Treat this as the lower roll: you are pinned.'],
+ 'Throw with strength':[
+  'They go down. Either wrestle them starting with the upper hand — pinned, and unable to act — or stay standing where you are, in which case they lose consciousness equal to their own Body.',
+  'A 9 or lower fails: the throw does not take, and you both fall to the ground.',
+  'The throw does not take, and you both fall to the ground.',
+  'Automatic failure. Both of you end up on the ground.'],
+ 'Throw with technique':[
+  'They go down. Either wrestle them starting with the upper hand — pinned, and unable to act — or stay standing where you are, in which case they lose consciousness equal to their own Body.',
+  'A 9 or lower fails: the throw does not take, and you both fall to the ground.',
+  'The throw does not take, and you both fall to the ground.',
+  'Automatic failure. Both of you end up on the ground.'],
+ 'Stand from prone':[
+  'You stand with no issue. Below half your maximum consciousness you must also roll + Heart, and pass both.',
+  'You get up, but your next roll is difficult.',
+  'You stay down. An opponent still on their feet gets a free action now that this roll has been made.',
+  'Automatic failure. You stay on the ground.'],
+ 'Find the will to stand':[
+  'Your nerve holds. Pass the roll + Body as well and you are on your feet.',
+  'You find the will, but your next roll is difficult.',
+  'You stay down; the fight has gone out of you for the moment.',
+  'Automatic failure. You stay down.'],
+ 'Fire a weapon':[
+  'The shot lands. Only a target with Agility +3 can try to move, on a difficult roll + Agility, and that dodge must both beat you and be above 10 to save them. Impaired line of sight makes this roll difficult; a musket or single-shot rifle fires once every two turns.',
+  'The shot still lands on the same terms: the source counts only a failed Technique roll, or a beaten dodge above 10, as a miss.',
+  'The shot misses.',
+  'Automatic failure. The shot misses.'],
+ 'Dodge a bullet':[
+  'You get out of the way — but your total must also beat the shooter. The source asks for a roll that is both higher and above 10, so an exact 10 is the GM’s call.',
+  'Below 10 fails on this difficult roll: the bullet finds you.',
+  'The bullet finds you.',
+  'Automatic failure. The bullet finds you.'],
+ 'Speedload a firearm':[
+  'The musket or rifle is loaded and fired on the same turn.',
+  'Below 10 fails on this difficult roll: the turn is wasted, and the weapon must be loaded for the next two turns instead of the usual one.',
+  'The turn is wasted, and the weapon must be loaded for the next two turns instead of the usual one.',
+  'Automatic failure. The turn is wasted, and the weapon needs two turns of loading.'],
+ 'Drag a person':[
+  'You drag them with no penalty, and can move right away. A conscious, willing person adds their Body modifier to your roll; an unwilling one contests it using the wrestling rules.',
+  'You can move them, but take −1 to Agility until you let go, and must wait until your next turn to move.',
+  'You cannot move them at all.',
+  'Automatic failure. They do not move.'],
+ 'Use a human shield':[
+  'They absorb attacks from your front until they take a crippling wound to the chest, and you can still use your weapon and act normally. A conscious person may fight back using the wrestling rules.',
+  'They absorb attacks from your front until they take a crippling wound to the chest, but you cannot use your weapon or take any other action while holding them.',
+  'You cannot hold them in front of you.',
+  'Automatic failure. You cannot hold them.'],
+ 'Take initial cover':[
+  'Place yourself anywhere on your side of the battlefield.',
+  'Dive within a few metres of where you stand.',
+  'You must stay exactly where you are. Being out in the open is a death sentence.',
+  'Automatic failure. You stay out in the open.'],
+ 'Group initiative':[
+  'Compare with the other group’s roller: the higher result takes priority. On your turn one member may act, or every member may reload. Returning to cover is a free action even on someone else’s turn, so long as you did not leave cover that turn.',
+  'Compare with the other group’s roller: the higher result takes priority.',
+  'Compare with the other group’s roller: the higher result takes priority. This is unlikely to be it.',
+  'Automatic failure. The other group takes priority.'],
+ 'Mount a horse':[
+  'The horse takes you without trouble.',
+  'The source gives only success and failure here. Treat 7–9 as mounting with a complication the GM names, rather than a frightened horse.',
+  'The horse will not obey you, and is frightened. Every later check on this horse is difficult until you calm it with a difficult roll + Duty.',
+  'Automatic failure. The horse is frightened; calm it with a difficult roll + Duty before it will obey.'],
+ 'Calm a horse':[
+  'The horse settles. Checks on it are no longer difficult.',
+  'Below 10 fails on this difficult roll: the horse stays frightened.',
+  'The horse stays frightened, and every check on it remains difficult.',
+  'Automatic failure. The horse stays frightened.'],
+ 'Maneuver a horse':[
+  'The manoeuvre works — speed beyond the horse’s usual pace, or a clean line between the obstacles.',
+  'You get most of it. The GM names what the manoeuvre costs you in speed, ground, or position.',
+  'The manoeuvre fails. The GM decides where that leaves horse and rider.',
+  'Automatic failure. The GM decides where horse and rider end up.'],
+ 'Dismount a horse':[
+  'You step down cleanly.',
+  'The source gives only success and failure here. Treat 7–9 as an ungainly landing that still keeps you on your feet, at the GM’s call.',
+  'You fail to dismount gracefully and fall to the ground. Your next roll is difficult.',
+  'Automatic failure. You fall to the ground, and your next roll is difficult.'],
+ 'Load advanced artillery':[
+  'The piece is loaded. Next, roll + Mind to aim. A plain black-powder cannon needs no roll to load, and three people working together can load, aim and fire in the same turn.',
+  'It loads, but slowly. The GM decides what the delay costs — each cannon action gives your opponent a turn to act.',
+  'The piece is not loaded this turn.',
+  'Automatic failure. The piece is not loaded, and the GM may rule the charge fouled.'],
+ 'Aim a cannon':[
+  'The cannon is laid on. Call the nape now if you want it — it cannot be called once the aimer or firer has rolled. Then roll + Technique to fire.',
+  'You have it laid on, roughly. If the nape was called, a 9 or lower here means the shot will miss.',
+  'The aim is off. If your target moves after you have aimed, you must aim again in any case.',
+  'Automatic failure. The aim is off.'],
+ 'Fire a cannon':[
+  'It fires true. A Titan loses the limb the aimer chose to incapacitation; a called head shot blows the head off as a crippling wound, leaving it alive but unable to eat, see or hear until it regenerates. A human takes a crippling blunt wound on a limb of the aimer’s choice.',
+  'The shot goes off and lands as above — unless the nape was called, in which case a 9 or lower misses.',
+  'The shot misses.',
+  'Automatic failure. The shot misses.'],
+ 'Command civilians':[
+  'They are ready to do as you say, so long as it is reasonable; something absurd may still give them pause. This can never be rolled against another player’s character.',
+  'They refuse to do what you say, and may do the opposite.',
+  'They may become violent or aggressive.',
+  'Automatic failure. Expect the crowd to turn on you.'],
+ 'Request supplies':[
+  'Your higher-ups will do their best to get you anything you ask for, though they may not manage every part of it.',
+  'They are hesitant, and want to meet you halfway.',
+  'They ignore the request completely, and insist you go without it.',
+  'Automatic failure. The request is refused outright.'],
+ 'Gather information':[
+  'Ask the GM two specific questions, and the answers must be truthful. The GM may refuse a question your character could not find out, in which case you ask another — but they cannot lie. This can only be rolled where you are actually in a position to gather information.',
+  'Ask the GM two questions. One of them, chosen at random, is answered with a believable lie.',
+  'You may not ask any questions.',
+  'Automatic failure. You learn nothing.'],
+ 'Drink':[
+  'Gain +1 Heart.',
+  'Gain +1 Heart, and lose 1 from your choice of Agility or Technique.',
+  'Lose 1 Agility and 1 Technique.',
+  'Automatic failure. Lose 1 Agility and 1 Technique.'],
+ 'Sober up':[
+  'The effects of inebriation are gone.',
+  'A 7 or higher is enough: the effects of inebriation are gone.',
+  'You are still inebriated. If someone is helping you, they roll as well: add both results and divide by two, rounding down.',
+  'Automatic failure. You are still inebriated.'],
+ 'Rest for the night':[
+  'You regain all lost consciousness, and your minor wounds heal. This roll fails automatically with any major wound; crippling wounds do not block it, provided cutting ones have been treated and the rest amputated.',
+  'You regain all lost consciousness, but no wounds heal.',
+  'You cannot sleep.',
+  'Automatic failure. You cannot sleep.'],
+ 'Transform as a novice':[
+  'You transform, and go on a rampage — attacking anything in sight, human and Titan alike. Someone close to you can calm you with a difficult roll + Duty.',
+  'Your Titan form partially appears, and satisfies one single task: a skeletal hand blocking a cannon shot, say. Describe what you are trying to do, and the GM decides how the form appears.',
+  'You fail to transform, and nothing happens.',
+  'Automatic failure. Nothing happens.'],
+ 'Transform with experience':[
+  'You transform with no issues, in whatever combination of your acquired powers you choose.',
+  'You transform, but the form is weaker than it usually would be, in some way the GM decides.',
+  'You transform weakened, and every item you were carrying is destroyed.',
+  'A total of 2 or lower is the experienced table’s weakest form: Body, Agility and Technique all −1, no regular abilities, a maximum consciousness of 1, and about half its usual height. The general rule that snake eyes is an automatic failure conflicts with this — the GM decides which stands.'],
+ 'Calm a rampaging shifter':[
+  'You bring the rampaging shifter back to themselves.',
+  'Below 10 fails on this difficult roll: the rampage continues.',
+  'The rampage continues. Find another way to reach them.',
+  'Automatic failure. The rampage continues.'],
+ 'Regenerate a major wound':[
+  'One major wound closes to a minor wound. Mark it as healed down from a major: it cannot clear again before the mission ends. A shifter’s crippling wounds heal once the mission ends or after a full night, and block transformation until then.',
+  'The source ties this to the ordinary minor-wound rest rule, which only pays out on a 10+. Nothing closes; the GM may return a point of consciousness instead.',
+  'Nothing closes.',
+  'Automatic failure. Nothing closes.'],
+ 'Dismount a Titan form':[
+  'You get out with no issue. Your consciousness is reduced to 1, and must regenerate before you can transform again — except as the Cart Titan, which has no cooldown.',
+  'A 7 or higher is enough: you get out with no issue. Your consciousness is reduced to 1, and must regenerate before you can transform again.',
+  'You are stuck inside, and immediately fail the first stage of absorption.',
+  'Automatic failure. You are stuck inside, and immediately fail the first stage of absorption.'],
+ 'Resist early absorption':[
+  'You hold together for now, and can carry on. The GM decides when the next roll comes; each one after this takes a further −1, as dodging does.',
+  'Your limbs fuse into the Titan’s nape, and must be severed to cut you free. You are otherwise fine, and can continue as normal.',
+  'The rulebook writes no 6-or-lower result for this stage of absorption. The GM decides what it costs.',
+  'Automatic failure, with no outcome written for it. The GM decides what a total failure at this stage costs.'],
+ 'Resist final absorption':[
+  'You hold on a little longer. Roll again after every action you take.',
+  'You fly into a maddened rage, and attack everything around you.',
+  'You fly into a maddened rage, and are completely fused into your nape. Slicing the nape would now only kill you; the power can only be salvaged if another Titan bites the nape off.',
+  'Automatic failure. You are fused completely into the nape.'],
+ 'Break Titan armour':[
+  'The Armoured Titan’s plating breaks: it loses its doubled consciousness, and gets back the point of Agility the armour cost. You need the upper hand in a wrestle to try this. Hardened hands, an explosive, or a shot gas canister will also break it, and the Armoured Titan may break its own armour to take that Agility back.',
+  'Below 10 fails on this difficult roll: the armour holds.',
+  'The armour holds.',
+  'Automatic failure. The armour holds.'],
+ 'Attack with a crystal weapon':[
+  'The hardened construct lands as an armed attack: beat their evasion roll for a major wound, and a crippling one if they rolled 6 or lower.',
+  'Beat their evasion roll and the construct connects for a minor wound.',
+  'The construct misses.',
+  'Automatic failure. The construct misses.'],
+ 'Attack with hardening':[
+  'The hardening reaches them — spikes out of the ground, or whatever shape you gave it. Beat their evasion roll for a major wound, and a crippling one if they rolled 6 or lower.',
+  'Beat their evasion roll and the hardening connects for a minor wound.',
+  'The attack misses.',
+  'Automatic failure. The attack misses.']
 };

@@ -37,15 +37,18 @@
  <div class="sec"><span class="num">{{twIcon 'feather'}}</span>Owned and custom<span class="k">{{ownedMoves.length}}</span></div>
  <div class="alist">
   {{#each ownedMoves}}
-  <div class="arow owned s-{{tone}}{{#if difficult}} hard{{/if}}" data-move-name="{{name}} {{source}}" data-item-id="{{id}}" draggable="true">
-   <button type="button" class="ahit" data-action="rollMove" data-item-id="{{id}}" aria-label="Roll {{name}}, {{statLabel}} {{modDisplay}}"></button>
-   <span class="atile"><b>{{statShort}}</b><em>{{modDisplay}}</em></span>
-   <span class="an">{{name}}{{#if line}}<small>{{line}}</small>{{/if}}</span>
-   <span class="aflags">{{#if difficult}}<i class="flag hard" title="Difficult: below 10 fails">D</i>{{/if}}{{#if combat}}<i class="flag combat{{#if combatHot}} hot{{/if}}" title="Combat roll">C</i>{{/if}}</span>
-   <span class="aedit">
-    <button type="button" data-action="editItem" data-item-id="{{id}}" aria-label="Edit {{name}}">{{twIcon 'edit'}}</button>
-    <button type="button" data-action="deleteItem" data-item-id="{{id}}" aria-label="Remove {{name}}">{{twIcon 'trash'}}</button>
-   </span>
+  <div class="aitem" data-move-name="{{name}} {{source}}">
+   <div class="arow owned s-{{tone}}{{#if difficult}} hard{{/if}}" data-item-id="{{id}}" draggable="true">
+    <button type="button" class="ahit" data-action="rollMove" data-item-id="{{id}}" aria-label="Roll {{name}}, {{statLabel}} {{modDisplay}}"></button>
+    <span class="atile"><b>{{statShort}}</b><em>{{modDisplay}}</em></span>
+    <span class="an">{{name}}{{#if line}}<small>{{line}}</small>{{/if}}</span>
+    <span class="aflags">{{#if difficult}}<i class="flag hard" title="Difficult: below 10 fails">D</i>{{/if}}{{#if combat}}<i class="flag combat{{#if combatHot}} hot{{/if}}" title="Combat roll">C</i>{{/if}}</span>
+    <span class="aedit">
+     <button type="button" data-action="editItem" data-item-id="{{id}}" aria-label="Edit {{name}}">{{twIcon 'edit'}}</button>
+     <button type="button" data-action="deleteItem" data-item-id="{{id}}" aria-label="Remove {{name}}">{{twIcon 'trash'}}</button>
+    </span>
+   </div>
+   {{> "systems/gluniverse-titan-world/templates/dossier-outcomes.hbs"}}
   </div>
   {{/each}}
  </div>
@@ -60,12 +63,15 @@
   <div class="chead">{{twIcon icon}}<span>{{label}}</span><em>{{mod}}</em><i></i></div>
   <div class="alist">
    {{#each moves}}
-   <div class="arow s-{{tone}}{{#if difficult}} hard{{/if}}" data-move-name="{{name}} {{source}}">
-    <button type="button" class="ahit" data-action="rollMove" data-key="{{key}}" aria-label="Roll {{name}}, {{statLabel}} {{modDisplay}}"></button>
-    <span class="atile"><b>{{statShort}}</b><em>{{modDisplay}}</em></span>
-    <span class="an">{{name}}{{#if line}}<small>{{line}}</small>{{/if}}</span>
-    <span class="aflags">{{#if difficult}}<i class="flag hard" title="Difficult: below 10 fails">D</i>{{/if}}{{#if combat}}<i class="flag combat{{#if combatHot}} hot{{/if}}" title="Combat roll: difficult at low consciousness">C</i>{{/if}}</span>
-    <span class="aroll">{{twIcon 'dice'}}</span>
+   <div class="aitem" data-move-name="{{name}} {{source}}">
+    <div class="arow s-{{tone}}{{#if difficult}} hard{{/if}}">
+     <button type="button" class="ahit" data-action="rollMove" data-key="{{key}}" aria-label="Roll {{name}}, {{statLabel}} {{modDisplay}}"></button>
+     <span class="atile"><b>{{statShort}}</b><em>{{modDisplay}}</em></span>
+     <span class="an">{{name}}{{#if line}}<small>{{line}}</small>{{/if}}</span>
+     <span class="aflags">{{#if difficult}}<i class="flag hard" title="Difficult: below 10 fails">D</i>{{/if}}{{#if combat}}<i class="flag combat{{#if combatHot}} hot{{/if}}" title="Combat roll: difficult at low consciousness">C</i>{{/if}}</span>
+     <span class="aroll">{{twIcon 'dice'}}</span>
+    </div>
+    {{> "systems/gluniverse-titan-world/templates/dossier-outcomes.hbs"}}
    </div>
    {{/each}}
   </div>
@@ -74,4 +80,4 @@
 </section>
 {{/each}}
 <p class="empty" data-move-empty hidden>Nothing matches that search.</p>
-<p class="note">Rows are keyed by statistic — the tile on the left is the one you roll and the modifier this character has right now, wounds and gear included. <b>D</b> marks a difficult roll, which fails below 10; <b>C</b> marks a combat roll, which turns difficult below half consciousness and reddens when it has. Every roll card carries the complete source section.</p>
+<p class="note">Rows are keyed by statistic — the tile on the left is the one you roll and the modifier this character has right now, wounds and gear included. <b>D</b> marks a difficult roll, which fails below 10; <b>C</b> marks a combat roll, which turns difficult below half consciousness and reddens when it has. Open <em>What each result means</em> on any row to read the 10+, 7–9, 6− and snake-eyes results before you commit to it. Every roll card repeats them, and carries the complete source section.</p>
