@@ -1,0 +1,7 @@
+{
+ "TYPES": {
+  "Actor": {"soldier":"Soldier / Titan shifter","titan":"Mindless Titan","party":"Party luck pool"},
+  "Item": {"gear":"Equipment","move":"Field action","power":"Titan power","wound":"Injury","loadout":"Equipment loadout","advancement":"Advancement"}
+ },
+ "TW": {"Title":"Titan World · Third Edition","Sheet":"Titan World sheet"}
+}

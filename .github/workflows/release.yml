@@ -1,0 +1,54 @@
+name: Release system
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version increment
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+permissions:
+  contents: write
+concurrency:
+  group: system-release
+  cancel-in-progress: false
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Test
+        run: npm test
+      - name: Increment version and prepare manifest
+        id: version
+        env:
+          BUMP: ${{ inputs.bump }}
+        run: node scripts/release.mjs
+      - name: Package runtime
+        run: python scripts/package-release.py
+      - name: Commit and tag release
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add system.json package.json
+          git commit -m "Release v$VERSION"
+          git tag "v$VERSION"
+          git push --atomic origin HEAD:main "v$VERSION"
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: gh release create "v$VERSION" dist/system.json dist/gluniverse-titan-world.zip --verify-tag --title "Titan World v$VERSION" --generate-notes --latest

@@ -1,0 +1,181 @@
+{
+  "id": "gluniverse-titan-world",
+  "title": "Titan World · Third Edition",
+  "description": "Private Titan World Third Edition system with full source compendiums and GM-assisted rules. Foundry v14 only.",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14.363",
+    "maximum": "14"
+  },
+  "relationships": {
+    "recommends": [
+      {
+        "id": "dice-so-nice",
+        "type": "module",
+        "compatibility": {
+          "minimum": "6.2.9"
+        }
+      }
+    ]
+  },
+  "authors": [
+    {
+      "name": "Private game system implementation"
+    }
+  ],
+  "esmodules": [
+    "module/main.mjs"
+  ],
+  "styles": [
+    "styles/titan-world.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "documentTypes": {
+    "Actor": {
+      "soldier": {},
+      "titan": {},
+      "party": {}
+    },
+    "Item": {
+      "gear": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "move": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "power": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "wound": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "loadout": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "advancement": {
+        "htmlFields": [
+          "description"
+        ]
+      }
+    }
+  },
+  "packs": [
+    {
+      "name": "rules",
+      "label": "Rules and GM guide",
+      "type": "JournalEntry",
+      "path": "packs/rules",
+      "system": "gluniverse-titan-world",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "moves",
+      "label": "Field actions",
+      "type": "Item",
+      "path": "packs/moves",
+      "system": "gluniverse-titan-world",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "equipment",
+      "label": "Equipment and loadouts",
+      "type": "Item",
+      "path": "packs/equipment",
+      "system": "gluniverse-titan-world",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "powers",
+      "label": "Nine Titan powers",
+      "type": "Item",
+      "path": "packs/powers",
+      "system": "gluniverse-titan-world",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "injuries",
+      "label": "Injury templates",
+      "type": "Item",
+      "path": "packs/injuries",
+      "system": "gluniverse-titan-world",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "advancement",
+      "label": "Advancement",
+      "type": "Item",
+      "path": "packs/advancement",
+      "system": "gluniverse-titan-world",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "templates",
+      "label": "Character and Titan templates",
+      "type": "Actor",
+      "path": "packs/templates",
+      "system": "gluniverse-titan-world",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    }
+  ],
+  "packFolders": [
+    {
+      "name": "Titan World · Third Edition",
+      "color": "#354d3e",
+      "packs": [
+        "rules",
+        "moves",
+        "equipment",
+        "powers",
+        "injuries",
+        "advancement",
+        "templates"
+      ]
+    }
+  ],
+  "initiative": "2d6 + @stats.agility",
+  "grid": {
+    "distance": 1,
+    "units": "m"
+  },
+  "url": "https://github.com/patcharapon-j/gluniverse-titan-world",
+  "manifest": "https://github.com/patcharapon-j/gluniverse-titan-world/releases/latest/download/system.json",
+  "download": "https://github.com/patcharapon-j/gluniverse-titan-world/releases/download/v1.0.0/gluniverse-titan-world.zip"
+}

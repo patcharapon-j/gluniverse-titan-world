@@ -1,0 +1,12 @@
+node_modules/
+.dev-data/
+preview/claude-fable/response.json
+preview/claude-fable/stderr.log
+*.log
+
+dist/
+preview/
+!packs/**/*.log
+packs/**/LOCK
+packs/**/LOG
+packs/**/LOG.old
