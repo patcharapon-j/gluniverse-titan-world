@@ -1,52 +1,86 @@
+<div class="sec"><span class="num">§1</span>Field kit<span class="k">click an object to use it · an empty slot to restock</span>
+ {{#if editable}}{{#if kit.resupply}}<button type="button" class="mini" data-action="kitResupply">{{twIcon 'refresh'}}Resupply all</button>{{/if}}{{/if}}
+</div>
+<div class="spread{{#unless kit.rig.length}} no-rig{{/unless}}">
+ {{#if kit.rig.length}}
+ <div class="rig" data-rig="{{kit.rigData}}">
+  <canvas class="rig-3d" aria-hidden="true"></canvas>
+  <div class="rig-plate">
+   {{#each kit.rig}}
+   <div class="rigrow k-{{object}}{{#if empty}} out{{/if}}" data-kit-id="{{id}}">
+    <span class="plabel">{{label}}</span>
+    {{> "systems/gluniverse-titan-world/templates/dossier-kit-slots.hbs"}}
+    <span class="pfoot"><b data-live="kit-{{id}}">{{quantity}}</b>{{#if capacity}}<small>/{{capacity}}</small>{{/if}}{{#if refill}}{{#if @root.editable}}<button type="button" class="refill" data-action="kitRefill" data-item-id="{{id}}" title="Refill to {{capacity}}">Refill</button>{{/if}}{{/if}}</span>
+   </div>
+   {{/each}}
+  </div>
+ </div>
+ {{/if}}
+ <div class="bag bag-{{kit.bagKind}}">
+  <div class="bag-flap"><span>{{kit.bagLabel}}</span></div>
+  <div class="pockets">
+   {{#each kit.bag}}
+   <div class="pocket k-{{object}}{{#if empty}} out{{/if}}" data-kit-id="{{id}}">
+    <span class="plabel">{{label}}</span>
+    {{> "systems/gluniverse-titan-world/templates/dossier-kit-slots.hbs"}}
+    <span class="pfoot"><b data-live="kit-{{id}}">{{quantity}}</b>{{#if capacity}}<small>/{{capacity}}</small>{{/if}}{{#if refill}}{{#if @root.editable}}<button type="button" class="refill" data-action="kitRefill" data-item-id="{{id}}" title="Refill to {{capacity}}">Refill</button>{{/if}}{{/if}}</span>
+   </div>
+   {{else}}<p class="empty">Nothing packed.</p>{{/each}}
+  </div>
+ </div>
+</div>
+
 <div class="gr">
  <div class="gcol">
   <div class="sec">
-   <span class="num">§1</span>Carried equipment<span class="k">{{gear.length}} entries</span>
+   <span class="num">§2</span>Issued equipment<span class="k">{{gear.length}} on the ledger · roll the wheel over a count</span>
    {{#if editable}}<button type="button" class="mini" data-action="openCompendium" data-pack="equipment">{{twIcon 'book'}}Compendium</button>{{/if}}
   </div>
-  <div class="inv">
+  <div class="inv" role="list" aria-label="Issued equipment">
+   {{#if gear.length}}<div class="inv-head" aria-hidden="true"><span>No.</span><span>Status</span><span>Article</span><span>Count</span></div>{{/if}}
    {{#each gear}}
-   <div class="irow{{#unless system.equipped}} stowed{{/unless}}{{#if empty}} out{{/if}}" data-item-id="{{id}}" draggable="true">
-    <label class="chk" title="Carried and active">
-     <input type="checkbox" data-action="toggleEquipped" data-item-id="{{id}}" {{checked system.equipped}} aria-label="Carried">
-    </label>
+   <div class="irow{{#unless system.equipped}} stowed{{/unless}}{{#if empty}} out{{/if}}" role="listitem" data-item-id="{{id}}" draggable="true">
+    <span class="ino">{{no}}</span>
+    <button type="button" class="carry{{#if system.equipped}} on{{/if}}" data-action="toggleEquipped" data-item-id="{{id}}" aria-pressed="{{#if system.equipped}}true{{else}}false{{/if}}" aria-label="{{name}}: {{#if system.equipped}}carried, stow it{{else}}stowed, carry it{{/if}}" title="{{#if system.equipped}}Carried and active. Click to stow.{{else}}Stowed. Click to carry.{{/if}}"{{#unless @root.editable}} disabled{{/unless}}><span class="carry-ink" data-live="carry-{{id}}">{{#if system.equipped}}Carried{{else}}Stowed{{/if}}</span></button>
     <button type="button" class="iname" data-action="editItem" data-item-id="{{id}}">
-     {{twIcon icon}}<span>{{name}}</span>
+     {{#if object}}<svg class="iglyph" viewBox="{{box}}" aria-hidden="true"><use href="#tw-k-{{object}}"/></svg>{{else}}{{twIcon icon}}{{/if}}<span>{{name}}</span>
      {{#if modifier}}<i class="tg pen">{{modifier}}</i>{{/if}}
      {{#if system.uses}}<i class="tg">{{system.uses}} uses</i>{{/if}}
     </button>
-    <span class="iq"><b data-live="gear-{{id}}">{{quantity}}</b>{{#if capacity}}<small>/{{capacity}}</small>{{/if}}</span>
-    <span class="num tight">
+    <span class="num tight drum">
      <button type="button" data-action="quantity" data-item-id="{{id}}" data-delta="-1" aria-label="Use one {{name}}" {{#if empty}}disabled{{/if}}>{{twIcon 'minus'}}</button>
+     <span class="drum-face" title="Roll the wheel to adjust"><b data-live="gear-{{id}}">{{quantity}}</b>{{#if capacity}}<small>/{{capacity}}</small>{{/if}}</span>
      <button type="button" data-action="quantity" data-item-id="{{id}}" data-delta="1" aria-label="Add one {{name}}">{{twIcon 'plus'}}</button>
     </span>
-    <button type="button" class="mini icon danger" data-action="deleteItem" data-item-id="{{id}}" aria-label="Remove {{name}}">{{twIcon 'trash'}}</button>
+    {{#if @root.editable}}<button type="button" class="mini icon danger" data-action="deleteItem" data-item-id="{{id}}" aria-label="Remove {{name}}">{{twIcon 'trash'}}</button>{{/if}}
    </div>
    {{else}}
-   <p class="empty">Nothing carried. Equip a loadout, or drag equipment in from the compendium.</p>
+   <p class="empty">Nothing issued. Equip a loadout, or drag equipment in from the compendium.</p>
    {{/each}}
   </div>
-  <p class="note">Ammunition and gas are abstract supplies. Adjust counts when the GM calls for expenditure; nothing is consumed automatically. Capacity, set on the item, drives the field-kit pips on the overview.</p>
+  <p class="note">Ammunition and gas are abstract supplies: adjust counts when the GM calls for expenditure, nothing is consumed automatically. Capacity, set on the item, is how many slots it fills in the rig and bag.</p>
  </div>
 
  <aside class="gside">
   <section class="box">
-   <div class="sec"><span class="num">§2</span>Requisition</div>
-   {{#if editable}}<button type="button" class="mini wide primary" data-action="equipLoadout">{{twIcon 'pack'}}Equip a loadout</button>{{/if}}
-   <div class="loadouts">
+   <div class="sec"><span class="num">§3</span>Requisition</div>
+   <div class="rslips">
     {{#each loadouts}}
-    <div class="lrow">
-     <span>{{twIcon 'pack'}}{{name}}</span>
-     <span class="lact">
-      <button type="button" class="mini" data-action="useLoadout" data-item-id="{{id}}">Unpack</button>
-      <button type="button" class="mini icon danger" data-action="deleteItem" data-item-id="{{id}}" aria-label="Remove {{name}}">{{twIcon 'trash'}}</button>
-     </span>
-    </div>
-    {{else}}<p class="empty">No stored loadout sheets.</p>{{/each}}
+    <article class="rslip" data-item-id="{{id}}" draggable="true">
+     <div class="rs-top"><small>Form {{no}}</small><button type="button" class="rs-name" data-action="editItem" data-item-id="{{id}}" title="{{name}}">{{name}}</button></div>
+     <p class="rs-lines" title="{{manifest}}">{{manifest}}</p>
+     <div class="rs-foot">
+      <button type="button" class="unpack" data-action="useLoadout" data-item-id="{{id}}">{{twIcon 'pack'}}Unpack</button>
+      {{#if choices}}<small title="{{choiceLabels}}">+1 of {{choices}} additions</small>{{/if}}
+      {{#if @root.editable}}<button type="button" class="mini icon danger" data-action="deleteItem" data-item-id="{{id}}" aria-label="Remove {{name}}">{{twIcon 'trash'}}</button>{{/if}}
+     </div>
+    </article>
+    {{else}}<p class="empty">No stored loadout slips.</p>{{/each}}
    </div>
+   {{#if editable}}<button type="button" class="mini wide primary" data-action="equipLoadout">{{twIcon 'pack'}}Equip a loadout</button>{{/if}}
   </section>
   <section class="box">
-   <div class="sec"><span class="num">§3</span>Applied modifiers<span class="k">at source</span></div>
+   <div class="sec"><span class="num">§4</span>Applied modifiers<span class="k">at source</span></div>
    <div class="ledger">
     {{#each stats}}{{#if anyReason}}
     <div class="lgrow s-{{tone}}">
@@ -58,7 +92,7 @@
     {{/if}}{{/each}}
     {{#unless anyModifier}}<p class="empty">Nothing is modifying this character. Every statistic is at its base value.</p>{{/unless}}
    </div>
-   <p class="note">Every difference between a base statistic and its effective value, named at source. Carried gear applies its modifier only while marked carried; dodge fatigue is spent at the moment you roll.</p>
+   <p class="note">Every difference between a base statistic and its effective value, named at source. Gear applies its modifier only while carried; dodge fatigue is spent when you roll.</p>
   </section>
  </aside>
 </div>

@@ -1,15 +1,17 @@
-{{!-- One action's authored result ladder, so a player reads what a roll can do before making it. --}}
+{{!-- One action's authored result ladder, so a player reads what a roll can do before making it. On a card the caret sits in the card's corner and the slip unfolds beneath it. --}}
 {{#if anyOutcome}}
 <details class="aout">
- <summary>{{twIcon 'caret'}}<span>What each result means</span></summary>
- <ol class="olist">
-  {{#each outcomes}}
-  <li class="orow {{band}}{{#if struck}} off{{/if}}">
-   <span class="ot"><b>{{range}}</b><em>{{label}}</em></span>
-   <span class="od">{{text}}{{#if struck}} <i>This roll is difficult: there is no middle result, and anything below 10 fails.</i>{{/if}}</span>
-  </li>
-  {{/each}}
- </ol>
- {{#if source}}<p class="osrc">{{twIcon 'book'}}Source · {{source}}</p>{{/if}}
+ <summary title="What each result means">{{twIcon 'caret'}}<span class="al">What each result means</span></summary>
+ <div class="oslip">
+  <ol class="olist">
+   {{#each outcomes}}
+   <li class="orow {{band}}{{#if struck}} off{{/if}}">
+    <span class="ot"><b>{{range}}</b><em>{{label}}</em></span>
+    <span class="od">{{text}}{{#if struck}} <i>Difficult roll: no middle result, below 10 fails.</i>{{/if}}</span>
+   </li>
+   {{/each}}
+  </ol>
+  {{#if source}}<p class="osrc">{{twIcon 'book'}}Source · {{source}}</p>{{/if}}
+ </div>
 </details>
 {{/if}}

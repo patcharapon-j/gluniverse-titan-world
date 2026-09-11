@@ -6,6 +6,9 @@ import {consequence,createParty,resetMission} from './actions.mjs';
 import {ID,report} from './ui.mjs';
 import {registerDiceSoNice} from './dice-so-nice.mjs';
 import {icon,SPRITE} from './icons.mjs';
+import {KIT_SPRITE} from './kit-art.mjs';
+import {registerFxSettings,applyBodyClasses} from './settings.mjs';
+import {registerChatFx} from './chat-fx.mjs';
 registerDiceSoNice();
 function registerHelpers() {
  const safe=value=>new Handlebars.SafeString(value);
@@ -27,8 +30,10 @@ Hooks.once('init',()=>{
  sheets.registerSheet(CONFIG.Actor.documentClass,ID,TitanActorSheet,{types:['soldier','titan','party'],makeDefault:true,label:'TW.Sheet'});
  sheets.registerSheet(CONFIG.Item.documentClass,ID,TitanItemSheet,{types:['gear','move','power','wound','loadout','advancement'],makeDefault:true,label:'TW.Sheet'});
  CONFIG.Combat.initiative={formula:'2d6 + @stats.agility',decimals:0};
+ registerFxSettings();
  game.titanWorld={rollActor,createParty,resetMission,getParty,consequence};
  registerChat(consequence);
+ registerChatFx();
 });
 Hooks.on('preCreateItem',(item)=>{if(item.type==='wound'&&item.parent?.documentName==='Actor')item.updateSource({'system.formScope':item.parent.tw.titan?'titan':'human'});});
 Hooks.on('hotbarDrop',(_bar,data,slot)=>{
@@ -43,7 +48,8 @@ Hooks.once('ready',()=>{
  if(!document.getElementById('tw-icon-sprite')){
   const holder=document.createElement('div');
   holder.id='tw-icon-sprite';holder.style.cssText='position:absolute;width:0;height:0;overflow:hidden';
-  holder.innerHTML=SPRITE;document.body.append(holder);
+  holder.innerHTML=SPRITE+KIT_SPRITE;document.body.append(holder);
  }
+ applyBodyClasses();
  console.info('Titan World | v14 system ready');
 });

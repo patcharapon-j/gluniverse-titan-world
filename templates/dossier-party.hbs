@@ -3,30 +3,35 @@
   <div class="sec"><span class="num">§1</span>Shared luck pool<span class="k">one pool, every soldier</span></div>
   <div class="pool-face">
    <div class="pool-val" data-live="pool">{{system.luck.value}}<small>/{{system.luck.max}}</small></div>
-   <div class="pips luck big">{{#each luckPips}}<i class="pip round{{#if filled}} on{{/if}}"></i>{{/each}}</div>
-   {{#if editable}}
-   <div class="pool-ctl">
-    <span class="num">
-     <button type="button" data-action="nudge" data-path="system.luck.value" data-delta="-1" data-min="0" aria-label="Spend one">{{twIcon 'minus'}}</button>
-     <span>spend</span>
-     <button type="button" data-action="nudge" data-path="system.luck.value" data-delta="1" data-min="0" aria-label="Restore one">{{twIcon 'plus'}}</button>
-    </span>
-    <label class="field inline-field"><span>Mission maximum</span><input type="number" min="0" name="system.luck.max" value="{{system.luck.max}}"></label>
-   </div>
-   {{/if}}
+   <div class="pips luck big" role="group" aria-label="Party luck {{system.luck.value}} of {{system.luck.max}}">{{#each luckPips}}{{#if ../editable}}<button type="button" class="pip round{{#if filled}} on{{/if}}" data-action="setPath" data-path="system.luck.value" data-value="{{to}}" aria-label="{{label}}" title="{{label}}"></button>{{else}}<i class="pip round{{#if filled}} on{{/if}}"></i>{{/if}}{{/each}}</div>
   </div>
-  <p class="note">Set one or two points per player. A player requests luck from their own roll card in chat; the GM approves each spend, and the primary GM processes them one at a time so two spends can never take the same point.</p>
-  {{#if isGM}}<button type="button" class="mini primary" data-action="resetMission">{{twIcon 'refresh'}}Refresh for the next mission</button>{{/if}}
+  {{#if editable}}
+  <div class="gmstrip" role="group" aria-label="Pool controls">
+   <span class="gm-l">{{twIcon 'stamp'}}Clerk</span>
+   <span class="num tight">
+    <button type="button" data-action="nudge" data-path="system.luck.value" data-delta="-1" data-min="0" aria-label="Spend one" title="Spend one">{{twIcon 'minus'}}</button>
+    <span>spend</span>
+    <button type="button" data-action="nudge" data-path="system.luck.value" data-delta="1" data-min="0" aria-label="Restore one" title="Restore one">{{twIcon 'plus'}}</button>
+   </span>
+   <label class="gm-max" title="Mission maximum"><span>Max</span><input type="number" min="0" name="system.luck.max" value="{{system.luck.max}}" aria-label="Mission maximum"></label>
+   {{#if isGM}}<button type="button" class="mini" data-action="resetMission" title="Refresh the pool for the next mission">{{twIcon 'refresh'}}Next mission</button>{{/if}}
+  </div>
+  {{/if}}
+  <p class="note">One or two points per player. A player requests a spend from their own roll card; the GM approves each one, one at a time.</p>
  </section>
 
  <section class="roster">
-  <div class="sec"><span class="num">§2</span>Squad{{#if roster}}<span class="k">{{roster.length}} on file</span>{{/if}}</div>
-  <div class="rlist">
+  <div class="sec"><span class="num">§2</span>Squad board<span class="k">{{roster.length}} on file{{#if squad.down}} · {{squad.down}} down{{/if}}{{#if squad.fallen}} · {{squad.fallen}} fallen{{/if}}</span></div>
+  <div class="board">
    {{#each roster}}
-   <button type="button" class="rcard {{tone}}" data-action="openActor" data-actor-id="{{id}}">
-    <img src="{{img}}" alt="">
-    <span class="rn">{{name}}<small>{{status}}</small></span>
-    <span class="rv">{{value}}<small>/{{max}}</small></span>
+   <button type="button" class="unit {{tone}}{{#if dead}} kia{{/if}}" data-action="openActor" data-actor-id="{{id}}" aria-label="Open {{name}}: {{status}}, consciousness {{value}} of {{max}}, {{wounds}} standing wounds">
+    <span class="u-photo" aria-hidden="true">{{#if img}}<img src="{{img}}" alt="">{{else}}{{twIcon 'wings'}}{{/if}}{{#if dead}}<i class="u-band"></i><i class="u-kia">KIA</i>{{/if}}</span>
+    <span class="u-id"><b>{{name}}</b><small>{{#if rank}}{{rank}} · {{/if}}{{status}}{{#if shifted}} · transformed{{/if}}</small></span>
+    <span class="u-trk" aria-hidden="true">
+     <span class="u-cons{{#if below}} under{{/if}}">{{#each boxes}}<i class="cb {{this}}"></i>{{/each}}<em>{{value}}<small>/{{max}}</small></em></span>
+     <span class="u-fat" title="Dodge fatigue {{fatigue}}">{{#each notches}}<i{{#if this}} class="on"{{/if}}></i>{{/each}}</span>
+    </span>
+    <span class="u-wd{{#if worst}} {{worst}}{{/if}}" aria-hidden="true" title="{{wounds}} standing wounds">{{twIcon 'drop'}}<b>{{wounds}}</b></span>
    </button>
    {{else}}<p class="empty">No soldier dossiers are visible to you yet.</p>{{/each}}
   </div>
@@ -34,6 +39,6 @@
 
  <section class="pnotes">
   <div class="sec"><span class="num">§3</span>Mission notes</div>
-  <label class="field"><textarea name="system.notes" class="ruled tall">{{system.notes}}</textarea></label>
+  <label class="field"><textarea name="system.notes" class="ruled">{{system.notes}}</textarea></label>
  </section>
 </div>

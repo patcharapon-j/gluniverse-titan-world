@@ -1,24 +1,32 @@
-<div class="dossier-page item-page">
+<div class="dossier-page item-page item-{{item.type}}">
  {{{sprite}}}
  <i class="paper-grain" aria-hidden="true"></i><i class="paper-foxing" aria-hidden="true"></i><i class="paper-margin" aria-hidden="true"></i>
- <header class="hdr">
-  <button type="button" class="portrait small" data-action="editImage" aria-label="Change image">
-   <span class="pc a"></span><span class="pc b"></span><span class="pc c"></span><span class="pc d"></span>
-   <img src="{{item.img}}" alt="">
-  </button>
+ <header class="hdr islip">
+  <div class="iart iart-{{#if kitPreview}}kit k-{{kitPreview.object}}{{else if woundFigure}}wound{{else}}photo{{/if}}">
+   {{#if kitPreview}}
+   <span class="plabel">{{kitPreview.label}}</span>
+   <div class="kit-preview" inert>{{#with kitPreview}}{{> "systems/gluniverse-titan-world/templates/dossier-kit-slots.hbs"}}{{/with}}</div>
+   {{else if woundFigure}}
+   <div class="wound-preview">{{{woundFigure}}}</div>
+   {{/if}}
+   <button type="button" class="portrait small{{#if kitPreview}} clipped{{/if}}{{#if woundFigure}} clipped{{/if}}" data-action="editImage" aria-label="Change image" title="Change image">
+    <span class="pc a"></span><span class="pc b"></span><span class="pc c"></span><span class="pc d"></span>
+    <img src="{{item.img}}" alt="">
+   </button>
+  </div>
   <div class="ident">
-   <div class="ident-top">
-    <div class="kicker">{{twIcon 'wings'}}{{kind}}</div>
-    <input class="name" name="name" value="{{item.name}}" aria-label="Item name" spellcheck="false">
-    <div class="meta">
-     {{#if isMove}}<span>Roll <b>{{statLabel}}</b></span><span>Group <b>{{system.category}}</b></span>{{/if}}
-     {{#if system.source}}<span>Source <b>{{system.source}}</b></span>{{/if}}
-    </div>
+   <div class="kicker">{{#if kindIcon}}{{twIcon kindIcon}}{{else}}{{twIcon 'wings'}}{{/if}}{{kind}}{{#if serial}}<span class="serial">No. {{serial}}</span>{{/if}}</div>
+   <input class="name" name="name" value="{{item.name}}" aria-label="Item name" spellcheck="false">
+   <div class="meta">
+    {{#if isMove}}<span>Roll <b>{{statLabel}}</b></span><span>Group <b>{{system.category}}</b></span>{{/if}}
+    {{#if system.source}}<span>Source <b>{{system.source}}</b></span>{{/if}}
    </div>
    <div class="tags">
     {{#if isMove}}{{#if system.difficult}}<span class="tag warn">Difficult</span>{{/if}}{{#if system.combat}}<span class="tag">Combat</span>{{/if}}{{/if}}
     {{#if isGear}}<span class="tag{{#if system.equipped}} hot{{/if}}">{{#if system.equipped}}Carried{{else}}Stowed{{/if}}</span>{{/if}}
+    {{#if isPower}}<span class="tag{{#if system.equipped}} hot{{/if}}">{{#if system.equipped}}In use{{else}}Sealed{{/if}}</span>{{/if}}
     {{#if isWound}}<span class="tag hot">{{system.severity}} · {{system.injuryType}}</span><span class="tag">{{system.formScope}} body</span>{{/if}}
+    {{#if isLoadout}}<span class="tag">{{slip.count}} articles</span>{{/if}}
    </div>
   </div>
   {{#if isMove}}
@@ -29,9 +37,8 @@
  </header>
 
  <div class="sheet-body">
-  <div class="sec"><span class="num">§1</span>Definition</div>
-  <div class="grid2">
-   <label class="field"><span>Source section</span><input name="system.source" value="{{system.source}}"></label>
+  <div class="sec"><span class="num">§1</span>Particulars</div>
+  <div class="grid2 ifields">
    {{#if isMove}}
     <label class="field"><span>Statistic</span><select name="system.stat">{{selectOptions stats selected=system.stat}}</select></label>
     <label class="field"><span>Category</span><input name="system.category" value="{{system.category}}"></label>
@@ -42,11 +49,12 @@
      <input type="number" min="0" name="system.quantity" value="{{system.quantity}}">
      <button type="button" data-action="nudge" data-path="system.quantity" data-delta="1" data-min="0" aria-label="One more">{{twIcon 'plus'}}</button>
     </span></label>
-    <label class="field"><span>Capacity <small>drives kit pips</small></span><span class="num field-num">
+    <label class="field"><span>Capacity <small>slots in the rig and bag</small></span><span class="num field-num">
      <button type="button" data-action="nudge" data-path="system.capacity" data-delta="-1" data-min="0" aria-label="Less capacity">{{twIcon 'minus'}}</button>
      <input type="number" min="0" name="system.capacity" value="{{system.capacity}}">
      <button type="button" data-action="nudge" data-path="system.capacity" data-delta="1" data-min="0" aria-label="More capacity">{{twIcon 'plus'}}</button>
     </span></label>
+    <label class="field"><span>Kit object <small>how the kit draws it</small></span><select name="system.category">{{selectOptions kitChoices selected=system.category}}</select></label>
     <label class="field"><span>Uses remaining</span><input type="number" min="0" name="system.uses" value="{{system.uses}}"></label>
     <label class="field"><span>Statistic modified while carried</span><select name="system.bonusStat">{{selectOptions bonusStats selected=system.bonusStat}}</select></label>
     <label class="field"><span>Modifier</span><input type="number" name="system.bonus" value="{{system.bonus}}"></label>
@@ -65,8 +73,10 @@
      <button type="button" data-action="nudge" data-path="system.consciousnessLoss" data-delta="1" data-min="0" aria-label="More loss">{{twIcon 'plus'}}</button>
     </span></label>
    {{/if}}
+   <label class="field"><span>Source section</span><input name="system.source" value="{{system.source}}"></label>
   </div>
-  <div class="checks">
+  {{#if hasChecks}}
+  <div class="ichecks">
    {{#if isMove}}
     <label class="check"><input type="checkbox" name="system.difficult" {{checked system.difficult}}><span>Difficult — below 10 always fails</span></label>
     <label class="check"><input type="checkbox" name="system.combat" {{checked system.combat}}><span>Combat — difficult at low consciousness</span></label>
@@ -75,10 +85,20 @@
    {{#if isPower}}<label class="check"><input type="checkbox" name="system.equipped" {{checked system.equipped}}><span>Use this power while transformed</span></label>{{/if}}
    {{#if isWound}}
     <label class="check"><input type="checkbox" name="system.treated" {{checked system.treated}}><span>Treated — bleeding stopped</span></label>
-    <label class="check"><input type="checkbox" name="system.fromMajor" {{checked system.fromMajor}}><span>Minor wound healed down from a major</span></label>
+    <label class="check"><input type="checkbox" name="system.fromMajor" {{checked system.fromMajor}}><span>Healed down from a major</span></label>
     <label class="check"><input type="checkbox" name="system.healed" {{checked system.healed}}><span>Healed — ignore for derived statistics</span></label>
    {{/if}}
   </div>
+  {{/if}}
+
+  {{#if isLoadout}}
+  <div class="sec"><span class="num">§2</span>Contents<span class="k">{{slip.count}} articles{{#if slip.choices}} · one addition of {{slip.choices}}{{/if}}</span></div>
+  <div class="rslip wide">
+   <div class="rs-top"><small>Requisition</small><b>{{item.name}}</b></div>
+   <ul class="rs-list">{{#each slip.lines}}<li><i>{{quantity}}×</i><span>{{name}}</span></li>{{else}}<li><span>No articles listed.</span></li>{{/each}}</ul>
+   {{#if slip.choices}}<p class="rs-choice">Choose one addition: {{slip.choiceLabels}}</p>{{/if}}
+  </div>
+  {{/if}}
 
   {{#if isMove}}
   <div class="sec"><span class="num">§2</span>Outcomes</div>
@@ -92,7 +112,7 @@
   <p class="note">These lines are what the roll card prints, and what the Actions tab shows when a player opens “What each result means”. Write them so nobody has to reach for the rulebook mid-scene.</p>
   {{/if}}
 
-  <div class="sec"><span class="num">§{{#if isMove}}3{{else}}2{{/if}}</span>Source text</div>
+  <div class="sec"><span class="num">§{{#if isMove}}3{{else if isLoadout}}3{{else}}2{{/if}}</span>Source text</div>
   <section class="rules">{{{description}}}</section>
   {{#if editable}}
   <details class="tuck">

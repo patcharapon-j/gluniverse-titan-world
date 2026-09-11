@@ -3,6 +3,7 @@
   <span class="pc a"></span><span class="pc b"></span><span class="pc c"></span><span class="pc d"></span>
   {{#if portraitAvailable}}<img src="{{actor.img}}" alt="{{actor.name}}">
   {{else}}<span class="stamp">No photograph<br>on file<br>— S.C. archive —</span>{{/if}}
+  {{#if system.dead}}<span class="mourning" aria-hidden="true"></span><span class="kia">KIA</span>{{/if}}
  </button>
  <div class="ident">
   <div class="ident-top">
@@ -10,7 +11,7 @@
    <input class="name" name="name" value="{{actor.name}}" aria-label="Name" spellcheck="false">
    <div class="meta">
     {{#if isParty}}
-     <span>Pool <b>Shared</b></span><span>Refresh <b>Per mission</b></span><span>Squad <b>{{roster.length}}</b></span>
+     <span>Pool <b>Shared</b></span><span>Refresh <b>Per mission</b></span><span>Squad <b>{{roster.length}}</b></span>{{#if squad.fallen}}<span>Fallen <b>{{squad.fallen}}</b></span>{{/if}}
     {{else}}
     {{#if isTitan}}
      <span>Height <b>{{system.height}} m</b></span>
@@ -47,10 +48,10 @@
     <div class="formula">Requested on a roll card · GM approves</div>
    </div>
   {{else}}{{#if d.mindless}}
-   <div class="cons">
+   <div class="cons tstat{{#if system.dead}} severed{{/if}}{{#if titanRail.steam}} steaming{{/if}}">
     <div class="lbl">Titan status</div>
-    <div class="nape">{{twIcon 'target'}}Nape intact</div>
-    <div class="formula">{{system.height}} m · killed by a nape strike</div>
+    <div class="nape">{{twIcon 'target'}}Nape {{#if system.dead}}severed{{else}}intact{{/if}}</div>
+    <div class="formula">{{system.height}} m · {{#if titanRail.steam}}regrowing · {{titanRail.steam}} open{{else}}killed by a nape strike{{/if}}</div>
    </div>
   {{else}}
    <div class="cons{{#if critical}} crit{{/if}}">
@@ -64,8 +65,8 @@
      </div>
      {{/if}}
     </div>
-    <div class="track" aria-label="{{d.value}} of {{d.max}} consciousness">
-     {{#each track.boxes}}<i class="cbox {{state}}"></i>{{/each}}
+    <div class="track" role="group" aria-label="{{d.value}} of {{d.max}} consciousness">
+     {{#each track.boxes}}{{#if settable}}<button type="button" class="cbox {{state}}" data-action="setConsciousness" data-to="{{to}}" aria-label="{{label}}" title="{{label}}"{{#unless ../editable}} disabled{{/unless}}></button>{{else}}<i class="cbox {{state}}"></i>{{/if}}{{/each}}
      {{#unless track.boxes}}<span class="ctiny">No maximum remains</span>{{/unless}}
     </div>
     {{#if track.below}}

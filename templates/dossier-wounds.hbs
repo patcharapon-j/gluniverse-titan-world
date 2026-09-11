@@ -1,41 +1,29 @@
 <div class="wd">
  <div class="wcol">
   <div class="sec"><span class="num">§1</span>Hit locations</div>
-  <figure class="bodyfig">
+  <figure class="bodyfig{{#if figureFlags.dead}} is-kia{{else}}{{#if figureFlags.coma}} is-coma{{/if}}{{/if}}">
    <i class="ruled" aria-hidden="true"></i>
-   <svg viewBox="-52 0 304 386" role="img" aria-label="Injury diagram">
-    <defs>
-     <pattern id="tw-h-minor" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="rgba(185,138,54,.18)"/><line x1="0" y1="0" x2="0" y2="6" stroke="#b98a36" stroke-width="1.4" stroke-opacity=".85"/></pattern>
-     <pattern id="tw-h-major" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" fill="rgba(142,35,35,.2)"/><line x1="0" y1="0" x2="0" y2="5" stroke="#8e2323" stroke-width="1.6" stroke-opacity=".9"/></pattern>
-     <pattern id="tw-h-crippling" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="4" fill="rgba(36,31,27,.26)"/><line x1="0" y1="0" x2="0" y2="4" stroke="#241f1b" stroke-width="1.8" stroke-opacity=".9"/></pattern>
-    </defs>
-    <g class="guides"><line x1="100" y1="2" x2="100" y2="380"/><line x1="26" y1="80" x2="174" y2="80"/><line x1="26" y1="200" x2="174" y2="200"/><circle cx="100" cy="200" r="122"/></g>
-    <path class="neck" d="M91 58h18v18l4 3H87l4-3z"/>
-    {{#each ledger}}
-    <g class="region {{severity}}{{#if clear}} clear{{/if}}">
-     <path class="fill" d="{{path}}"><title>{{label}} — {{headline}}</title></path>
-     {{#if detail}}<path class="inner" d="{{detail}}"/>{{/if}}
-     <path class="mark" d="{{mark}}"/>
-     {{#if lead}}<line class="lead" x1="{{lead.x1}}" y1="{{lead.y1}}" x2="{{lead.x2}}" y2="{{lead.y2}}"/>{{/if}}
-     {{#each labels}}<text class="lbl" x="{{x}}" y="{{y}}" text-anchor="{{#if anchor}}{{anchor}}{{else}}start{{/if}}">{{text}}</text>{{/each}}
-    </g>
-    {{/each}}
-    <text class="lbl fig" x="-50" y="382">Fig. 1 — {{#if d.titan}}Titan{{else}}Human{{/if}} body, anterior</text>
-   </svg>
+   {{{figure}}}
+   {{#if figureFlags.dead}}
+   <div class="wplate kia" role="status"><i class="wband" aria-hidden="true"></i><span class="ws">{{#if isTitan}}Killed{{else}}KIA{{/if}}</span><small>{{#if isTitan}}Nape severed · record closed{{else}}Killed in action · file closed{{/if}}</small></div>
+   {{else}}{{#if figureFlags.coma}}
+   <div class="wplate coma" role="status"><span class="ws">Coma</span><small>Maximum consciousness 0 · GM review</small></div>
+   {{/if}}{{/if}}
+   <figcaption><span>Fig. 1 — {{#if d.titan}}Titan{{else}}Human{{/if}} body, anterior</span><span>R · L</span></figcaption>
   </figure>
-  <div class="legend">
+  <div class="legend clinical-key">
    <span><i class="minor"></i>Minor</span><span><i class="major"></i>Major</span><span><i class="crippling"></i>Crippling</span>
   </div>
-  <div class="wsum">
-   <div class="wsum-row"><span>Consciousness lost to wounds</span><b class="{{#if d.woundLoss}}pen{{/if}}">−{{d.woundLoss}}</b></div>
-   <div class="wsum-row"><span>Current / maximum</span><b>{{d.value}} / {{d.max}}</b></div>
-   <div class="wsum-row"><span>Death review</span><b>{{formula.death}}</b></div>
-   <div class="wsum-row"><span>Rest</span><b class="{{#if d.restBlocked}}pen{{/if}}">{{#if d.restBlocked}}Blocked{{else}}Available{{/if}}</b></div>
-  </div>
+  <dl class="wsum">
+   <div><dt>Lost to wounds</dt><dd class="{{#if d.woundLoss}}pen{{/if}}">−{{d.woundLoss}}</dd></div>
+   <div><dt>Consciousness</dt><dd>{{d.value}} / {{d.max}}</dd></div>
+   <div><dt>Death at</dt><dd>{{track.deathAt}}</dd></div>
+   <div><dt>Rest</dt><dd class="{{#if d.restBlocked}}pen{{/if}}">{{#if d.restBlocked}}Blocked{{else}}Open{{/if}}</dd></div>
+  </dl>
   {{#if editable}}
   <div class="wbtns">
-   <button type="button" class="mini wide primary" data-action="addWound">{{twIcon 'drop'}}Record injury</button>
-   <button type="button" class="mini wide" data-action="openCompendium" data-pack="injuries">{{twIcon 'book'}}Injury templates</button>
+   <button type="button" class="mini primary" data-action="addWound">{{twIcon 'drop'}}Record injury</button>
+   <button type="button" class="mini" data-action="openCompendium" data-pack="injuries">{{twIcon 'book'}}Templates</button>
   </div>
   {{/if}}
  </div>
@@ -45,48 +33,47 @@
   <div class="wtable">
    {{#each ledger}}
    <div class="wrow {{severity}}{{#if clear}} clear{{/if}}">
-    <div class="lc">
-     <span class="lch">{{twIcon icon}}<b>{{short}}</b>
-      <span class="pips">{{#each pips}}<i class="pip{{#if filled}} on{{/if}}"></i>{{/each}}</span>
-     </span>
-     <small class="{{#if applied}}pen{{/if}}">{{hint}}</small>
+    <div class="lc" title="{{hint}}">
+     <span class="lch">{{twIcon icon}}<b>{{short}}</b><span class="pips">{{#each pips}}<i class="pip{{#if filled}} on{{/if}}"></i>{{/each}}</span></span>
+     <small class="{{#if applied}}pen{{/if}}">{{#if applied}}{{appliedShort}}{{else}}{{#if live}}No penalty{{else}}Clear{{/if}}{{/if}}</small>
     </div>
     <div class="det">
-     {{#if any}}
-      {{#each wounds}}
-      <div class="wentry {{severity}}{{#if healed}} healed{{/if}}">
-       <div class="wtop">
-        {{twIcon typeIcon}}<b>{{severityLabel}} · {{typeLabel}}</b>
-        {{#if label}}<span class="wname">{{label}}</span>{{/if}}
-        <span class="wtags">
-         {{#if penalty}}<i class="tg pen">{{penalty}}</i>{{/if}}
-         {{#if loss}}<i class="tg pen">−{{loss}} consc.</i>{{/if}}
-         {{#if mindless}}<i class="tg pen">Mind = −3</i>{{/if}}
-         {{#if blocksRest}}<i class="tg warn">Blocks rest</i>{{/if}}
-         {{#if treated}}<i class="tg ok">Treated</i>{{else}}{{#unless healed}}<i class="tg warn">Untreated</i>{{/unless}}{{/if}}
-         {{#if fromMajor}}<i class="tg">From a healed major</i>{{/if}}
-         {{#if healed}}<i class="tg done">Healed</i>{{/if}}
-        </span>
-       </div>
-       <ul class="weff">
-        {{#each effects}}<li>{{this}}</li>{{/each}}
-        {{#if fromMajor}}<li>Healed down from a major wound, so rest cannot clear it before the mission ends.</li>{{/if}}
-       </ul>
+     {{#each wounds}}
+     <div class="wentry {{severity}}{{#if treated}} treated{{/if}}{{#if healed}} healed{{/if}}" data-wound="{{id}}">
+      <div class="wtop">
+       <span class="wmark s-{{severity}} t-{{type}}" title="{{severityLabel}} {{typeLabel}}">{{twIcon typeIcon}}<i></i><i></i><i></i></span>
+       <b>{{severityLabel}} · {{typeLabel}}</b>
+       {{#if label}}<span class="wname" title="{{label}}">{{label}}</span>{{/if}}
+       <span class="wtags">
+        {{#if penalty}}<i class="tg pen">{{penalty}}</i>{{/if}}
+        {{#if loss}}<i class="tg pen">−{{loss}} consc.</i>{{/if}}
+        {{#if mindless}}<i class="tg pen">Mind = −3</i>{{/if}}
+        {{#if blocksRest}}<i class="tg warn">Blocks rest</i>{{/if}}
+        {{#if treated}}<i class="tg ok">Treated</i>{{else}}{{#unless healed}}<i class="tg warn">Untreated</i>{{/unless}}{{/if}}
+        {{#if fromMajor}}<i class="tg">From a major</i>{{/if}}
+        {{#if healed}}<i class="tg done">Healed</i>{{/if}}
+       </span>
        {{#if ../../editable}}
-       <div class="wact">
-        {{#unless healed}}<button type="button" class="mini" data-action="treatWound" data-item-id="{{id}}">{{twIcon 'bandage'}}Treat</button>{{/unless}}
-        <button type="button" class="mini" data-action="toggleHealed" data-item-id="{{id}}">{{twIcon 'check'}}{{#if healed}}Reopen{{else}}Heal{{/if}}</button>
-        <button type="button" class="mini icon" data-action="editItem" data-item-id="{{id}}" aria-label="Edit {{name}}">{{twIcon 'edit'}}</button>
-        <button type="button" class="mini icon danger" data-action="deleteItem" data-item-id="{{id}}" aria-label="Remove {{name}}">{{twIcon 'trash'}}</button>
-       </div>
+       <span class="wact">
+        {{#unless healed}}<button type="button" class="mini wtreat{{#if amputate}} danger{{/if}}" data-action="treatWound" data-item-id="{{id}}">{{#if amputate}}{{twIcon 'blade'}}Amputate{{else}}{{twIcon 'bandage'}}Treat{{/if}}</button>{{/unless}}
+        <button type="button" class="mini icon" data-action="toggleHealed" data-item-id="{{id}}" aria-label="{{#if healed}}Reopen{{else}}Mark healed{{/if}}" title="{{#if healed}}Reopen{{else}}Mark healed{{/if}}">{{#if healed}}{{twIcon 'refresh'}}{{else}}{{twIcon 'check'}}{{/if}}</button>
+        <button type="button" class="mini icon" data-action="editItem" data-item-id="{{id}}" aria-label="Edit {{name}}" title="Edit">{{twIcon 'edit'}}</button>
+        <button type="button" class="mini icon danger" data-action="deleteItem" data-item-id="{{id}}" aria-label="Remove {{name}}" title="Remove">{{twIcon 'trash'}}</button>
+       </span>
        {{/if}}
       </div>
-      {{/each}}
-     {{else}}<span class="none">No injury recorded on this location.</span>{{/if}}
+      {{#unless healed}}
+      <ul class="weff">
+       {{#each effects}}<li>{{this}}</li>{{/each}}
+       {{#if fromMajor}}<li>Healed down from a major wound, so rest cannot clear it before the mission ends.</li>{{/if}}
+      </ul>
+      {{/unless}}
+     </div>
+     {{else}}<span class="none">No injury recorded.</span>{{/each}}
     </div>
    </div>
    {{/each}}
   </div>
-  <p class="note">Only wounds on the current body affect statistics. Death review triggers at twice the maximum lost. The GM rules on bleeding, amputation and recovery.</p>
+  <p class="note">Only wounds on the current body affect statistics. The GM rules on bleeding, amputation and recovery.</p>
  </div>
 </div>

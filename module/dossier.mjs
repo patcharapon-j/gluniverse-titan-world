@@ -1,5 +1,7 @@
 import {REGIONS,REGIONAL_STAT,STATS,TITAN_HEIGHTS,meleeReach,meleeAgainst,biteTally,moveOutcomes} from './rules.mjs';
 import {CATEGORY_ICON,REGION_ICON,INJURY_ICON,STAT_ICON,gearIcon} from './icons.mjs';
+import {needsAmputation} from './figure.mjs';
+import {KIT,kitObject} from './kit.mjs';
 const SEVERITY={minor:1,major:2,crippling:3};
 export const SEVERITY_LABEL={minor:'Minor',major:'Major',crippling:'Crippling'};
 export const INJURY_LABEL={blunt:'Blunt',cutting:'Cutting',piercing:'Piercing',burn:'Burn'};
@@ -15,26 +17,34 @@ export const STAT_SHORT={agility:'AGI',technique:'TEC',mind:'MND',body:'BDY',hea
 // Each statistic carries its own ink colour, so an action list can be read by colour alone.
 export const STAT_KEY={agility:'agi',technique:'tec',mind:'mnd',body:'bdy',heart:'hrt',duty:'dty'};
 export const REGION_SHORT={head:'Head',chest:'Chest',leftArm:'L. Arm',rightArm:'R. Arm',leftLeg:'L. Leg',rightLeg:'R. Leg'};
+export const SHEET_TABS={
+ soldier:[['record','Overview','shield'],['actions','Actions','combat'],['injuries','Wounds','drop'],['equipment','Gear','pack'],['powers','Shifter','shifting'],['background','Record','note']],
+ titan:[['record','Overview','hunting'],['injuries','Wounds','drop'],['background','Record','note']]
+};
+// The rolls a soldier reaches for first. Sighting a Titan leads, because it interrupts everything else.
+export const QUICK_ACTIONS=[
+ ['face-fear','eye','Titan sighted',true],
+ ['line-up-a-nape-strike','target'],['strike-the-nape','blade'],['evade-a-titan-s-grasp','agility'],
+ ['rally-a-comrade','flag'],['first-aid','recovery']
+];
+/** One soldier on the party board: photograph, consciousness boxes, fatigue notches and standing wounds. `d` is the derived state (actor.tw). */
+export function unitCard({id,name,img='',system:s,items=[],d}) {
+ const max=Math.max(0,d.max),held=Math.max(0,Math.min(max,d.value)),wounded=Math.max(0,Math.min(max-held,d.woundLoss));
+ const wounds=items.filter(i=>i.type==='wound'&&!i.system.healed&&(i.system.formScope??'human')===(d.titan?'titan':'human'));
+ const fatigue=Math.max(0,Number(s.fatigue)||0),dead=!!s.dead;
+ return {id,name,rank:s.rank,status:d.status,value:d.value,max:d.max,dead,fatigue,shifted:!!s.shift?.active,
+  img:img&&!img.includes('mystery-man')?img:'',
+  boxes:[...Array(held).fill('held'),...Array(max-held-wounded).fill('spent'),...Array(wounded).fill('wounded')].slice(0,12),below:d.value<0,
+  notches:Array.from({length:Math.min(6,Math.max(3,fatigue))},(_,n)=>n<fatigue),
+  wounds:wounds.length,worst:['crippling','major','minor'].find(k=>wounds.some(w=>w.system.severity===k))??'',
+  tone:dead||d.value<=0?'grave':d.value<Math.ceil(d.max/2)?'warn':'ok'};
+}
 export const FEAR={
  steady:{key:'steady',label:'Steady',icon:'shield',tone:'ok',line:'No fear roll is owed. Roll + Heart the next time something shakes you.'},
  shaken:{key:'shaken',label:'Shaken',icon:'wind',tone:'warn',line:'Rolled 7-9. Your next roll is difficult, and you roll + Heart at every sighting until a 10+.'},
  frozen:{key:'frozen',label:'Frozen',icon:'skull',tone:'grave',line:'Rolled 6 or lower. You cannot act until a comrade rolls + Duty to snap you out of it.'}
 };
-// Anterior figure drawn on a 200 x 380 grid: silhouette, injury hatch mark, and its leader label.
-const SHAPES={
- head:{path:'M100 8c14 0 24 12 24 30 0 12-6 26-24 26S76 50 76 38c0-18 10-30 24-30z',
-  mark:'M84 26l32 26M84 52l32-26',lead:{x1:126,y1:34,x2:150,y2:34},labels:[{x:153,y:31,text:'Head'},{x:153,y:41,text:'-1 Mind'}]},
- chest:{path:'M66 82c10-5 58-5 68 0l-4 48c-2 12-2 24 0 36l4 26c-14 6-54 6-68 0l4-26c2-12 2-24 0-36z',
-  mark:'M82 116l36 44M82 160l36-44',detail:'M100 86v104M78 122c8 6 36 6 44 0',labels:[{x:100,y:106,text:'Chest',anchor:'middle'},{x:100,y:116,text:'-1 Body',anchor:'middle'}]},
- leftArm:{path:'M64 84c-12 8-20 24-22 44l-4 44-8 40c-2 8 2 10 6 10s6-2 8-8l10-40 8-44 8-30z',
-  mark:'M38 150l14 4M36 165l14 4',lead:{x1:34,y1:154,x2:26,y2:154},labels:[{x:23,y:150,text:'L. Arm',anchor:'end'},{x:23,y:160,text:'-1 Tec',anchor:'end'}]},
- rightArm:{path:'M136 84c12 8 20 24 22 44l4 44 8 40c2 8-2 10-6 10s-6-2-8-8l-10-40-8-44-8-30z',
-  mark:'M162 150l-14 4M164 165l-14 4',lead:{x1:166,y1:154,x2:174,y2:154},labels:[{x:177,y:150,text:'R. Arm'},{x:177,y:160,text:'-1 Tec'}]},
- leftLeg:{path:'M68 196c10 4 22 6 32 6l-4 50-4 44 2 42-2 10 2 12H72l4-14-4-50-2-46z',
-  mark:'M74 270l22 22M74 292l22-22',lead:{x1:70,y1:300,x2:44,y2:300},labels:[{x:41,y:296,text:'L. Leg',anchor:'end'},{x:41,y:306,text:'-1 Agi',anchor:'end'}]},
- rightLeg:{path:'M132 196c-10 4-22 6-32 6l4 50 4 44-2 42 2 10-2 12h22l-4-14 4-50 2-46z',
-  mark:'M104 270l22 22M104 292l22-22',lead:{x1:130,y1:300,x2:156,y2:300},labels:[{x:159,y:296,text:'R. Leg'},{x:159,y:306,text:'-1 Agi'}]}
-};
+// The body itself is drawn by figure.mjs; region cards carry only what the strip and ledger read.
 const woundsFor=(items,titan)=>items.filter(i=>i.type==='wound'&&!i.system.healed&&(i.system.formScope??'human')===(titan?'titan':'human'));
 const signed=n=>n>0?`+${n}`:n<0?`−${Math.abs(n)}`:'0';
 /** Region cards for the overview strip and the wound atlas. */
@@ -43,9 +53,7 @@ export function conditionRegions(items,titan=false) {
   const wounds=woundsFor(items,titan).filter(i=>i.system.region===key);
   const level=Math.max(0,...wounds.map(w=>SEVERITY[w.system.severity]??0));
   const severity=Object.keys(SEVERITY).find(k=>SEVERITY[k]===level)??'clear';
-  const shape=SHAPES[key];
   return {key,label,short:REGION_SHORT[key],icon:REGION_ICON[key],severity,count:wounds.length,
-   path:shape.path,mark:shape.mark,detail:shape.detail,lead:shape.lead,labels:shape.labels,
    stat:REGIONAL_STAT[key],statLabel:STATS[REGIONAL_STAT[key]],statShort:STAT_SHORT[REGIONAL_STAT[key]],
    summary:wounds.length?severity:'Uninjured',
    headline:wounds.length?`${SEVERITY_LABEL[severity]} · ${INJURY_LABEL[wounds[0].system.injuryType]??''}`.trim().replace(/ ·\s*$/,''):'—',
@@ -103,6 +111,7 @@ export function injuryLedger(items,titan=false,stackWounds=false) {
      penalty:!w.healed&&penalised?`−1 ${STATS[region.stat]}`:'',
      effects:woundEffects(w.severity,w.injuryType,region.key),
      blocksRest:!w.healed&&(w.severity==='major'||(w.severity==='crippling'&&!w.treated)),
+     amputate:needsAmputation(wound),
      mindless:w.severity==='crippling'&&region.key==='head'&&w.injuryType==='blunt'};
    });
   const live=wounds.filter(w=>!w.healed);
@@ -179,7 +188,9 @@ export function consciousnessTrack(system,derived,shifted=false) {
   ...Array.from({length:spent},()=>({state:'spent'})),
   ...Array.from({length:wounded},()=>({state:'wounded'})),
   ...Array.from({length:voided},()=>({state:'void'}))
- ].slice(0,32);
+ ].slice(0,32).map((box,n)=>box.state!=='held'&&box.state!=='spent'?box:{...box,settable:true,
+  // Clicking the top held box loses one; any other held or spent box sets the track to it.
+  to:n+1===held?held-1:n+1,label:n+1===held?'Lose one consciousness':n<held?`Drop consciousness to ${n+1}`:`Restore consciousness to ${n+1}`});
  const deficit=Math.max(0,-(Number(derived.value)||0));
  return {boxes,held,spent,wounded,voided,deficit,
   below:Array.from({length:Math.min(20,deficit)},(_,n)=>({fatal:max>0&&n+1>=max})),
@@ -187,6 +198,17 @@ export function consciousnessTrack(system,derived,shifted=false) {
   legend:[wounded?{state:'wounded',text:`${wounded} struck out by wounds`}:null,
    spent?{state:'spent',text:`${spent} spent`}:null,
    voided?{state:'void',text:`${voided} off the sheet`}:null].filter(Boolean)};
+}
+/** A strap of notches for a small counter: the buckle sits on the value, and clicking it lets out one. */
+export function notches(value,{min=4,max=8}={}) {
+ const current=Math.max(0,Number(value)||0),count=Math.min(max,Math.max(min,current+1));
+ return Array.from({length:count},(_,i)=>{const n=i+1;return {n,on:n<=current,to:n===current?n-1:n,label:n===current?`Let out to ${n-1}`:`Tighten to ${n}`};});
+}
+/** The shifter's thirteen years as tally marks in groups of five; years already gone are scored out. */
+export function tally(remaining,total=13) {
+ const left=Math.max(0,Number(remaining)||0),count=Math.max(total,left);
+ const marks=Array.from({length:count},(_,i)=>({spent:i>=left}));
+ return Array.from({length:Math.ceil(count/5)},(_,g)=>({marks:marks.slice(g*5,g*5+4),slash:marks[g*5+4]??null}));
 }
 /** Consumable rows for the sidebar, each with a supply gauge read off its capacity. */
 export function fieldKit(items,limit=6) {
@@ -248,6 +270,27 @@ export function actionStats(moves,derived,active='') {
   mod:signed(Number(derived?.stats?.[key]??0)),
   count:moves.filter(m=>m.system.stat===key).length,active:active===key})).filter(c=>c.count>0);
 }
+// Stamps lean a different way each, the way a clerk actually lands them.
+const LEAN=[-7,4,-3,6,-5,3];
+/** The growth record: one mark per statistic (each can be advanced once, to +3), and the milestones a clerk would stamp. */
+export function growthRecord(system,{settable=true}={}) {
+ const marks=Object.entries(STATS).map(([key,label])=>{
+  const base=Number(system.stats?.[key]??0),advanced=!!system.advanced?.[key],capped=!advanced&&base>=3;
+  return {key,label,short:STAT_SHORT[key],tone:STAT_KEY[key],icon:STAT_ICON[key],base,display:signed(base),advanced,capped,
+   state:advanced?'advanced':capped?'capped':'open',settable:settable&&!capped,
+   title:advanced?`${label} advanced · base ${signed(base)}. Click to strike it out.`
+    :capped?`${label} is at the +3 ceiling.`:`Record a GM-awarded advance: ${label} ${signed(base)} → ${signed(base+1)}`};
+ });
+ const count=marks.filter(m=>m.advanced).length,open=marks.filter(m=>m.state==='open').length;
+ const rank=String(system.rank??'').trim(),regiment=String(system.regiment??'').trim();
+ const stamps=[{key:'enlisted',text:regiment||'Enlisted',sub:'Enlisted'},
+  rank&&!/^recruit$/i.test(rank)?{key:'promoted',text:rank,sub:'Promoted'}:null,
+  count?{key:'advanced',text:`Advanced ×${count}`,sub:'Growth'}:null,
+  count&&!open?{key:'complete',text:'Fully advanced',sub:'Growth'}:null,
+  system.shift?.experienced?{key:'shifter',text:'Experienced',sub:'Shifter'}:null
+ ].filter(Boolean).map((s,i)=>({...s,lean:LEAN[i%LEAN.length]}));
+ return {marks,count,open,settable,total:marks.length,stamps,summary:`${count} of ${marks.length} advanced${open?` · ${open} open`:''}`};
+}
 /** The consciousness maximum, written the way the rulebook derives it. */
 export function consciousnessFormula(system,derived,shifted) {
  const adjust=Number(system.consciousness?.[shifted?'titanMaxAdjustment':'maxAdjustment']||0);
@@ -256,10 +299,41 @@ export function consciousnessFormula(system,derived,shifted) {
  if(shifted)parts.push('Titan form');
  return {text:parts.join(' · '),death:derived.max>0?`Death at −${derived.max}`:'GM ruling'};
 }
-export const gearRow=item=>({...item,id:item.id,icon:gearIcon(item.name,item.system.key),
- quantity:Number(item.system.quantity||0),capacity:Number(item.system.capacity||0),
- empty:Number(item.system.quantity||0)===0,
- modifier:item.system.bonusStat&&item.system.bonus?`${item.system.bonus>0?'+':'−'}${Math.abs(item.system.bonus)} ${STATS[item.system.bonusStat]??item.system.bonusStat}`:''});
+/** A line in the issued-equipment ledger: its entry number, and the kit object it is drawn as, if any. */
+export const gearRow=(item,index=0)=>{
+ const object=kitObject(item),quantity=Number(item.system.quantity||0);
+ return {...item,id:item.id,no:String(index+1).padStart(2,'0'),icon:gearIcon(item.name,item.system.key),
+  object,box:object?KIT[object].box:'',quantity,capacity:Number(item.system.capacity||0),empty:quantity===0,
+  modifier:item.system.bonusStat&&item.system.bonus?`${item.system.bonus>0?'+':'−'}${Math.abs(item.system.bonus)} ${STATS[item.system.bonusStat]??item.system.bonusStat}`:''};
+};
+// Handlebars escapes what it prints, so authored HTML is reduced to plain words first.
+const plainText=html=>String(html??'').replace(/<[^>]+>/g,' ').replace(/&nbsp;/g,' ').replace(/&quot;/g,'"').replace(/&#39;/g,'’').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/\s+/g,' ').replace(/\s+([.,;:!?])/g,'$1').trim();
+/** A stored loadout as a requisition slip: its base manifest typed out, and how many additions it offers. */
+export function requisitionSlip(item,index=0) {
+ let spec;try{spec=JSON.parse(item.system?.loadout||'{}')??{};}catch{spec={};}
+ const lines=(Array.isArray(spec.base)?spec.base:[]).map(e=>({name:String(e.name??''),quantity:Math.max(1,Number(e.quantity)||1)}));
+ const choices=Array.isArray(spec.choices)?spec.choices:[];
+ return {...item,id:item.id,no:String(index+1).padStart(3,'0'),lines,count:lines.length,
+  manifest:lines.map(l=>`${l.quantity>1?`${l.quantity}× `:''}${l.name}`).join(' · ')||'No articles listed',
+  choices:choices.length,choiceLabels:choices.map(c=>c.label).filter(Boolean).join(' · ')};
+}
+/** An inherited power as a sealed dossier entry: the rule it grants, and whether it is in use. */
+export function powerCard(item,index=0) {
+ const system=item.system??{},html=String(system.description??'');
+ // The book mostly bolds each power's mechanical line. A bolded fragment or a shouted GM warning
+ // is not that line, so the first "The … Titan" sentence stands in, then the opening sentence.
+ const sentences=plainText(html).split(/(?<=[.!?])\s+/);
+ const bold=[...html.matchAll(/<strong>([\s\S]*?)<\/strong>/g)].map(m=>plainText(m[1])).filter(s=>s.length>=40&&s!==s.toUpperCase()).join(' ');
+ const rule=bold||sentences.find(s=>/^The\b.*\bTitan\b/.test(s))||sentences[0]||'';
+ return {...item,id:item.id,no:String(index+1).padStart(2,'0'),active:!!system.equipped,
+  rule:rule.length>220?`${rule.slice(0,217).trimEnd()}…`:rule,
+  bonus:system.bonusStat?`+1 ${STATS[system.bonusStat]??system.bonusStat}`:''};
+}
+/** The form control plate's readout: the powers the next transformation will use. */
+export function shiftPlate(system,items) {
+ const armed=items.filter(i=>i.type==='power'&&i.system.equipped).map(i=>i.name);
+ return {active:!!system.shift?.active,anyArmed:armed.length>0,armed:armed.join(' · ')||'No power in use'};
+}
 
 // A ruler rather than a lookup: every Titan height the book lists, marked against
 // the band you can actually reach. One glance answers "can I take that one?".
@@ -301,7 +375,7 @@ export function biteTrack(system,derived) {
  const tally = biteTally(system,derived);
  const boxes = Array.from({length:Math.max(tally.crippling,tally.bites)},(_,n)=>{
   const at = n+1;
-  return {at,taken:at<=tally.bites,
+  return {at,taken:at<=tally.bites,to:at===tally.bites?at-1:at,
    mark:at===tally.major?'major':at===tally.crippling?'crippling':'',
    title:at===tally.major?`Bite ${at} — the wound becomes major`:at===tally.crippling?`Bite ${at} — the wound becomes crippling`:`Bite ${at}`};
  });

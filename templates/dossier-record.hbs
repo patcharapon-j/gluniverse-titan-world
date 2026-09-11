@@ -1,42 +1,50 @@
+{{!-- The service record: a typed personnel card the clerk stamps at each milestone, the soldier's own words, and one growth mark per statistic. --}}
 <div class="bg">
  <div class="full">
-  <div class="sec"><span class="num">§1</span>Service record<span class="k">Personnel division</span>
+  <div class="sec"><span class="num">§1</span>Service record<span class="k">Personnel division{{#if serial}} · No. {{serial}}{{/if}}</span>
    <button type="button" class="mini" data-action="openCompendium" data-pack="advancement">{{twIcon 'arrowUp'}}Advancement</button>
   </div>
-  <div class="reqlines">
-   <label class="reqline"><span class="lab">{{twIcon 'flag'}}Regiment</span><input name="system.regiment" value="{{system.regiment}}"></label>
-   <label class="reqline"><span class="lab">{{twIcon 'duty'}}Rank</span><input name="system.rank" value="{{system.rank}}"></label>
-   <label class="reqline"><span class="lab">{{twIcon 'map'}}Origin</span><input name="system.origin" value="{{system.origin}}"></label>
-   <label class="reqline"><span class="lab">{{twIcon 'body'}}Height (m)</span><input type="number" step="0.1" min="0" name="system.height" value="{{system.height}}"></label>
+  <div class="svc">
+   <div class="reqlines">
+    <label class="reqline"><span class="lab">{{twIcon 'flag'}}Regiment</span><input name="system.regiment" value="{{system.regiment}}"></label>
+    <label class="reqline"><span class="lab">{{twIcon 'duty'}}Rank</span><input name="system.rank" value="{{system.rank}}"></label>
+    <label class="reqline"><span class="lab">{{twIcon 'map'}}Origin</span><input name="system.origin" value="{{system.origin}}"></label>
+    <label class="reqline"><span class="lab">{{twIcon 'body'}}Height</span><input type="number" step="0.1" min="0" name="system.height" value="{{system.height}}"><em>m</em></label>
+   </div>
+   <div class="mstamps" role="list" aria-label="Milestones">
+    {{#each growth.stamps}}<span class="mstamp m-{{key}}" role="listitem" style="--lean:{{lean}}deg" data-stamp="{{key}}" data-stamp-text="{{text}}"><small>{{sub}}</small>{{text}}</span>{{/each}}
+   </div>
   </div>
  </div>
  <div>
   <div class="sec"><span class="num">§2</span>Anchor<span class="k">why you come back</span></div>
-  <label class="field"><textarea name="system.anchor" class="ruled" placeholder="The person, place or promise waiting behind the wall.">{{system.anchor}}</textarea></label>
+  <label class="field"><textarea name="system.anchor" class="ruled short" placeholder="The person, place or promise waiting behind the wall.">{{system.anchor}}</textarea></label>
  </div>
  <div>
   <div class="sec"><span class="num">§3</span>Drive<span class="k">why you go out</span></div>
-  <label class="field"><textarea name="system.drive" class="ruled" placeholder="The debt, the shame or the question that pushes you past the gate.">{{system.drive}}</textarea></label>
+  <label class="field"><textarea name="system.drive" class="ruled short" placeholder="The debt, the shame or the question that pushes you past the gate.">{{system.drive}}</textarea></label>
  </div>
- <div class="full">
+ <div>
   <div class="sec"><span class="num">§4</span>Background</div>
-  <label class="field"><textarea name="system.background" class="ruled tall">{{system.background}}</textarea></label>
+  <label class="field"><textarea name="system.background" class="ruled">{{system.background}}</textarea></label>
+ </div>
+ <div>
+  <div class="sec"><span class="num">§5</span>Mission notes<span class="k">and GM rulings</span></div>
+  <label class="field"><textarea name="system.notes" class="ruled">{{system.notes}}</textarea></label>
  </div>
  <div class="full">
-  <div class="sec"><span class="num">§5</span>Mission notes and GM rulings</div>
-  <label class="field"><textarea name="system.notes" class="ruled tall">{{system.notes}}</textarea></label>
- </div>
- <div class="full">
-  <div class="sec"><span class="num">§6</span>Growth record</div>
-  <ul class="rewards">
-   {{#each stats}}
-   <li class="{{#if advanced}}on{{/if}}">
-    <i class="pip{{#if advanced}} on{{/if}}"></i>{{twIcon icon}}
-    <span>{{label}}<small>{{#if advanced}}Advanced · base {{value}}{{else}}{{#if capped}}At the +3 ceiling{{else}}Available once, to a maximum of +3{{/if}}{{/if}}</small></span>
-    <b>{{display}}</b>
-   </li>
+  <div class="sec"><span class="num">§6</span>Growth record<span class="k" data-live="advances">{{growth.summary}} · once each, to +3</span>
+   {{#if growth.settable}}<button type="button" class="mini" data-action="advance">{{twIcon 'arrowUp'}}Record an advancement</button>{{/if}}
+  </div>
+  <div class="growth">
+   {{#each growth.marks}}
+   <div class="gcell s-{{tone}} g-{{state}}" data-growth="{{key}}" data-state="{{state}}">
+    <span class="gname">{{twIcon icon}}<span>{{label}}</span></span>
+    <b class="gval" title="Base {{label}}">{{display}}</b>
+    <button type="button" class="gmark" data-action="markAdvance" data-stat="{{key}}" title="{{title}}" aria-label="{{title}}" aria-pressed="{{#if advanced}}true{{else}}false{{/if}}"{{#unless settable}} disabled{{/unless}}>{{#if advanced}}<i class="ink">Adv.</i>{{/if}}{{#if capped}}<i class="ink cap">+3</i>{{/if}}</button>
+    <small class="gstate">{{#if advanced}}Advanced{{else}}{{#if capped}}Ceiling{{else}}Open{{/if}}{{/if}}</small>
+   </div>
    {{/each}}
-  </ul>
-  {{#if editable}}<button type="button" class="mini primary" data-action="advance">{{twIcon 'arrowUp'}}Record an advancement</button>{{/if}}
+  </div>
  </div>
 </div>
