@@ -1079,6 +1079,24 @@ body.tw-motion-subtle .tw .fig .drop{animation:none}
 .tw .rules th{background:rgba(255,255,255,.3);font:10px var(--fl);letter-spacing:.12em;text-transform:uppercase;text-align:left}
 .tw .rules a{color:var(--red);text-decoration:underline}
 
+/* ── Chat message frame ──────────────────────────────────────────────────── */
+/* A system card is the whole message: Foundry's parchment frame goes, and its header
+   (timestamp, delete, whisper) becomes a thin leather tab on the card's top edge. */
+.chat-message:has(.message-content .tw.chat-card){padding:0;background:none;border:0;border-radius:0;box-shadow:none}
+.chat-message:has(.message-content .tw.chat-card) .message-content{padding:0;overflow:visible}
+.chat-message:has(.message-content .tw.chat-card) .message-header{
+ align-items:center;flex-wrap:nowrap;gap:8px;margin-right:2px;padding:2px 7px 1px;line-height:15px;
+ background:#1e120a;border:1px solid #241f1b;border-bottom:0;color:#c9b48c;
+ font:8.5px "TW Archive","Courier New",monospace;letter-spacing:.12em;text-transform:uppercase;
+}
+.chat-message:has(.message-content .tw.chat-card) .message-sender{display:none}
+.chat-message:has(.message-content .tw.chat-card) .message-metadata{flex:1 0 auto;align-items:center;font-size:inherit}
+.chat-message:has(.message-content .tw.chat-card) .message-metadata a{color:inherit;font-size:10px}
+.chat-message:has(.message-content .tw.chat-card) .message-metadata a:hover{color:#f2e6cc;text-shadow:none}
+.chat-message:has(.message-content .tw.chat-card) :is(.whisper-to,.flavor-text){
+ order:-1;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:inherit;color:#e2c078;
+}
+
 /* ── Chat card ───────────────────────────────────────────────────────────── */
 .tw.chat-card{
  --band:var(--ink);
