@@ -1,6 +1,8 @@
 import {STATS,outcome,rollModifiers,clamp,meleeReach,RESULT_TIERS,moveOutcomes} from './rules.mjs';
 import {CONTENT} from '../data/content.mjs';
-import {ID,esc,field,select,check,prompt,requireOwner,requireGM,report} from './ui.mjs';
+import {ID,esc,prompt,requireOwner,requireGM,report} from './ui.mjs';
+import {rollDialogContent,wireRollDialog,reachNote} from './roll-dialog.mjs';
+import {luckRequestCard,luckApprovedCard,luckDeclinedCard} from './cards.mjs';
 const LABELS={success:'10+ · Success',partial:'7–9 · Partial result',failure:'6− · Failure',snakeEyes:'Snake eyes · Automatic failure',doubleSix:'Double six · Best result'};
 const BAND={success:'hit',doubleSix:'hit',partial:'mix',failure:'miss',snakeEyes:'miss'};
 // The three thresholds, drawn as a scale so the tier reached is read before the number is.
@@ -27,8 +29,13 @@ export async function rollActor(actor,stat,{move=null}={}) {
  if(move?.system.key==='rest-for-the-night'&&d.restBlocked)warning+='Rest automatically fails with major wounds or untreated crippling wounds. Treat the injuries first. ';
  if(move?.system.key?.startsWith('transform-')&&actor.items.some(i=>i.type==='wound'&&i.system.severity==='crippling'&&!i.system.healed))warning+='The source conflicts on shifting with crippling injuries. Confirm the form with the GM. ';
  const reach=meleeReach(d,actor.system);
- const data=await prompt(move?.name??`Roll ${STATS[stat]}`,`${warning?`<p class="warning">${esc(warning)}</p>`:''}${select('Stat','stat',STATS,stat)}<div class="grid2">${field('Advantage (0 to 3)','advantage',0,'number')}${field('Other modifier','modifier',0,'number')}</div><div class="checks">${check('Difficult roll — below 10 always fails','difficult',!!(move?.system.difficult||actor.system.nextDifficult))}${check('Combat roll — apply low-consciousness difficulty','combat',!!move?.system.combat)}</div>${select('Visibility','messageMode',{public:'Public',gm:'GM and me',blind:'GM only',self:'Only me'},game.settings.get('core','messageMode'))}<p class="note">Advantage is capped at +3. Agility includes dodge fatigue. The GM decides when a roll is possible.${move?.system.combat?` Hand-to-hand reach: Titans ${reach.low.toFixed(1)}–${reach.high.toFixed(1)} m; anything ${reach.difficultAt.toFixed(1)} m or taller makes every roll against it difficult.`:''}</p>`,'Roll 2d6');
+ const messageMode=game.settings.get('core','messageMode');
+ const content=rollDialogContent({stat,stats:d.stats,fatigue:actor.system.fatigue,lowConsciousness:!!d.combatDifficult,warning:warning.trim(),
+  difficult:!!(move?.system.difficult||actor.system.nextDifficult),combat:!!move?.system.combat,messageMode,note:move?.system.combat?reachNote(reach):''});
+ const data=await prompt(move?.name??`Roll ${STATS[stat]}`,content,'Roll 2d6',{classes:['tw-roll'],width:350,render:(_event,dialog)=>wireRollDialog(dialog.element)});
  if(!data)return;
+ // Visibility is the one choice that carries over to the next roll.
+ if(data.messageMode&&data.messageMode!==messageMode)game.settings.set('core','messageMode',data.messageMode).catch(report);
  if(warning.includes('Rest automatically fails'))return ui.notifications.warn('Rest is blocked until the listed injuries are treated.');
  const modifiers=rollModifiers(d,actor.system,data.stat,{advantage:data.advantage,modifier:data.modifier,combat:!!data.combat,difficult:!!data.difficult});
  if(move?.system.key?.startsWith('resist-')&&move.system.key.includes('absorption')) modifiers.modifier-=actor.system.shift.absorption;
@@ -84,7 +91,7 @@ export async function rollContent(meta,roll,history='') {
   ? `<span class="hp"><img src="${esc(meta.actorImg)}" alt=""></span>`
   : `<span class="hp none">${chatIcon('wings')}</span>`;
  const subtitle=[meta.name,move?.system.source].filter(Boolean).join(' · ');
- return `<section class="tw chat-card ${BAND[result]}">
+ return `<section class="tw chat-card ${BAND[result]}" data-total="${esc(total)}" data-result="${result}">
 <header class="hero">${portrait}
 <span class="hn"><b>${esc(meta.actorName||meta.name)}</b><small>${esc(subtitle)}</small></span>
 ${meta.difficult?`<span class="hstamp">${chatIcon('stamp')}Difficult</span>`:''}</header>
@@ -100,8 +107,7 @@ ${history?`<div class="history">${esc(history)}</div>`:''}
 <button type="button" data-tw-action="luck-reroll">${chatIcon('refresh')}Reroll</button>
 <button type="button" data-tw-action="consequence">${chatIcon('stamp')}GM consequence</button>
 </div>
-${ladder.length?`<details class="ladder"><summary>Every result for ${esc(move.name)}</summary><ol class="olist">${ladder.map(row=>`<li class="orow ${row.band}${row.key===marked?' on':''}${row.struck?' off':''}"><span class="ot"><b>${esc(row.range)}</b><em>${esc(row.label)}</em></span><span class="od">${esc(row.text)}${row.struck?' <i>This roll is difficult: there is no middle result.</i>':''}</span></li>`).join('')}</ol></details>`:''}
-${rules?`<details><summary>Source rules · ${esc(move.system.source)}</summary><div class="rules">${rules}</div></details>`:''}
+${ladder.length||rules?`<details class="more"><summary>${chatIcon('caret')}<span>${ladder.length?'Every result':'Source rules'}${ladder.length&&rules?' · rules':''}</span>${move?.system.source?`<small>${esc(move.system.source)}</small>`:''}</summary>${ladder.length?`<ol class="olist">${ladder.map(row=>`<li class="orow ${row.band}${row.key===marked?' on':''}${row.struck?' off':''}"><span class="ot"><b>${esc(row.range)}</b><em>${esc(row.label)}</em></span><span class="od">${esc(row.text)}${row.struck?' <i>This roll is difficult: there is no middle result.</i>':''}</span></li>`).join('')}</ol>`:''}${rules?`<div class="rules">${rules}</div>`:''}</details>`:''}
 </section>`;
 }
 export function getParty() {const id=game.settings.get(ID,'partyActor');return game.actors.get(id)??game.actors.find(a=>a.type==='party');}
@@ -112,12 +118,7 @@ export async function requestLuck(source,kind) {
  if(party.system.luck.value<1)throw new Error('The party has no luck remaining.');
  const existing=game.messages.find(m=>m.getFlag(ID,'luckRequest')?.source===source.id&&m.getFlag(ID,'luckRequest')?.revision===meta.revision&&!m.getFlag(ID,'resolved'));
  if(existing)return ui.notifications.info('A luck request for this roll is already pending.');
- return foundry.documents.ChatMessage.create({content:`<section class="tw chat-card">
-<div class="eyebrow">${chatIcon('luck')}<span>Party luck requested</span></div>
-<div class="band info">${esc(game.user.name)} · ${kind==='plus'?'+1':'reroll'}</div>
-<div class="why">${esc(meta.name)} — ${party.system.luck.value} point${party.system.luck.value===1?'':'s'} remain in the pool.</div>
-<div class="inline"><button type="button" data-tw-action="approve-luck">${chatIcon('check')}Approve</button><button type="button" data-tw-action="deny-luck">${chatIcon('close')}Decline</button></div>
-</section>`,whisper:foundry.documents.ChatMessage.getWhisperRecipients('GM').map(u=>u.id),flags:{[ID]:{luckRequest:{source:source.id,kind,revision:meta.revision}}}});
+ return foundry.documents.ChatMessage.create({content:luckRequestCard({requester:game.user.name,actorImg:meta.actorImg,rollName:meta.name,kind,value:party.system.luck.value,max:party.system.luck.max}),whisper:foundry.documents.ChatMessage.getWhisperRecipients('GM').map(u=>u.id),flags:{[ID]:{luckRequest:{source:source.id,kind,revision:meta.revision}}}});
 }
 let luckQueue=Promise.resolve();
 export function approveLuck(request) {
@@ -142,7 +143,7 @@ async function applyLuck(request) {
  const diceUpdate=req.kind==='reroll'?{rolls:[...source.rolls.map(r=>r.toJSON()),roll.toJSON()]}:{};
  try {await source.update({...diceUpdate,content:await rollContent(updated,roll,`Previous total ${oldTotal}. Party luck spent for ${req.kind==='plus'?'+1':'a reroll'}.`),[`flags.${ID}.roll`]:updated});}
  catch(error){await party.update({'system.luck.value':value});await request.setFlag(ID,'resolved',false);throw error;}
- await request.update({content:`<section class="tw chat-card"><div class="eyebrow">${chatIcon('luck')}<span>Luck approved</span></div><div class="band hit">Spent for ${esc(source.author.name)}</div><div class="why">${party.system.luck.value} point${party.system.luck.value===1?'':'s'} remain in the shared pool.</div></section>`,[`flags.${ID}.resolved`]:'approved'});
+ await request.update({content:luckApprovedCard({requester:source.author.name,actorImg:meta.actorImg,rollName:meta.name,kind:req.kind,value:party.system.luck.value,max:party.system.luck.max}),[`flags.${ID}.resolved`]:'approved'});
 }
 export function registerChat(consequence) {
  Hooks.on('renderChatMessageHTML',(message,html)=>{
@@ -153,7 +154,8 @@ export function registerChat(consequence) {
     if(action==='luck-plus')await requestLuck(message,'plus');
     else if(action==='luck-reroll')await requestLuck(message,'reroll');
     else if(action==='approve-luck')await approveLuck(message);
-    else if(action==='deny-luck'){requireGM();await message.update({content:`<section class="tw chat-card"><div class="eyebrow">${chatIcon('luck')}<span>Party luck</span></div><div class="band miss">Declined by the GM</div></section>`,[`flags.${ID}.resolved`]:'declined'});}
+    else if(action==='deny-luck'){requireGM();if(message.getFlag(ID,'resolved'))throw new Error('This request has already been handled.');const req=message.getFlag(ID,'luckRequest'),meta=game.messages.get(req?.source)?.getFlag(ID,'roll'),luck=getParty()?.system.luck;
+     await message.update({content:luckDeclinedCard({requester:message.author?.name,actorImg:meta?.actorImg,rollName:meta?.name,kind:req?.kind,value:luck?.value,max:luck?.max}),[`flags.${ID}.resolved`]:'declined'});}
     else if(action==='consequence')await consequence(message);
    }catch(error){report(error);}finally{button.disabled=false;}});
   });

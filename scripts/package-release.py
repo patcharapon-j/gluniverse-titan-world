@@ -7,7 +7,7 @@ root = Path(__file__).resolve().parent.parent
 manifest = json.loads((root / "system.json").read_text(encoding="utf-8-sig"))
 dist = root / "dist"
 dist.mkdir(exist_ok=True)
-runtime = ["assets", "data", "lang", "module", "packs", "styles", "templates"]
+runtime = ["assets", "data", "lang", "lib", "module", "packs", "styles", "templates"]
 files = [root / "system.json", root / "README.md"]
 for folder in runtime:
     files.extend(p for p in (root / folder).rglob("*") if p.is_file()

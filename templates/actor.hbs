@@ -1,4 +1,4 @@
-<div class="dossier-page{{#if isParty}} is-party{{/if}}{{#if isTitan}} is-titan{{/if}}{{#if system.nextDifficult}} is-difficult{{/if}}">
+<div class="dossier-page{{#if isParty}} is-party{{/if}}{{#if isTitan}} is-titan{{/if}}{{#if system.nextDifficult}} is-difficult{{/if}}{{#if system.dead}} is-dead{{/if}}">
  {{{sprite}}}
  <i class="paper-grain" aria-hidden="true"></i><i class="paper-foxing" aria-hidden="true"></i>
  <i class="paper-crease" aria-hidden="true"></i><i class="paper-margin" aria-hidden="true"></i>
@@ -9,7 +9,7 @@
  {{else}}
   <nav class="tabs" role="tablist" aria-label="Dossier sections">
    {{#each tabs}}
-   <button type="button" role="tab" data-action="twTab" data-tab="{{key}}" class="{{#if active}}active{{/if}}" aria-selected="{{#if active}}true{{else}}false{{/if}}">
+   <button type="button" role="tab" data-action="twTab" data-tab="{{key}}" class="tab{{#if active}} active{{/if}}" aria-selected="{{#if active}}true{{else}}false{{/if}}">
     <span class="n">{{index}}</span>{{twIcon icon}}<span class="tl">{{label}}</span>
    </button>
    {{/each}}
@@ -17,7 +17,7 @@
   {{#if system.nextDifficult}}
   <div class="difficult-bar" role="status">
    <span class="db-s">{{twIcon 'stamp'}}Difficult</span>
-   <span class="db-p"><b>Your next roll is difficult.</b> Below 10 always fails — there is no 7–9 result. It clears itself the moment you roll.</span>
+   <span class="db-p" title="Below 10 always fails — there is no 7–9 result. It clears itself the moment you roll."><b>Next roll is difficult.</b> Below 10 fails, no 7–9 result; clears when you roll.</span>
    {{#if editable}}<button type="button" class="mini" data-action="clearDifficult">{{twIcon 'close'}}Clear</button>{{/if}}
   </div>
   {{/if}}
