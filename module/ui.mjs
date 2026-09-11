@@ -9,7 +9,9 @@ export const segments=(name,entries,selected)=>entries.map(([value,label,title])
 export async function prompt(title,content,label='Apply',{classes=[],width,render}={}) {
  // Every system dialog lands like a slip put down on the table; motion lives in a browser-only module.
  const landed=(event,dialog)=>{render?.(event,dialog);import('./fx.mjs').then(fx=>fx.dialogIntro(dialog.element)).catch(()=>{});};
- return foundry.applications.api.DialogV2.wait({window:{title},classes:['tw',...classes],...(width?{position:{width}}:{}),render:landed,rejectClose:false,content:`<div class="tw-dialog">${content}</div>`,buttons:[{action:'apply',label,default:true,callback:(_event,button)=>Object.fromEntries(new FormData(button.form))},{action:'cancel',label:'Cancel',callback:()=>null}]});
+ const result=await foundry.applications.api.DialogV2.wait({window:{title},classes:['tw',...classes],...(width?{position:{width}}:{}),render:landed,rejectClose:false,content:`<div class="tw-dialog">${content}</div>`,buttons:[{action:'apply',label,default:true,callback:(_event,button)=>Object.fromEntries(new FormData(button.form))},{action:'cancel',label:'Cancel'}]});
+ // DialogV2 resolves a button without a result as its action name, so Cancel arrives as the string 'cancel'; only the form object is a submission.
+ return result&&typeof result==='object'?result:null;
 }
 // A yes/no question is a small slip the clerk has already stamped for your signature.
 export async function confirm(title,content) {
