@@ -71,7 +71,7 @@ export function woundContent({region='chest',severity='minor',injuryType='blunt'
 <span class="rd-l">Type</span><div class="segs type" role="radiogroup" aria-label="Injury type">${segments('injuryType',[['blunt','Blunt'],['cutting','Cut','Cutting'],['piercing','Pierce','Piercing / ballistic'],['burn','Burn']],injuryType)}</div></div>
 </div><p class="note">Consciousness loss defaults to 1 for major or crippling injuries, or 2 for the head. You can edit the recorded loss. Narrative consequences remain GM decisions.</p>`;
 }
-/** Treatment tickets for one wound; the ones its rules exclude stay pressable but say why. */
+/** Treatment tickets for one wound; unavailable results are disabled with their reason. */
 export function treatContent(wound,amputate=false) {
  const s=wound?.system??{},minor=s.severity==='minor';
  const rows=[
@@ -82,7 +82,7 @@ export function treatContent(wound,amputate=false) {
   ['restore','Restore wound consciousness loss only','refresh','']];
  return `<div class="tr-wound ${esc(s.severity)}">${icon(INJURY_ICON[s.injuryType]??'drop')}<b>${esc(wound?.name)}</b>${s.severity?`<span class="tr-sev">${esc(s.severity)}</span>`:''}</div>
 <div class="tr-opts" role="radiogroup" aria-label="Result">${rows.map(([value,label,glyph,why],i)=>
- `<label class="tr-opt${why?' off':''}"${why?` title="${esc(why)}"`:''}>${radio('result',value,i===0)}${icon(glyph)}<span><b>${esc(label)}</b>${why?`<small>${esc(why)}</small>`:''}</span></label>`).join('')}</div>
+ `<label class="tr-opt${why?' off':''}"${why?` title="${esc(why)}"`:''}>${radio('result',value,i===0,why?' disabled':'')}${icon(glyph)}<span><b>${esc(label)}</b>${why?`<small>${esc(why)}</small>`:''}</span></label>`).join('')}</div>
 <p class="note">Roll first aid or recovery first. Treatment does not decide timing, amputation, or narrative eligibility.</p>`;
 }
 

@@ -14,11 +14,11 @@ ${hero(actorName,actorImg,'Signal flare')}
 <div class="ev"><span class="fx-anchor ev-object"><svg class="ko" viewBox="0 0 14 36" style="color:${esc(colour)}"><use href="#tw-k-flare"/></svg></span><span class="evt"><b>${esc(name)}</b><small>Fired</small></span><i class="ev-swatch" style="background:${esc(colour)}"></i></div>
 </section>`;
 }
-export function woundCard({actorName,actorImg,wound,uid}) {
+export function woundCard({actorName,actorImg,wound,uid,titanVariant,armour}) {
  const s=wound.system,loss=Number(s.consciousnessLoss||0);
  return `<section class="tw chat-card event ev-wound s-${esc(s.severity)}" data-fx="wound">
 ${hero(actorName,actorImg,'Injury report',`<span class="hstamp">${esc(s.severity)}</span>`)}
-<div class="ev"><span class="fx-anchor ev-figure">${bodyFigure([wound],{mini:true,uid,titan:s.formScope==='titan'})}<i class="fx-bloom" aria-hidden="true"></i></span>
+<div class="ev"><span class="fx-anchor ev-figure">${bodyFigure([wound],{mini:true,uid,titanVariant,armour,titan:s.formScope==='titan'})}<i class="fx-bloom" aria-hidden="true"></i></span>
 <span class="evt"><b>${esc(REGION[s.region]??s.region)}</b><small>${esc(s.severity)} · ${esc(s.injuryType)}</small><em>${loss?`−${loss} consciousness`:'No consciousness lost'}</em></span></div>
 </section>`;
 }

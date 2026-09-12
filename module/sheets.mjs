@@ -9,7 +9,7 @@ import {injuryLedger,actionGroups,actionCategories,actionStats,actionRow,growthR
 import {SPRITE} from './icons.mjs';
 import {wireSheet,queueImpact,kitMotion} from './sheet-fx.mjs';
 import {wireActions,pressRoll} from './actions-fx.mjs';
-import {bodyFigure} from './figure.mjs';
+import {bodyFigure,titanFigureVariant} from './figure.mjs';
 import {KIT,fieldKitLayout,kitContainer,kitObject,flareColour} from './kit.mjs';
 import {KIT_SPRITE} from './kit-art.mjs';
 import {postCard,flareCard,deathCard} from './cards.mjs';
@@ -128,6 +128,8 @@ export class TitanActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
    stats:statRows,anyModifier:statRows.some(row=>row.anyReason),
    ledger:injuryLedger(items,d.titan,stackWounds),
    figure:isParty?'':bodyFigure(items,{...figure,uid:`tw-fig-${this.id}`}),
+   figureDetailId:`tw-anatomy-${this.id}`,
+   figureDetail:isParty?'':bodyFigure(items,{...figure,uid:`tw-detail-${this.id}`}),
    miniFigure:isParty?'':bodyFigure(items,{...figure,uid:`tw-mini-${this.id}`,mini:true}),
    kit:fieldKitLayout(items),serial:actor.id?.slice(-8).toUpperCase(),
    portraitAvailable:actor.img&&!actor.img.includes('mystery-man')&&!actor.img.includes('assets/crest.svg'),
@@ -217,7 +219,7 @@ export class TitanItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
    kitPreview:item.type==='gear'?kitContainer(plain):null,
    slip:item.type==='loadout'?requisitionSlip(plain):null,serial:item.id?.slice(-6).toUpperCase(),
    kindIcon:{gear:'gear',move:'dice',power:'shifting',wound:'drop',loadout:'pack',advancement:'arrowUp'}[item.type]??'wings',
-   woundFigure:item.type==='wound'?bodyFigure([plain],{mini:true,uid:`tw-item-${item.id}`,titan:system.formScope==='titan'}):'',
+   woundFigure:item.type==='wound'?bodyFigure([plain],{mini:true,uid:`tw-item-${item.id}`,titanVariant:titanFigureVariant(item.parent?.items),armour:titanFigureVariant(item.parent?.items)==='armoured'?{intact:item.parent?.system.shift?.armourIntact!==false}:null,titan:system.formScope==='titan'}):'',
    kind:kinds[item.type]??item.type,
    stats:STATS,regions:REGIONS,
    isMove:item.type==='move',isWound:item.type==='wound',isGear:item.type==='gear',isPower:item.type==='power',isLoadout:item.type==='loadout',

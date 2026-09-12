@@ -130,6 +130,8 @@ function buildContext(tab,{type='soldier',category='',stat='',system=SYSTEM,item
   stats:statRows,anyModifier:statRows.some(row=>row.anyReason),
   ledger:injuryLedger(items,d.titan,false),
   figure:isParty?'':bodyFigure(items,{...figure,uid:`tw-fig-${uid}`}),
+  figureDetailId:`tw-anatomy-${uid}`,
+  figureDetail:isParty?'':bodyFigure(items,{...figure,uid:`tw-detail-${uid}`}),
   miniFigure:isParty?'':bodyFigure(items,{...figure,uid:`tw-mini-${uid}`,mini:true}),
   kit:fieldKitLayout(items),serial:actor.id?.slice(-8).toUpperCase(),
   portraitAvailable:actor.img&&!actor.img.includes('mystery-man')&&!actor.img.includes('assets/crest.svg'),
@@ -209,7 +211,7 @@ html,body{margin:0;background:radial-gradient(ellipse at 50% 0%,rgba(120,90,50,.
 .frame>.bar{height:34px;flex:0 0 34px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;font:11px "TW Archive",monospace;letter-spacing:.16em;text-transform:uppercase;color:#d9c8a6;position:relative;z-index:2}
 .frame>.content{flex:1;min-height:0;background:#ece2cb;position:relative;overflow:hidden;container-type:inline-size}
 .caption{color:#6a6058;font:11px "TW Archive",monospace;letter-spacing:.14em;text-transform:uppercase;width:100%;text-align:center;margin:0}
-</style></head><body>${body}
+</style></head><body>${body.replaceAll('systems/gluniverse-titan-world/assets/','../assets/')}
 <script>
  const q=new URLSearchParams(location.search);
  if(q.get('zoom'))document.body.style.zoom=q.get('zoom');
@@ -236,6 +238,7 @@ const views=[
  ['actions','actions','Actions tab, unfiltered',{}],
  ['actions-combat','actions','Actions filtered to Combat, dealt in, one result ladder open',{category:'Combat',deal:true,ladder:true}],
  ['wounds','injuries','Wounds tab',{}],
+ ['wounds-narrow','injuries','Wounds tab · 660 px layout',{size:[660,800]}],
  ['wounds-coma','injuries','Wounds tab · maximum consciousness 0, coma plate',{system:sys(SYSTEM,{consciousness:{maxAdjustment:-4}})}],
  ['wounds-kia','injuries','Wounds tab · killed in action',{system:sys(SYSTEM,{dead:true}),items:[...ITEMS,wound('head','crippling','cutting',2)]}],
  ['gear','equipment','Gear tab · kit, ledger rows and requisition slips',{}],
@@ -245,8 +248,11 @@ const views=[
  ['record','background','Record tab · growth marks and milestone stamps',{}],
  ['narrow','record','The 660 px layout',{size:[660,800]}],
  ['titan','record','Mindless Titan · regrowing, bare hide',{type:'titan',system:TITAN,items:TITAN_ITEMS,actor:TITAN_ACTOR}],
+ ['titan-wounds','injuries','Titan wounds · painted creature study',{type:'titan',system:TITAN,items:TITAN_ITEMS,actor:TITAN_ACTOR}],
  ['titan-armoured','record','Armoured Titan · plating broken, seven bites',{type:'titan',system:sys(TITAN,{bites:7,shift:{armourIntact:false}}),
   items:[...TITAN_ITEMS,power('armoured-titan',true)],actor:TITAN_ACTOR}],
+ ['armour-intact','injuries','Armoured Titan · intact anatomical plating',{type:'titan',system:sys(TITAN,{shift:{armourIntact:true}}),items:[power('armoured-titan',true)],actor:{...TITAN_ACTOR,name:'Armoured Titan'}}],
+ ['armour-broken','injuries','Armoured Titan · broken plating and lost arm',{type:'titan',system:sys(TITAN,{shift:{armourIntact:false}}),items:[power('armoured-titan',true),wound('leftArm','crippling','cutting',0,{formScope:'titan'})],actor:{...TITAN_ACTOR,name:'Armoured Titan'}}],
  ['titan-killed','injuries','Titan wounds · nape severed',{type:'titan',system:sys(TITAN,{dead:true}),items:[...TITAN_ITEMS,wound('head','crippling','cutting',0,{formScope:'titan'})],actor:TITAN_ACTOR}],
  ['party','record','Party sheet · squad board with KIA, shifted, below half and below zero',{type:'party',system:PARTY,items:[],roster:ROSTER,
   actor:{name:'Party luck',img:'',id:'9a47c0ffee000042'},size:[820,620]}]

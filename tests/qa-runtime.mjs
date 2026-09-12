@@ -71,6 +71,20 @@ Hooks.once('ready',async()=>{
   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
   const narrowBody=actor.sheet.element.querySelector('.sheet-body');check('Narrow dossier reflows without horizontal overflow',narrowBody.scrollWidth<=narrowBody.clientWidth+1);
   actor.sheet.setPosition({width:980});await actor.sheet.render(true);
+  // Exercise the real DialogV2 sanitizer, form submission, and sheet refresh.
+  const [treatmentWound]=await actor.createEmbeddedDocuments('Item',[{name:'QA treatment cut',type:'wound',system:{region:'chest',severity:'major',injuryType:'cutting',formScope:'human',consciousnessLoss:1}}]);
+  actor.sheet._twTab='injuries';await actor.sheet.render(true);
+  const openTreatment=async()=>{actor.sheet.element.querySelector(`[data-action="treatWound"][data-item-id="${treatmentWound.id}"]`).click();check('Treatment dialog opens from sheet',await waitUntil(()=>document.querySelector('.tw-treat .tr-opt>span')));return document.querySelector('.tw-treat');};
+  let treatmentDialog=await openTreatment();
+  check('Treatment text retains usable width after Foundry sanitizes SVG',treatmentDialog.querySelector('.tr-opt>span').getBoundingClientRect().width>200);
+  check('Ineligible treatments are disabled',treatmentDialog.querySelector('input[value="piercing"]').disabled&&treatmentDialog.querySelector('input[value="remove"]').disabled);
+  treatmentDialog.querySelector('[data-action="cancel"]').click();await waitUntil(()=>!document.querySelector('.tw-treat'));
+  check('Cancel leaves wound unchanged',!treatmentWound.system.treated&&treatmentWound.system.severity==='major');
+  treatmentDialog=await openTreatment();treatmentDialog.querySelector('[data-action="apply"]').click();
+  check('Apply marks wound treated and refreshes its dressing',await waitUntil(()=>treatmentWound.system.treated&&actor.sheet.element.querySelector('.wound.treated .dressing-pad')));
+  await waitUntil(()=>!document.querySelector('.tw-treat'));
+  treatmentDialog=await openTreatment();treatmentDialog.querySelector('input[value="downgrade"]').checked=true;treatmentDialog.querySelector('[data-action="apply"]').click();
+  check('First aid downgrade restores wound consciousness',await waitUntil(()=>treatmentWound.system.severity==='minor'&&treatmentWound.system.consciousnessLoss===0&&treatmentWound.system.fromMajor));
  }catch(error){results.push({name:'Runtime error',pass:false,error:error.stack??error.message});console.error('TW QA',error);}
  const panel=document.createElement('details');panel.id='tw-qa-results';panel.style.cssText='position:fixed;bottom:8px;left:8px;z-index:10000;background:#eee;color:#111;padding:10px;max-width:620px;max-height:300px;overflow:auto';
  const summary=document.createElement('summary');summary.textContent=`Titan World QA: ${results.filter(r=>r.pass).length}/${results.length} checks passed`;
