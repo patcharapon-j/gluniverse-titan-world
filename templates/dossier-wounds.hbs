@@ -11,6 +11,12 @@
    {{/if}}{{/if}}
    <figcaption><span>Fig. 1 — {{#if d.titan}}Titan{{else}}Human{{/if}} body, anterior</span><span>R · L</span></figcaption>
   </figure>
+  <button type="button" class="anatomy-inspect" popovertarget="{{figureDetailId}}">Inspect wounds <span aria-hidden="true">↗</span></button>
+  <div id="{{figureDetailId}}" class="bodyfig anatomy-detail" popover role="dialog" aria-label="Wound detail">
+   <div class="anatomy-detail-bar"><span>Anatomical study · {{#if d.titan}}Titan{{else}}Human{{/if}}</span><button type="button" popovertarget="{{figureDetailId}}" popovertargetaction="hide" aria-label="Close wound detail">Close ×</button></div>
+   {{{figureDetail}}}
+   <p class="anatomy-detail-note">{{#if figureFlags.dead}}Deceased · {{else}}{{#if figureFlags.coma}}Coma · {{/if}}{{/if}}Current injuries · anterior view · R / L</p>
+  </div>
   <div class="legend clinical-key">
    <span><i class="minor"></i>Minor</span><span><i class="major"></i>Major</span><span><i class="crippling"></i>Crippling</span>
   </div>

@@ -2,7 +2,7 @@ import {STATS,REGIONS,validateArray} from './rules.mjs';
 import {CONTENT} from '../data/content.mjs';
 import {ID,prompt,confirm,requireOwner,requireGM} from './ui.mjs';
 import {getParty} from './rolls.mjs';
-import {needsAmputation} from './figure.mjs';
+import {needsAmputation,titanFigureVariant} from './figure.mjs';
 import {postCard,woundCard,shiftCard} from './cards.mjs';
 import {packageContent,assignContent,loadoutContent,loadoutChoiceContent,advanceContent,woundContent,treatContent,
  consequenceContent,consciousnessContent,restContent,shiftContent,partyLuckContent,wireDialog} from './dialogs.mjs';
@@ -47,7 +47,7 @@ export async function addWound(actor) {
  const base=CONTENT_INJURY(data);
  base.system.formScope=actor.tw.titan?'titan':'human';
  const docs=await actor.createEmbeddedDocuments('Item',[base]);
- if(docs[0])await postCard(actor,woundCard({actorName:actor.name,actorImg:actor.img,wound:docs[0],uid:`card-${docs[0].id}`}),'wound');
+ if(docs[0])await postCard(actor,woundCard({actorName:actor.name,actorImg:actor.img,wound:docs[0],titanVariant:titanFigureVariant(actor.items),armour:titanFigureVariant(actor.items)==='armoured'?{intact:actor.system.shift?.armourIntact!==false}:null,uid:`card-${docs[0].id}`}),'wound');
  return docs[0];
 }
 export function CONTENT_INJURY(data) {return {name:`${REGIONS[data.region]} · ${data.severity} ${data.injuryType}`,type:'wound',img:'icons/svg/blood.svg',system:{...data,consciousnessLoss:data.severity==='minor'?0:data.region==='head'?2:1,source:'Injuries',description:'<p>Consult the Injuries and The Four Types of Injuries rules journals for consequences and treatment.</p>'}};}

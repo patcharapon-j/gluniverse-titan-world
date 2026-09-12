@@ -7,7 +7,7 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const target=path.join(os.tmpdir(),'titan-world-v14-qa-01a07727');
 const dest=path.join(target,'Data/systems/gluniverse-titan-world');
 await fs.mkdir(dest,{recursive:true});
-const runtime=['module','templates','styles','assets','data','lang','system.json'];
+const runtime=['module','templates','styles','assets','data','lang','lib','system.json'];
 for(const name of runtime)await fs.cp(path.join(root,name),path.join(dest,name),{recursive:true});
 await fs.copyFile(path.join(root,'tests/qa-runtime.mjs'),path.join(dest,'module/qa-runtime.mjs'));
 await fs.appendFile(path.join(dest,'module/main.mjs'),"\nimport './qa-runtime.mjs';\n");
